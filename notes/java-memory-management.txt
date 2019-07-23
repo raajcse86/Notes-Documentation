@@ -1,0 +1,229 @@
+Java Memory Mangement
+Class loader - load class files
+Run time data areas - allocate memory while running the application
+Execution Engine - talks to OS and provide all support that are needed for running the application
+
+Class Loader:
+
+Load:
+	It can load from various source like file system, jar, socket, etc
+	once you run javac command, the java compiles and it generates .class file.
+	Class loader is responsible for loading the class file.
+	To run your custom class file, it also needs few jvm related files as dependency.
+	Types of class loader:
+	
+		Bootstrap class loader
+								loads internal classes - comes up with the jvm.
+								rt.jar, it contains classes responsible for bootstraping the java application. This class loader is responsible to load them.
+		Extension class loader
+								loading jre/lib/ext folder - load all the classes present inside these jars
+								certain native related classes are loaded by extension class loader
+		Application class loader
+						Our application class files are loaded by application class loader.
+						It also loads -cp parameter values
+						
+		Class NotFound Exception:
+					When the loader not able to find the class during load phase you will get this error
+						
+						
+Linking
+			Verify - looks at the class file,It verifies whether the created class file is as per the jvm specification or not
+			Perpare  - All static variables will get memory allocated in this phase
+			Resolve - All the symbolic are resolved - reference to other clases are resolved here.
+						This where you will get  NoClassDef found error during time
+
+Initialize - 
+			It tries to initialize all static block in this phase.
+			set values for static variable and values allotted to memory in this phase.
+			Example - for boolean if actual value is true, this actual value is set to memory in this phase
+				
+	
+Run time data areas:
+	Method area(PermGen space)
+		It is the area where class metadata information is stored
+		
+	Heap Area
+	Stack Area
+	PC Register
+	Native method stack.
+	
+Stack:
+	Each and every thread will have own stack.
+	All local variables inside a stack will be poped out once the control return from the method.
+	used for local primitive variables
+Heap memory
+	All objects are stored on the heap
+	Objects shared across multiple mehtods.
+	In an application there is one heap- which shared by all the methods	
+	
+	Example:
+		int age = 20
+		String name = "hello"
+		
+		stack		heap
+		age=20
+		name		"hello"
+		
+		A variable name is created on the stack which points to the object in heap memory.
+		age = 20 is created on stack memory.
+		
+Variables are references to the object.
+			Means the object address value will be stored in the reference variable
+			When we pass the reference variable to a method, both the variable and reference variable will point to same memory location
+			
+Java is pass by value always.
+				when you pass primitive to local method, when you change the value inside a method it will not change in the parent method.
+				when you pass the reference variable which contains the address of the object to local method, when you change the value pointing to reference the 
+				object also changed- It copies the reference variable value to the new variable hence called as pass by value
+Escaping References:
+				When you declare a map in the class, with private access modifier and in the getter if you just return the reference variable, 
+				then the client can call your getter, change the value - this is called escaping reference.
+				Instead class can implement iterator and it can return that iterator - to print the list in the collection
+				In the getter just return unmodifyable list or map.
+Avoid Escaping References:
+				when the map.get gives the customized object, there are chances that object can be changed by client and then set back to the map.
+				so better give a new copy of the object similar to original object.
+				Implement a interface - the custom class customer will have the getter(which is from Interface)
+				In the map.get instead of returning the original customer object return the interface -so that client cannot change the value	
+				whenever we have any custom class we have to check for escaping reference - that is see any method that returns the objects which can change the object itself.
+				Double, int, String are those are immutable objects. Map or any other custom object that we return are not immutable.
+				If that is the case then we have to check for all the methods present inside the custom class for escaping references.
+
+Garbage collection:
+				String s1="hello"
+				String s2 = "hello"
+					both are equal, two different reference variable point to same object.
+					s1 == s2 will be true
+				String s3 = new Integer(74).toString()
+				String s4 = "74"
+				s3 == s4 will be false.
+				String s3 = new Integer(74).toString().intern()
+				s3 == s4 true
+				All objects are created on heap as separate objects.
+				when you call intern it put the object to pool 
+Garbage Eligibility:
+					java avoid memory leaks 
+						by running on virtual machine
+						adpopts garbage collection strategy
+						Any object which cannot be reached throught the reference from stack is eligible for garbage collection.
+gc and finalise:
+				Runtime.getRunTime.gc() - it will ask virtual machine to run the garbage collection - but it is not guaranteed.
+				when garbage collection runs it stops all threads - it stops the application.
+				It is not good idea to invoke system.gc().
+				When java runs garbage collection, it runs the finalise method before removing the object from heap memory.
+				garbage collector might not run all time. so if u create 100 objects and see - you could see only 10 times finalise getting called.
+				
+Detecting soft leaks:
+				object referenced on stack, even though not used for long time.
+				create a project - using multithread, run JvisualVM and check the heap memory
+Mark and Sweep:			
+			Mark and then sweeps unused object.
+Generational Garbage collection:
+			Go to tools and install visual GC plugin
+			Eden(young ) S0 S1 Old Metaspace
+			
+PermGen:
+		In java 6
+		Objects in the permgen that are never garbage collected, they survive forever.
+		Permgen is part of heap memory space. you can even increase the size of permgen.
+		When you are using Tomcat and deploying the application  without restarting the permgen keeps growing.(all previous deployed metadata class will be there in the permgen - hence we have to stop and start the server to avoid permGen becoming full)
+		Two types of object goes into permgen - metadata of a class and String pool.
+		Application crashes saying Permgen error.
+		To avoid you can increase the size of memory.
+		
+		In java 7
+		String pool not stored in permgen - they are stored in heap and they can even be garbage collected.
+		In java 8
+		REmoved the permgen all together.
+		Create a Metaspace - they are not part of heap memory. - It contains the metadata of the class.
+		
+Heap size - tuning virtual machine
+		Passing the run time arguments while starting the java application
+			-Xmx - sets the maximum heap size (find default by looking at javadoc. default is quarter of total heap size)
+			-Xms - sets the starting heap size(how much memory allocated when the application starts - minmum is 8m.)
+				-Xms sets to minimum might be good idea for performance related issues in the application
+			In server it would be 256m
+		
+		Configure Perm Gen:
+		-XX:MaxPermSize=256M set the size of perm gen
+		
+		Configure Console - to print Garbage collection:
+		-verbose:gc - prints the console when the garbage collection takes place
+		
+		Configure Young generation
+		-Xmn set the size of young generation - always it should be half or quarter of the total heap size
+		-Xmn256m ==> sets the total size and inital size of young generation, it should be greater than overall and initial heap size
+		
+		Configure to generate HeapDump
+		-XX:HeapDumpOnOutOfMemory - creates a heap dump file when there is heap dump error - use apache MAT and analyse - cannot be used in production
+		
+		Changing the type of garbage collector that our application using
+
+Types of collector:
+		
+		Serial : uses single thread for garbage collection - all your application threads would be stopped
+		-XX:+UserSerialGC - It uses the single thread
+		
+		Parallel:(multiple thread performing grabage collection) better than serial also called throughput collector.
+			It performs garbage collection on young generation, use multiplethread - used of large dataset or application
+			-XX:+UseParallelGC
+		
+		Mostly concurrent -It performs works as concurrently
+			It pauses the application during mark phase and resse the application and resumes during sweep phase
+			-XX:+UseConcMarkSweepGC
+			-XX:+UseG1GC
+			
+		which garbage collector u computer uses by default.?
+		java makes the default based on your hardware
+		go to cmd and type java -XX:+PrintCommandLineFlags - this will tell default garbage collector for our machine.
+
+Weak and Soft Reference:
+			Weak reference : If an object survive garbage collection, during garbage collection the object may or may not survive.
+							There is a reference from the stack.
+			Soft reference:
+							They are stronger than weak reference. The object will be referenced from stack.
+							During garbage collection if there is really need for memory, then this object will be garbage collected.
+							
+			WeakReference<Book> mybook = book;
+			SoftReference<Book> mybook = book2;
+				when we load from different source like DB or file system, then we can use weak and soft reference, only if the object is null only then
+				have to load from the source again.
+				if(mybook == null){
+					//reload the object from the source.
+				}
+			WeakHashMap:
+				The reference variable for the map is strongly referenced from stack.
+				The map contains weak objects. -so during garbage collection it can be removed.
+				while accessing the map we will check whether the value is present or not and then will use it.
+				Example - In caching this will be used.
+				Map<Book,BookImage> cacheImage = new WeakHasshMap<Book,BookImage>();
+				
+				guava - used to create soft reference
+				
+			Strong reference:
+							The object is referenced from the stack strongly.
+							
+							
+Tools Installation and Configuration Procedures:
+MAT
+Go to eclipse.org/mat - click on the link and download for your OS.
+JMeter:
+	Download apache-jmeter-2.12
+Go to bin - double click on Jmeter.jar
+Simulating 200 users:
+				Create a Thread Group - where you have to mention the number of users
+				Right click on ThreadGroup - Add - Config - HttpCookieManager. leave it as it is.
+				Right click on ThreadGroup - Add - Sampler - HttpRequest, change the method to post, add the parameter and values.
+				Right click on Test Plan - Add - Listener - View Results in Table. once you start you will be able to see the results in the table.
+				
+				Now increase the number of users and click start.
+JVisualVM - Jdk/ bin/ JvisualVM.
+					Click on Monitor - click heap dump and generate it and open it in MAT.
+					Click on Add plugins - select Visual GC - install it.
+					Now you can see - Eden,s0,s1,old and GC infor in VisualGC.
+					
+URL to open:
+http://localhost:8080/mywebapp/displayAllTutors.html			
+Remove the list in UUIDGenerator.java		
+					
+		

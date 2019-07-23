@@ -1,0 +1,59 @@
+jenkins
+
+build management system.
+A software can be run as standalone if there is JRE installed on machine or even can run as a docker image.
+It is to automate build , test and deploy..
+
+It is not like TFS, where as TFS is 
+version control system
+requirement management system
+Project management system
+Automate build management system
+Testing and release managment system
+It is called as Application Lifecycle managment system
+
+jenkins password
+66b773ac84b143a48fbc22b556974a01
+
+Go to GlobalConfiguration
+ configure path for java,
+ configure path for git
+ configure path for maven.
+ 
+we can use chocolatey - the package manager for windows - using this we can download all software that we need.
+
+search for git executive automation.
+	select cucumber basic project - it s a java project
+
+This is the path where git.exe is found
+C:\Users\rajasekar.murugesan\AppData\Local\Programs\Git\bin
+
+Jenkins with Test:
+	Another projectcalled SeleniumWithCucucumber
+	https://github.com/executeautomation/SeleniumWithCucucumber.git
+
+	
+
+Hi Pranab,
+
+we are done with the free or trial version of PCF. The paid version of PCF that is for 2GB it is 86$/month for 2 instance + GST
+I am not sure whether Nivedita is using the application or not. We have written separate services for register and for candidate details, if needed
+we can collate it as a single service.May be if we really want to make use of the application we can put all of them as a single
+java instance and then we can deploy it on any of the web hosting services like GoDaddy etc.
+
+I have analysed about web hosting services and domain name services ,the details are below.
+
+PCF hosting charges:
+https://run.pivotal.io/pricing/
+
+Web hosting:
+Best java web hosting services:
+https://hostadvice.com/lp/hosting-services/java/?creative=328543924067&targetid=kwd-312561226510&matchtype=b&device=c&campaignid=830380694&adgroupid=48109445208&feeditemid=&loc_physical_ms=9061990&loc_interest_ms=&network=g&devicemodel=&placement=&keyword=%2Bcheap%20%2Bjava%20%2Bhosting&target=&aceid=&adposition=1t2&gclid=CjwKCAjwvJvpBRAtEiwAjLuRPSIg0WemmEyOsF5xaQCy2RcOQlppwrNEnaIkrslYXFcUkB4vqZZTQBoCMGoQAvD_BwE
+
+Example for Go Daddy website:
+https://in.godaddy.com/offers/web-hosting/cheap/nonbrand-2yr?isc=hostrgin04&gclsrc=aw.ds&&cvosrc=ppc.google.cheapest%20web%20hosting%20india&cvo_crid=316275047028&matchtype=e&mkwid=sPpBkRq84_pcrid_316275047028_pkw_cheapest%20web%20hosting%20india_pmt_e_pdv_c&gclid=CjwKCAjwvJvpBRAtEiwAjLuRPYZkIYNpOF_o_eKOEyo_FbI3Vrnne7ImGFMiJNVcN1R_KbOKAvt9XhoCxDkQAvD_BwE
+	first month = Rs.100, after that every month 200 + Tax
+	
+Domain names:
+https://cart.godaddy.com/go/checkout?dpp2=1&ci=17463&isc=cjc1off30#/
+	first year Rs.150, after that every year 600 + Tax

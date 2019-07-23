@@ -1,0 +1,422 @@
+java 9
+
+
+Engagement code for - Github - 32507297  
+
+REPL
+Read Evaluate Print.
+	schools,colleges,students for writing a simple code , they have brought in REPL.
+	you have to create  a class, write main method - make it more complicate, just to print.
+	REPL - used to learn programming language.
+	used for small programming language
+	
+	jshell -v
+	jshell>
+	All of the jshell commands have forward slash / by default
+	
+	Jshell code snippets
+	Declaration for expression,statement,class, interface,method, are allowed
+	Package declarations not allowed
+	
+	int x = 100
+	//explicit variable creation
+	100 + 200
+	// implicit variable creation - based on result it creates
+	
+	/var - all 
+	displays all both active and inactive
+	
+	/vars 
+	displays all the variable that are created
+	
+	/drop b
+	drop the variable b
+	
+	Using Methods in Jshell:
+	/methods
+	display all the methods
+	with jshell - every method is public, no private no protected.
+	
+External editor:
+	/edit
+	an editor will pop up to edit.
+	when you are writing a class it is difficult to edit
+	/set editor vim
+	you can even the editor to other format.
+	/set editor "c:\programfiles\notepad++.exe"
+	now it opens in the respective editor
+	/set editor -default
+	/set editor -retain -default
+	/set editor -retain vim
+	
+	/edit e1 - if it exception while creating any class - that will open inthe editor
+	/types 
+	will give created class
+AutoCompletion and shortcut:
+	while starting the jshell , you can load startup with some inbuilt files.
+		jshell -v --startup DEFAULT
+		this will load the jshell with default settings
+		jshell -v --startup JAVASE
+		jshell -v --startup PRINTING.
+			load printing
+			
+		jshell -v PRINTING DEFAULT myfile.jsh
+			here we are loading printing inbuilt file and loadin default settings and loading custom file.jsh
+			
+		you can create custom file and loaded up jshell startup	
+	
+	To load the files in session - already class is created and stored it in separate jsh file
+	/open person.jsh
+	/types
+		shows user defined types
+	
+	/open PRINTING
+		it opens and loads all the inbuilt method that wrote for printing different datatypes
+	print("helloworld")	
+		
+How to incorporate external jar
+			1 directory
+		two files are present
+		
+		jshell -v --class-path jars/jokeserver.jar:jars/guava.jar
+		now these two files are in the class path
+		
+		import custom class
+		jshell> import academy.learnprogramming.test.*
+		import guava class
+		jshell> import com.google.guava.Joiner
+		
+Using Modular java file:
+		convert regular jar file to modular jar file
+		jokserver_mod.jar is present inside the folder mods
+		
+		jshell -v
+		
+		/env --module-path mods/jokeserver_mod.jar
+		
+		/env --add-modules <Name of the module>
+		/env add-modules academy.learnProgramming.jokserver
+		
+		import academy.learnprogrannning,jokeserver.*
+		This will load the module and import it 
+		
+		jokserver jk = new jokeserver();
+		
+		
+Introduction Java Platform Module system:
+	Motivation and Goals:
+		1.1 - 500 classes
+		JAR Hell
+			large application, 1000 jars
+			problems:
+			class path libraries acess to all
+			with reflection everything can be accessed
+			Jar cant define dependencies.
+				Transitive dependencies
+				At run time , one class depends on other class jar - we get NoClassDef found error.
+				Two jar using same library but with different version, this is called shadowing - class loader will load which it finds first.
+				Class present in the compile time but not present in the run time.
+				JDK and JRE are monolithic - they are very bigger.
+				IOT devices are smaller - they cannot have such a bigger software. - they want run time to be as small as possible.
+				runtime to be more specific as per the needs.
+					
+				Goals:
+					Reliable configuration
+						explicitly mention the dependencies upfront.
+					Strong encapsulation:
+						currently everything is public - all the jars can be acessed
+					Scalable platform:
+						scale down so we can run more java application on small device - 
+					Platform integrity:
+						because of encapsulation	
+						
+			Module Graph
+
+				moudle com.example.client{
+				requires com.example
+				}
+						
+				module com.example.model[{
+				exports com.exmaple.model
+				}
+		
+		java.base is added by default
+		Rules:
+		when missing - u will get error immediately
+		No cycles
+		No duplicate
+		packages in the module are unique
+		
+Service loader:
+			LinkedHashMap<String, JokeServer> linkedHashMap = new LinkedHashMap<>();
+        linkedHashMap.put("1",new KidsJokeServer());
+        linkedHashMap.put("2",new ProgrammerJokeServer());
+		
+		This is the problem it is tightly coupled.
+		we can user service loader to load the implementation at the runtime. This is present in java 6.	
+			Define abstract layer for service
+			Implement the service
+			ServiceLoader.load - loads the implementation at run time.
+		
+		Before java 9 - how to implement service loader.
+			create file with the name of the interface in METAINF\services\academy.learnProgramming.jokeserver.JokeServer.
+				academy.learnProgramming.jokeserver.kid.kidsJokeServer
+				academy.learnProgramming.jokeserver.programmer.ProgrammerJokeServer
+		
+		This will automatically read the file and create the instance at the runtime.
+		After java 9:
+		uses and provides with - are the module directive used in module-info.java. There is no need of separate file.
+		in joke app - instead of requires, use uses.
+		in the implementation module  - use provides with
+		
+Allowing Reflection access:
+	Modules provides strong encapsulation.
+	Reflection allows access to private elements.
+	Exports allow access to public types at compile time and runtime.
+	open = opensa all the module packages for refelctiove avvrs
+	opens - opens specific modukle packages for reflective acces to specific module
+	opens-to -
+	
+JLink:
+New command line tool
+Allow creation of custom runtime images
+Make your own JRE
+only necessary modules are included
+
+
+jlink --module-path <>\
+		--add-modules <>\
+		--limit-modules <>\
+		--output <path>
+		
+--modulepath = where to find the modules.
+--add-modules - add the modules that we need.
+--limit-modules - limit the observables module
+--output  - directory where the runtime image will be located		
+
+To run the command:
+C:\Program Files\Java\jdk-12\bin\
+
+"%JAVA_HOME%"\bin\jlink --module-path "%JAVA_HOME%"\bin\jmods;out\--add-modules academy.learnProgramming.jokeapp\--launcher JOKER=academy.learnProgramming.jokeapp\academy.learnProgramming.jokapp.Main\--output jre
+
+
+--add-modules 
+	It is the root module.
+	
+--limit-modules
+		modules where the main app resides
+This creates the name of the folder has Jre.Inside Jre folder it will have bin
+inside bin
+JOKER
+java
+keytool
+
+It reduces JRE size from 164 to 35MB
+
+--compress 2
+--no-header-files
+--no-man-pages
+--strip-debug
+--output jre
+when you run with these commands, it will generate image with lesser size by compressing them
+After compressing it will be 21MB
+
+To run 
+jre\bin\JOKER
+
+To get all the modules that we created.
+jre\bin\JOKER --list-modules
+
+
+Move existing application to java 9
+A project which has gson jar in the lib, then other packages like person, Address.
+creating object, convert to json and print.
+
+Part 1 - Move everything to ClassPath:
+		We have to see whether this jar uses any internal jdk library or not.
+		jdeps --jdk-internals lib\gson-2.8.1.jar
+
+		We have to see what are all the other dependencies for that jar.
+		jdeps -summary lib\gson-2.8.1.jar
+		it will list you  java.base and java.sql
+
+		First we have to compile all our class files by setting the jar in the classpath.
+		javac --class-path lib\gson-2.8.1.jar -d out $(find src -name "*.java")
+
+		Then we have to create a jar file for all our compiled classes.
+		jar --create --file lib/person.jar -c out
+		we are putting it in the out directory.
+
+		tf lib\person.jar
+		this will give you all the classes present inside the person jar.
+
+		Run the jar that we created.
+		java --class-path lib\gson-2.8.1.jar:lib\person.jar academy.learnprogramming.main.Main
+
+		jdeps -summary lib\person.jar
+		It says like gson dependencies not found.
+
+		jdeps -summary --class-path lib\gson.jar
+
+		jdeps -summry mod\gson-2.8.1 jar
+		--add-modules gson -summary --module-path  mods lib\person.jar
+Part 2:
+	Move gson jar to module path and compile our classes:
+	create a directory called mods and copy the jar file gson.jar to it.
+	javac --module-path mods -d out $(find src -name '*.java')
+		the classes will not compile. its because our class file does not know about the classes present inside the jar of mod path.
+	
+	javac --add-modules gson --module-path mods -d out $(find src -name '*.java')
+		//now it compile as we have added the module as gson.
+		
+	jar --create -file lib\person.jar -c out
+		//this creates the jar file in the lib directory which we already created in the last video.
+		 
+	To run:
+	java --module-path mods --class-path lib\person.jar --add-modules gson academy.learnprogramming.main.Main
+		// it will run properly.
+	
+		jdeps --summery mods\gson.jar
+		
+		jdeps --summary --module-path mods lib\person.jar
+		it says not found.
+		jdeps --add-modules gson --summary --module-path mods lib\person.jar
+	
+	Our own code is in class path, and out third party jar is in module path.
+
+Part 3:
+		Modularise our own source code and there should be nothing in the class path
+		created two modules  - main and models
+		java --module-path mods --module-source-path src -d out $(find src -name '*.java')
+			// you will get errors. package not visible.
+			
+		main - module-info.java
+			requires gson
+			requires models
+		models - module-info.java
+			requires gson
+			exports academy.learnProgramming.models
+		
+		create two modular jar files.
+		jar --create --file mods\models.jar -C out\models
+		jar --create --file mods\main.jar -C out\main
+		
+		To run:
+		java --module-path mods --module main\academy.learnprogramming.main.Main
+		
+		u get error.
+		jdeps -summary mods\gson
+		it is depends on java.sql
+		As it is being jar - u cannot add inside, also it is automatically created module, not a custom module so module-info.java is not present.
+		Remedy:
+			add module while running
+		
+		java --mdoule-path mods --add-module java.sql --module main\academy.learnprogramming.main.Main
+			
+		U get error:
+			unable to access the field using reflection.
+			open module{
+			requires gson
+			requires models
+			}
+			
+			instead you can also do this.
+			module models{
+				requires gson
+				export academy.learnProgramming.models
+				opens academy.learnProgramming.models to gson
+			}	
+		
+		jar --describe-module --file mods\main.jar
+			//will descrive about the jar file
+		
+		jar --describe-module --file mods\main.jar
+			//ther is no module descriptor
+			
+Part 4:
+			get the source file from github for gson.
+				
+
+Using Maven:
+	std project structure
+	project object model.
+	lifecycke, phases and goals. 
+	pom.xml describes modules,dependencies,plugins and goals
+
+				
+To run an maven java 9 module project.				
+java --module-path target\com.ey.tutorial.java9-1.0-SNAPSHOT.jar --module comeytutorialjava9/com.ey.tutorial.java9.part1.Main1				
+	
+	
+	
+Stream API improvements:
+takeWhile - take the first n element until the predicate is true.
+dropWhile - drop the element until the predicat is true
+	
+Private methods in java 9:
+when you have multiple default methods in interface, all those has code duplicates, then you can wrap them inside a private method.
+You can also declare a static methods in interface.
+similarly when you have multiple static methods in interface and all does the same task, then you can evem wrap them in a private method.
+		these are the two major uses of interfaces.
+
+Try with resources:
+
+Diamond operator:
+Infer the data type from the left hand side for the anonymous class(class which implements interface), before jdk9 - it cannot infer
+
+Allow safeVaragrs in private instance method:
+	
+Process API updates:
+		Before java 9:
+		
+
+Only one exception can be thrown by a method (per execution) but it is possible, in the case of a try-with-resources, for multiple exceptions to be thrown.
+   For instance one might be thrown in the block and another might be thrown
+         from the implicit finally provided by the try-with-resources.
+        The compiler has to determine which of these to "really" throw.
+         It chooses to throw the exception raised in the explicit code (the code in the try block)
+         rather than the one thrown by the implicit code (the finally block).
+         Therefore the exception(s) thrown in the implicit block are suppressed (ignored).
+         This only occurs in the case of multiple exceptions.
+
+		
+Factory methods for collections:
+			create unmodifyable collections (list , set map) in one step.
+			Before java 9:
+			List<String> trees = new ArrayList<String>();
+			trees.add("yellow");
+			trees.add("red");
+			trees.add("green");
+			trees = collections.unmodifyable(trees);
+			
+			After java 9:
+			List.of("one","two","threee");
+			Set.of();
+			Map.of()
+			Exception:
+				when you add null in the list you will get null pointer exception
+				when you add duplicate in set you will get illegal argument exception.
+				when you try to modify the list, you will get unsupported operation
+				
+				
+Get process id of the current process:	
+		ProcessHandle phCurrent = ProcessHandle.current()
+		Long pidCurrent = phCurrent.pid()
+		 phCurrent.info()
+
+//create a process:
+ ProcessBuilder pb = new ProcessBuilder("java","-jar","process.jar","My Favorite ")
+ //start the process
+ Process p = pb.start()
+//destroy the process.
+p.destroy() 
+
+//Process Api part 2
+ Java 9 Process API which is responsible to control and manage operating system processes has been improved considerably. 
+ ProcessHandle Class now provides process's native process ID, start time, accumulated CPU time, arguments, command, user, parent process, and descendants. 
+ ProcessHandle class also provides method to check processes' liveness and to destroy processes. 
+ It has onExit method, the CompletableFuture class can perform action asynchronously when process exits
+ 
+ Http/2 Client:
+ 
+ 

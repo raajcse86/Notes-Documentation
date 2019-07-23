@@ -1,0 +1,407 @@
+Java - Generics
+
+runtime bugs hard to detect.
+compile time bugs easy to detect - u will get to know upfront.
+Adds stability to code
+Enabling types as parameter in the method.
+	Ex: draw(car c)
+	draw(Bus  b)
+	draw(cycle c)
+	draw(Type t) - with this we will be able to draw based on type. No need to write code separately for each and everything.
+
+	Ex: List l = new ArrayList();
+		List<String> strList = new ArrayList<String>();
+		no need to cast and get when we get the value from list.
+	Ex: if u want to sort different data types - like string,doubles, int, character, etc, u have to write different methods for each and every datatypes.
+		Intead write one method in general.
+
+Example 1 - we have to write separate method for different data types.		
+		package com.section.generics.part1;
+
+		public class Example1 {
+
+			
+			public static void add(int n1, int n2) {
+				System.out.println("sum is "+(n1+n2));
+			}
+			
+			public static void add(double n1, double n2) {
+				System.out.println("sum is "+(n1+n2));
+			}
+			
+			
+			
+			public static void main(String[] args) {
+				
+			}
+		}
+Generics Type 1:		
+		
+Example 2 - Code Before generics:
+		package com.section.generics.part1;
+
+		class Store{
+			private Object item;
+			
+			public void setItem(Object incomingItem) {
+				this.item = incomingItem;
+			}
+			
+			public Object getItem() {
+				return this.item;
+			}
+			
+			@Override
+			public String toString() {
+				return this.item.toString();
+			}
+		}
+
+		public class Example2 {
+		
+			public static void main(String[] args) {
+				Store store = new Store();
+				store.setItem(45);
+				//store.setItem("HelloWorld");
+				Integer in = (Integer)store.getItem();
+				//we have to use casting whenever we get
+				System.out.println(store);
+			}
+		}
+Code after Generics:
+		package com.section.generics.part1;
+
+		class Storage<T>{
+			private T item;
+			
+			public void setItem(T item) {
+				this.item=item;
+			}
+			public T getItem() {
+				return this.item;
+			}
+			
+		}
+
+		public class Example3 {
+
+			
+			public static void main(String[] args) {
+				Storage<Integer> store = new Storage<Integer>();
+				store.setItem(45);
+				System.out.println(store.getItem());
+				
+				///no need to do explicit casting.
+				
+				Storage<String> storeStr = new Storage<String>();
+				storeStr.setItem("Helloworld");
+				System.out.println(storeStr.getItem());
+				
+				
+				
+			}
+		}
+
+Generics Type 2:		
+		class Hashtable<K, V>{
+			K key;
+			V value;
+			
+			public Hashtable(K k, V v) {
+				this.key = k;
+				this.value = v;
+			}
+			
+			@Override
+			public String toString() {
+				return "key = "+key.toString() + " value = "+value.toString();
+			}
+		}
+
+		class HashMap<K,V>{
+			K key;
+			V value;
+			
+			public HashMap(K k, V v) {
+				this.key = k;
+				this.value = v;
+			}
+			
+			@Override
+			public String toString() {
+				return "key = "+key.toString() + " value = "+value.toString();
+			}
+		}
+
+		
+		Hashtable<String,Integer> ht = new Hashtable<String, Integer>("Hello", 25);
+		System.out.println(ht);
+		
+		
+		HashMap<String,Integer> hm = new HashMap<String, Integer>("raj", 100);
+		System.out.println(hm);	
+		
+Generic Method :
+		class GenericMethod{
+			
+			public <T> void showItem(T t) {
+				System.out.println("The item is "+t.toString());
+			}
+			
+			public <T> T getItem(T t) {
+			return t;
+			}
+		}
+
+
+		public class Example4 {
+			
+			public static void main(String[] args) {
+				GenericMethod genericMethod = new GenericMethod();
+				genericMethod.showItem("Rajasekar");
+				
+				genericMethod.showItem(45);
+				
+				
+				genericMethod.showItem('H');
+				
+			}
+
+		}		
+Note:
+			<T> u have to specify whether u return or not.
+			
+Generics Method 2:// here we do not know but still with that we iterate inside the for loop.
+			class GenericMethod2{
+				
+				public <T> void showArray(T[] array){
+					for(T item:array) {
+						System.out.println(item);
+					}
+				}
+				
+			}
+
+			public class Example5_GenericMethod2 {
+				
+				public static void main(String[] args) {
+					Integer[] intArray = {10,20,30,40};
+					new GenericMethod2().showArray(intArray);
+		
+					String[] strArray = {"Raj", "Dhoni", "Virat", "Rohit"};
+					new GenericMethod2().showArray(strArray);
+					
+					
+				}
+			}
+				
+Bounded Type Parameters:
+				Example: A method that operates on numbers might wanted to work on numbers or its subclasses.
+
+				<T extends Comparable<T>> - this tell any class that implements Comparable interface. So class String, Integer, Character all have implemented it.
+				if u try to any custom class it will throw error.
+
+			public class Example6_BoundedParameters {
+
+				public static <T extends Comparable<T>> T calculateMin(T t1, T t2){
+					
+					if(t1.compareTo(t2) < 0) {
+						return t1;
+					}
+					return t2;
+				}
+				
+				
+				
+				public static void main(String[] args) {
+					System.out.println("Min value  "+calculateMin('M', 'A'));
+					
+					
+					System.out.println("Min value  "+calculateMin("Dhoni", "Virat"));
+					
+					System.out.println("Min value  "+calculateMin(2000, 3000));
+				}
+				
+			}
+				
+				
+Type Inference:
+				Gets the type definition by inference.
+				
+			class Bucket<T>{
+				private T item;
+				
+				public T getItem(){
+					return this.item;
+				}
+				
+				public void setItem(T item) {
+					this.item = item;
+				}
+				
+			}
+
+			public class Example7_TypeInference {
+
+				public static <T> void addStore(T t, List<Bucket<T>> list) {
+					//because of type inference we do not want to specify the type in the Bucket.
+					Bucket<T> bucket = new Bucket<>();
+					//this is called type inference, from the left hand side it get to know about the type.
+					bucket.setItem(t);
+					list.add(bucket);
+					System.out.println("-- "+t.toString()+" .. added to the list");
+					
+				}
+				
+				
+				public static void main(String[] args) {
+					List<Bucket<String>> list = new ArrayList<>();
+					addStore("Raj", list);
+		
+					//this is called type witness - it will pass this string in place of T in the method.
+					Example7_TypeInference.<String>addStore("Test", list);
+					
+					
+				}
+				
+				
+			}				
+Wildcards:
+			String is nothing but object.
+			Collection<String> c1 = new ArrayList<String>
+			Collection<Object> c2 = c1 
+			it is not valid - it will throw compilation error.
+			
+			we can use object to represent string,double, integer.
+			but collection<object> cannot be used instead of collection<Integer>, collection<double> - that is why wildcard is came into picture.
+			
+			Collection<String> is not a Collection<Object>
+			but when u assign Collection<Object> = Collection<String> it will not work.
+				super type of all collection object is wildcard.
+				Collection<?> objects = Collections<String>
+			Note:	
+				we can iterate or print the Collection<?> but we cannot insert or remove.
+				
+Unbounded wildcards:	Collection<?>				
+Upper bound wildcard:	
+				There wont be an error.
+				List<Integer> inttList = new ArrayList<>();
+				List<Double> doubList = new ArrayList<>();
+				//List<? extends Number> genList = inttList;
+				//List<? extends Number> genList = doubList;
+				
+				Note: 
+					here we assign all subclasses
+			
+		Note:
+			List<? extends Number> - if u remove this and put List<?> u cannot even iterate,	
+			List<?> - it is to hold
+			List<? extends Number> it is to iterate.
+			List<? super Number> with this u can insert.
+			
+			It will throw error
+			//if u try to add to the list u will get error, as it does not know what kind of data type will come at the run time.
+				//list.add(new Integer(10));
+				
+				
+		public class Example9_UpperBoundWildCard{
+
+			public static double sum(List<? extends Number> list) {
+				//if u try to add to the list u will get error, as it does not know what kind of data type will come at the run time.
+				//list.add(new Integer(10));
+				//when u read u have iterate with the dataType after extends -so we can read.
+				for(Number d: list) {
+					sum = sum +d.doubleValue();
+				}
+				System.out.println("Sum is "+sum);
+				return sum;
+				
+			}
+			
+			
+			public static void main(String[] args) {
+				sum(Arrays.asList(10,20,20,50));
+			}
+			
+			
+		}
+Lower bound wildcards:
+	
+				public class Example10_LowerBoundWildcard {
+
+					
+					
+					public static void show(List<? super Number> list) {
+						
+						//u cann add to the list.
+						list.add(new Float(1));
+		
+						//u cannot read u , cannot put the data type after super.
+						//here we can iterated as Objects. so we cannot read a specific type.
+						for(Object o:list) {
+							System.out.println(o);
+						}
+		
+						
+						
+					}
+					
+					
+					public static void main(String[] args) {
+						List<Number> numlist = new ArrayList<>();
+						List<Object> objlist = new ArrayList<>();
+						
+						//List<? super Integer> list = numlist;
+						
+						List<? super Integer> list = objlist;
+						
+						
+						List<Serializable> list2 = new ArrayList<>();
+						list2.add("Raj");
+						list2.add("sekar");
+						show(list2);
+						
+						
+					}
+				}	
+	
+Note:
+					if u want to read and write there should not be wildcard.
+					
+Type Erasure:
+				It is for JVM, it is going to convert generic code to non generic code and will send to JVM to execute.
+					Ex:
+						if we put Collection<?> - it will put it as  Object instead of ?
+						if Collection<? extends Serializable>  - it will replace T with Serializable.
+Type Erasure bridge methods:
+				when we have inheritance in the code.
+					class Node<T>{
+						T item;
+					}
+					MyNode extends Node<Integer>{
+					
+					
+					}
+					Java compiler replace T with Object, if thats the case then as per MyNode setter will have integer, the compiler will
+					have a bridge method to call the integer. - we will not use type erasure it is used by java compiler internally.
+	
+Comparable interface:	
+		Two compare multiple fields
+		 public int compare(Customer cust1, Customer cust2) {
+ 
+        // all comparison
+        int compareName = cust1.getCustName()
+                .compareTo(cust2.getCustName());
+        int compareCity = cust1.getCustCity()
+                .compareTo(cust2.getCustCity());
+        int compareAge = cust1.getCustAge()
+                .compareTo(cust2.getCustAge());
+ 
+        // 3-level comparison using if-else block
+        if(compareName == 0) {
+            return ((compareCity == 0) ? compareAge : compareCity);
+        }
+        else {
+            return compareName;
+        }
+    }

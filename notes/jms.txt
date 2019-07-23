@@ -1,0 +1,240 @@
+JMS:
+JMS is a specification developed by SUN, maintained by oracle.
+ActiveMQ ,SonicMQ all built message server adhere to JMS standard.
+API is for developers, specification is for Vendors.
+Once your application started using JMS api, it can interact with any of these vendors.
+Using JMS u will be able to send message using any vendors like ActiveMQ, SonicMQ,etc
+
+Heterogenous integration:
+before JMS they have either share db or remote procedure call, jms brings in loose coupling.
+jms will persist the message and messages are not lost.
+jms reduces bottle neck, at some point too many messages may be in the queue.
+	JMS - allows Asynchronous communication
+	This helps us to scale the application easily when traffic huge, end user will not face any delay.
+JMS gives flexibility - Ex: patient clinical with some other system can even be removed or modified.
+
+Two Messaging models:
+P2P: send and receive synchronously/asynchronously using virtual channel.
+only one system will receive message.
+
+pub/sub:
+the same message received by multiple system.
+client send to topic, it sends to all system whoever have subscribed
+Analogy : Newspaper - same newspaper send to all people who have subscribed.
+
+JMS Provider:
+Apache ActiveMQ Artemis:
+		install
+		create a broker.
+		client can access all through api
+		it gives durability, sacalbility, transaction management, clustering
+		
+Queue - for P2P messaging
+Topic - for pub/sub messaging.
+
+JMS Api create Connection factory, Queue, Topic and registered in JNDI.
+These objects are called Administered objects.
+Our jms api have to make use of these objects
+		
+Install
+Java 8
+Apache ActiveMQ Artemis - this is the jms provider - download the zip
+Create the messaging broker:
+	browse to bin directory
+	cd bin
+	./artemis create /path/Name of the broker
+	
+	 after that move to broker then run
+	 ./artemis run
+	 This will start the broker.
+JMS 1.0
+		ConnectionFactory
+		Destination(Queue or Topic)
+					These two are created by jms api and put it inside JNDI. We retreive from JNDI
+		Connection
+			Message
+		Session(unit of work)
+			Message producer
+			Message consumer
+Create the maven project.
+	open pom.xml - add dependency for artemis jms client all.
+	create jndi.properties file		
+			java.naming.factory.initial = ActiveMQInitialContextFactory
+			connectinFactory.ConnectionFactory = http://localhost:61616
+			queue.queue/myQueue = myQueue(this is name of the queue created on the broker)
+	Create connection
+	Create session
+	lookup for the destination.
+	create producer from session create the message and send the message.
+Consume message from Queue:
+				session.createConsumer(myQueue) // we have to get the message from queue
+				connection.start();
+				TextMessage message = consume.message();
+Publish/Subscribe :
+				Instead of Queue, we can use topic.
+					create multiple consumer so that they all can consume
+Queue browser:
+					QueueBrowser qb = session.createBrowser(queue)	
+					we can loop throough and get to know all the messages present in the queue.
+JMS 2.0:
+			Instead of creating context, connectinFactory 
+Message headers
+				jms destination - this will be set by jms
+				jms delivery mode
+				jms message id
+Message properties
+				jmsxuserid
+				jmsproducertxid
+				jmsconsumertxid
+Message payload		
+			producer.setpriority - to set the priority to message.
+replyTo
+messageId
+correlationID
+
+when to use P2P:
+					if application need one to one communication.
+					Patient-checkin - get patient info
+					patient-clinicals - blood test, xray
+					
+					patientclinicals - calls patient checkin - to know about the patient.
+					once it reads, its gone,no one can use it.
+					two application could have been written in different programming language.
+					It decouples.
+					Increases performace.
+					Ex: Check processor application. 
+						input - send from mobile, send from desktop etc - you can span multiple application on the server.
+					
+					It also provides QueueBrowser - an application can browse through queue and can understand what is present, need not read it.
+Asynchronous processing:
+						Message listener class is present in consumer.
+						Consumer need not wait for the message from producer.
+						jms api provides the listener, whenever there is a message from producer, it sends to the listener
+Load balancing action:
+						if producer sends 10 messages , if there are multiple consumer who consume all different messages, then we need to have load balancing
+							when we have lot of messages in the queue - it has load balancing
+when to use Publish/Subscribe Messaging:
+							when we want to broadcase message across application
+							Producer will put it to Topic.
+							All subscribers would have subscribed.
+								Ex: Patient Management
+										when patient checkout from hospital
+										it sends message to all other application like bed management, claim management.
+	
+Rabbit MQ:
+	Install RabbitMQ in windows
+		Before that install Erlang -64 bit
+			you  may have to install C++ distribution
+			Go to services - search for services - it will show Rabbit MQ which ensures it is runnning
+			start RabbitMQ server
+			cd user/local/sbin
+			sh rabbitmq (It starts the broker)
+						http://localhost:15672
+			
+			sh rabbitmq-plugins enable managementplugin
+			
+			The broker creates guest as default user and guest as default password
+			RabbitMQ admin page - 
+				Overview tab,
+				connection tab - active connections to broker from consumer or publisher
+				channel tab - messaging channels provided by rabbitmq
+				exchanges tab - default exchanges provided my rabbitmq, different types of exchanges
+				Queues tab - you can see all quues provided
+				admin tab - you can add additional user and give access	
+Steps:				
+				You can create a new Exchange ,
+				You can create a new Queue.
+				Bind the exchange with the queue that we created
+				In publish message section - add the message
+				In the queu tab - you could see a spike, message is ready, click getmessages you could see that messages
+Asynchronous messaging with RabbitMQ and Spring	
+	What is messaging
+	Messaging protocols
+	What is AMQP and what it solves
+	Meeting with RabbitMQ
+	Pillars of messaging - queues topics and exchanges
+	Messaging ques comparison(ZeroMq, RabbitMQ)
+What is messaging and why we need it:
+		we talk to each other
+		different ways of messaging
+		analogy : text message
+		Ex: SOAP message
+		software components communicate with each other to do their work
+Other ways of messaging - Compoenent interaction:
+			Method calls
+			Remote procedure calls
+			Http client and servers
+			All these are synchronous form of messaging.
+		These are not loosely coupled.
+Why we need messaging:
+	Examples:			
+		Ecommerce site on black friday - millions of customer orders
+		Telecom operator - with millions of customer messages
+		these platforms would crash because of millions of load.
+		We need to communicate loosely, asynchronously and progressively.
+		To rescue  - advanced messaging protocols
+			Queues
+			Topics
+			Channels
+			Exchanges
+Messaging protocols benefits:
+			STOMP - Simple Text Oriented Messaging Protocols
+					simple and easy to implement, like http
+					no concept like queue, topics or exchange.
+					use SEND semantic and deliver to destination.
+					Receiver can implement queue, topics and exchange.
+			MQTT - Message Queue Telemetry Transport
+					used mainly for devices, ideal for mobile and iot
+					maching to machine, highly std
+					provides publish and subscribe
+					It has all enterprise level messaging capability.
+					supports thousands of concurrent connections
+				Applications - satellite links
+					Examples: Aws IOT
+		AMQP - Advanced Messaging Queue Protcols
+				high reliable
+				use anywhere mobile, desktop -any environment
+				AMQP solutions(implementations from different vendor) can work together means they can interact together. No other proctocols works this way.
+				Features like messaging. reliable queuing, topic based publish subscribe, flexible routing, transactions and security.
+			Ex: JPMorgan process billions of messages using AMQP
+What is AMQP? What it solves:?
+Meet RabbitMQ
+			open source message broker
+			most popular implementation odf AMQP.
+			you can plug and play with other AQMP implementations.
+			developed on erlang- high throughput and low latency.
+			also supports clustering for fault tolerance  and scalability.
+			It also defines exchanges, queues and binding.
+Architecture:
+			Publisher - exchange -(binding)- queue - consumer.
+	Lifecycle:
+		Producer produce message and send to exchange, it can be default exchange or custom exchange
+		After that it routes to queue, messages are piled up in the queue,then delivered to consumer
+	Exchanges:
+		message can be routed to single or multiple queue based on routing algorithm.
+		Routing algorithm depends on exchange types and binding(rules).
+		Bindings are used to simply to bind exchange and queues
+			Types:
+			direct - to send out to one queue
+			fanout - to send out to all queues that are binded
+			Topic
+			Headers
+	Queues:
+		Properties are name, durability, exclusive ,auto-delelte.
+	Topics:
+		subject part of messages
+		defined as routing_key for message grouping.
+		special formating for special use.
+		It is an optional for message exchange.
+		u can send and receive without topic also.
+		U have to define topic, to use topic exchange - without that it cannot be send to topic exchange.
+Application development:
+		RabbitTemplate - easy to use rabbitmq with spring.
+		how to publish message with rabbittemplate
+			configure listener at the consumer for messages\
+			configure exchanges
+			configure queues
+			creating a binding between exchange and queues
+			Receiving and processing message from different apps
+		
+				

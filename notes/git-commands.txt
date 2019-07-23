@@ -1,0 +1,42 @@
+git commit -a -m "message"
+
+git push origin HRApplicationRelease1.0
+
+git status
+
+
+cf login
+
+cf push
+
+git reset --hard
+
+
+
+
+
+Git hub terminal essentials:		
+	Create a local repo and remote repo
+	create a folder 
+	git init - this will make that folder as a repo in the local.
+	git status
+	git add <Name of the file> or
+	git add --all
+	git commit -m 'message to commit'
+	git log
+	
+	Creaet a Remote repo by logging in the browser ,then push this local branch changes from local to remote.
+	git remote add origin https://github.com/raajcse86/test-repo.git
+	git push -u origin master
+	or even we can give git push directly from second time
+
+	
+Error and Solution:	
+git pull origin master
+	Error : fatal: refusing to merge unrelated histories
+	solution: git pull origin master --allow-unrelated-histories
+
+2. Error: if there is no branch set as upstream in remote master	
+	Soltion :git push --set-upstream origin master		
+		
+	

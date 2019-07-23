@@ -1,0 +1,674 @@
+Hibernate and JPA:
+	
+Introduction to JPA:
+	jdbctemplate - we write queries when we wanted to do any operations on db.
+	java developer also have to know sql.
+	over a period of time application developed with spring and spring jdbc difficult to maintain.
+	jpa - what are your objects, how do they would map tables in db.
+			jpa will take care of writing quries.
+	The object that we store to db are called entities.
+	Ex: Course and students.
+				(Many to Many)
+				a course can have maultiple students
+				a students can enroll multiple course.
+				
+				Passport to student.(one student will always have one passport)
+				
+				Reviews and Course - One to Many(A course can have many reviews)
+				
+	In jpql - we write queries using the java entities. Not use SQL at all - you can use criteria
+	It also provides option to use sql directly.
+
+Journey from Spring jdbc to jpa:
+	Using jdbctemplate
+	find all persons:
+	jdbctemplate.query("select * from person", new BeanPropertyRowMapper(Person.class));
+	
+	whenever we use BeanPropertyRowMapper - it should always have no argument constructor
+	
+	SprinBoot class implements CommandLineRunner
+		when the context is loaded, the method overriden will start running.
+		public void run(String... arg){
+			call find all persons
+		}
+		
+A quick review jdbc and spring jdbc:
+			jdbc:
+			create connection, create preparestatement, execute the query, get the values from resultset and add to list, manually handles the exception.
+			connection object would be leaked if we do not close it properly.
+			Spring jdbc:
+			No need all those boiler plate.
+			Handles the exception.
+			Connection object it handles internally when you forget to close
+			Spring Boot Autoconfiguration:
+			open application.properties
+				logging.level.root = debug
+				restart
+				search for configuration report
+					it looks at class path, it configures
+					Ex: web - dispatcher servlet
+					The report also shows what it did not match.
+				spring.h2.console.enable = true
+					when h2 is on class path it configures.
+				Data source is autoconfigured as it see h2 and embedded db in the class path.
+					using datasource, jdbctemplate is also autoconfigured as well.
+How to define the cutom row mapper:
+						if the columns does not match with the field name.
+						class personRowMapper implements RowMapper<Person>
+						
+						mapRow(resultset, rownum){
+						
+						
+						person.set(resultset.get)
+						return person;
+						}
+Quick introduction to jpa:
+					both in jdbc and spring jdbc you have to write query, pass the parameter. After the reultset map it back to beans.
+					A big application have 300 tables or 500 tables. - query will be complex.
+					Amount of skill required to maintain will be huge.
+					Thats why we have jpa. - map the entities, map object to row. - we will define the relationship between entities as well.
+					Hibernate was more popular, no jpa become more popular.
+					hibernate is an implementation of jpa.
+					if some popular orm comes in future we can even shift to that without big code change.
+Implementing findById jpa repository method:
+						
+						@Transactional
+						@Repository
+						Class PersonJpaRepository{
+						
+						@PersistencContext
+						EntityManager em;
+						
+						em.finBy(PErson.class,id);
+						
+						
+						}
+						//update or insert;
+						em.merge(person)
+						
+						Merge:entity manager takes care of inserting or updating.
+						
+						
+						spring.jpa.showsql = true
+						Note:
+						u need not create a table, spring boot on looking at the classpath, entity defined, it automatically creates table for us
+						
+Implementing findall using jpql:
+						
+						@Entity()
+						@NamedQuery(name="find_all_query", query="select p from person p")
+						
+						
+						em.createNamedQuery("find_all_query",Person.class);
+					
+Playing with Entity manager:
+					Course c = new Course("New Course");
+					em.persist(c)
+					c.setName("updated");
+						It is also updating new value
+					@Transactional - the entire method is in only transaction.
+						entity manager keeps track of the object, whenever there is a change, it persist that with db
+Entity Manger methods clear and detach:
+						em.flush() - changes up to that statement are updated in db
+						em.detach(course2) - any changes to course2 after this statement will not be updated to db.
+						em.clear() - this will clear everything present in the entity manager, none of it will be updated to db.
+						By default EM - tracks every changes
+						em.refresh(course1) - whatever changes persisted in db before this statement will be copied from db to java object. All our changes would be lost.
+		
+JPQL Basics:
+			SQL : select * from course where name like '%100 steps';
+			JPQL :select c from course c where name like '%100 steps'
+@NamedQuery and @NamedQueries:
+				assign name to a query and use it
+				@NamedQueries = (
+					@NamedQuery(),
+					@NamedQuery()
+				)
+							
+OneToOne Mapping:
+	In the student table - create of passport id.
+	or
+	In the passport table  - create student id.
+	By looking at the table we can understand.
+	Student StudentName PassportId - this way student table is owning the relationship.
+	Passport passportNumer StudentId - this way passport table is owning the relationship.
+	In Student class
+	@OneToOne
+	Passport pass;
+		
+	first we persist the passport, then persist student.
+	em.persist(passport);
+	student.setPassport(passport);
+	em.persist(student);
+	
+	Any one-one mapping by default it is  eager fetch.
+	@OneToOne(fetch = FetchType.Lazy)
+	Passport pass;
+Transactional and Entity Manager and PersistenceContext:
+	//operation1 - retreive student
+	Student s = em.find(Student.class, 200L);
+	//operation2 - retreive passport
+	Passport p = s.getPassport();
+	//operation3
+	p.setNumber("XXX");
+	//operation 4
+	s.setName("update name");
+	
+	All these operation belong to one transaction - either all shud succeed or nothing should succeed.
+	If any one operations failed, all other transaction should be rolled back.
+PersistencContext:
+			persistencecontext is the object which holds the retreived object from db, the changes that you make are also get stored in persistence context.
+			only at the end of transaction all the changes are sent to db.
+			Entity manager is keeping hold of PersistencContext.
+			Note:
+			if it is lazy initialization, then the test case method should have @Transactional, which will extend the session object.
+			If the class has @Transactional, then it would succeed.
+			PersistencContext is start at the start of method and end at the end of method.
+			EntityManager is the interface for persistent context.
+OneToOne mapping Bi-directional - Part1
+			Class Passport{
+			
+			@OneToOne(fetch=fetchType.Lazy, mappedBy="passport")
+			private Student student;
+			
+			//if u do not put mappedby - then on two tables it will have relationship.
+			student table will have passport id and passport table will have student id.
+			Now we are telling to jpa that already mapping has been taken care by variable called passport in the student table.
+			mappedBy - this ensures that there is no student id in the passport table.
+			This way bidirectional, duplicate is avoided.
+			Student is the owning side relationship
+			Passport is not owning side relationship
+OneToOne mapping Bi-directional - Part2:
+			Passport p = em.find();
+			p.getStudent() - From passport u will be able to navigate to student - this is called bidirectional relationship.
+			
+When hibernate sends update to DB:
+			hibernate waits till last statement ,before it saves them to db., that is when it need not rollback.
+				whenever u do em.persist(user) - it assign id to the object but not write to db.
+			Actual insertion to db happens only at the end of the method.
+				em.flush() - would push all to DB. If you write flsuh in between, those queries got executed in db and persisted to db.
+				Even if i do fush, if the next statement fails and  all were part of one transaction, then the hibernate rollback the entire transaction.
+			Note:
+			if it is lazy initialization, then the test case method should have @Transactional, which will extend the session object.
+			If the class has @Transactional, then it would succeed.
+Do read only needs transactional.?
+			Yes bcos we have Lazy fetch in mapping.
+Why we need Dirties context in test?:
+@DirtiesContext - it ensures that all the changes that done to DB are rolled back 
+				That is why this is used in testing alone.
+				It is like that bcos, your testcase u shud have updated something and asserted, but it should not affect the other testcases. so it is rolledback
+				after done with the testing.
+
+ManyToOne relationship:
+				Course
+				CourseId CourseName
+				
+				class Course{
+				
+				@OneToMany(mappedBy = "course")
+				private List<Review> reviews
+				}
+				
+				
+				Review
+				ReviewId Rating
+				class Review{
+				
+				
+				@ManyToOne
+				private Course course;
+				}
+				
+				
+					One course can have multiple review.
+				In DB table	
+				ReviewId Rating CourseId	
+		
+Retreiving and inserting reviews:
+		To add reviews for a course:
+		//steps:
+		get the course
+		add the reviews
+		save to db.
+		Course c =findById();
+		
+		Review r = new Review();
+		Review r2 = new Review();
+		course.addReviews(r); //setting the relationship
+		course.addReviews(r2);
+		
+		em.persist(r)
+		em.persist(r2);
+		
+		Note:
+		no need to persist course.
+		
+Many to Many Table design:		
+		Course 
+		CourseId CourseName
+		
+		Student
+		StudentId StudentName
+		
+		You can neither put course id in student table and student id in course table. So we have to go for separate table.
+		When we put @ManyToMany on both the java classes then it would create two tables
+		you just have to put mappedBy - so that only one will take care of owning. It can be anything that we people decide.
+		Customizing join table
+		
+		class Student{
+		@ManyToMany
+		@JoinTable(name="student_course", joinColumn = @joinColumn(name=""),inverseJoinColumn = @inverseJoinColumn(name=""))
+		List<Course> courses = new ArrayList<>
+		}
+		
+		class Course{
+		
+		@ManyToMany(mappedBy="courses")
+		List<Student> studentList;
+		}
+Many to Many Retreive data using JPA relationship:
+			ManyToMany - by default it is Lazy fetch
+Insert :
+				Student s = new Student("");
+				Course c = new Course();
+				em.persist(c)
+				em.persist(s);
+				
+				//this way we have to set the relationship
+				s.addCourse(c);
+				c.addStudent(s);
+				//Now again save the side thats owning relationship.
+				em.persist(s);
+
+Inheritance hierarchies:
+						Single table
+						Table per class
+						Joined
+						MappedSuperClass
+Single Table :						
+				abstract Class Employee{
+				
+				}
+				Class PartimeEmployee extends Employee{
+				private Bigdecimal hourlywage;
+				
+				}
+				class FullTimeEmployee extends Employee{
+				private Bigdecimal salary;
+				
+				
+				@Entity
+				@Inheritance(strategy = InheritanceType.SingleTable)
+				abstract Class Employee{
+				
+				}
+				
+				u just create object for FullTimeEmployee and partTimeEmployee and send to insert method.
+				There is only one table, with 2 rows.
+				There is additional column called DType - which contains the object type.
+				@DiscriminatorColumn(name="employeeType") - DType can be ranamed.
+				
+				
+				Problem:
+					All subclasses will be stored in one table.
+					Many Column with null value.
+					Performance wise will be good as it has to fire one simple query
+Table Per Concrete entity - class				
+				@Entity
+				@Inheritance(strategy = InheritanceType.TablePerClass)
+				abstract Class Employee{
+				
+				}
+				
+				Each concreate sub class will be provided with a table.
+				The common column(class member in the abstract class) will be present in all the sub tables
+Joined:
+				@Entity
+				@Inheritance(strategy = InheritanceType.Joined)
+				abstract Class Employee{
+				
+				}	
+				
+				Even abstract class will have separate table, Each concrete class will also be in separate table.
+				Each concreate class table will have foreign key - Id of the employee table.
+				Salary EmplyeeId
+
+				WagePerHour EmployeeId.
+
+				While retreiving we have to join multiple table. 
+				
+				DB perspective it is good - as there is no columns repeated.
+				Performance wise - multiple table have to queried.	
+MappedSuperClass:
+				
+				It is a class with annotation, not an entity at all.
+				
+				@MappedSuperClass
+				abstract Class Employee{
+				
+				}	
+				
+				This completely eliminates inheritance.
+				It is like some common definition present in some other class. No table would be created for abstract class.
+				An queries pertaining to employee - will throw error as it is not an entity at all.
+				We have to write queries separately for PartTimeEmployee and FullTimeEmployee.
+				These each tables would contains those datamembers in abstract class as a column.
+Queries with entities using JPQL:
+		Courses without students:
+					"select c from course c where c.students is empty"
+				
+					in terms of sql we have to write big queries.
+					
+		Courses with atleast two students and orderby:
+					"select c from course c where c.students.size >=2"
+					
+			order by size - default is ascending order		
+					"select c from course c where order by size (c.students)"
+			
+			order by size - descending order:	
+					"select c from course c where order by size (c.students) desc"
+		JPQL using like:
+			find students whose passport contains '1234':
+					select s from student s where s.passport.number like '%1234'
+JPQL using Joins:
+	Join:(It will return those courses that are with students - mean to say whichever id is matched it returns.)
+		select c,s from course c join  c.student s
+	left join:(This will also return those courses that without students - this will return all courses whichever id is matched and also id is not matched.)
+		select c,s from course c left join  c.student s
+	
+	cross join:	(it does not match - it just cross product of two table)
+		select c,s from course c , student s
+	(3*4) = 12rows	
+	
+	Join:(It will return those courses that are with students - mean to say whichever id is matched it returns.)
+		select c,s from course c join  c.student s
+		Query q = em.createQuery(); // you cannot use TypeQuery - bcos result contains both course and student
+		List<Object[]> resultList = q.getResultList();
+		for(Object[] result: resultList){
+			logger.info("course{} student{}",result[0], result[1]);
+		}
+Queries using Java API called criteria:
+		//create criteria builder.
+		//define roots for tables which are involved in query.
+		//define predicates.
+		//Add predicates to criteria query.
+		//execute.
+	Note:
+		criteria is little complex compared to JPQL.
+
+Transaction Management:
+			Annotation provides which spring and jpa provides makes transaction management easy.
+			Importance:
+			Account A 	Accoutn B
+			
+			Transfering 50$ from A to B.
+					step1 - deduct 50 from A
+					Step 2 - add 50 to B
+ACID Properties:
+				Atomicity: if there are 10 steps in one transaction, either all are success or all are failure
+				Concurrency: any transaction should leave the system in consistent state irrespective of whethere transaction success or failed
+				Isolation: how does one transaction can affect other transaction. - will one transaction will be able to see the intermediate levels of other transaction.
+				Durability:	once the transaction successful, the system should be persisted even if there is system failure. End result should be permanent.
+
+Dirty Phantom and Non Repeatable Reads:
+				Dirty Read:
+							t1 and t2 are running parallel.
+							t2 reads before t1 committed or completed - it is dirty read bcos if t1 fails, t2 would have wrong intermediate value.
+				Non repeatable read:
+							when one transacation reading the same value(row) again, it see the difference in value as some other transacation would have updated in between.
+				Phantom Read:
+							Get different number of rows for the same query in one transacation.
+Isolation level:					DirtyRead		NonRepeatableRead		PhantomRead
+			Read Uncommitted:		possible		possible					possible
+			Read Committed:			solved			possible					possible
+			Repeatable Read:		solved			solved						possible	
+			Serializable:			solved			solved						solved
+				
+			
+Serializable:
+				lock the entire table rows that are matching for one transaction.
+				very poor performance.
+				only one transacation can occur at a time, all other should wait.
+Read committed:	
+					lock all the values that are changed.
+Repeatable Read:
+					lock all the row which we read.
+
+	Note:
+		Most of the developer use Read Committed as Isolation level.
+
+Spring Transaction management:
+			//db1
+			//db2
+			//mq.
+		jpa transaction is sufficient.- would work if it is single DB. That is transaction dealt with single DB.	
+		If you want to manage transaction across DB, across external system like jms - then Spring Transaction management should be used.
+		With Spring I can set Isolation level
+		You can even specific default isolation to all your transaction - you can specify in property file
+		spring.jpa.properties.hibernate.connection.isolation = 2
+
+Introduction to Spring Data JPA:
+			Problem:
+			For all the entities the most of the method are same.
+			
+			Solution:
+			you have to define interface , that has to extend JPARepository
+			
+			interface CourseRepo extends JPARepository<Course,Long>{
+			
+			}
+			
+		Optional<Course> optionalCourse = repository.findById();
+CRUD Methods:
+		crud repository = has all the methods related to crud.
+		Paging Repository - has all the methods related to paging.
+Sorting using Spring data JPA:
+			//Sorting in descending order.
+			Sort sort  = new Sort(Sort.Directions.DESC).and(sort);
+			repository.findAll(sort);
+			
+			.and(sort) - using criteria we can add other sorting  fields.
+			
+Pagination:
+				it would return page of results.
+				To divide it into pages:
+				
+				PageRequest pr = PageRequest.of(0,3); // 3 is the total number of pages.
+				Page<Course> firstPage = repository.findAll(pr);
+				firstpage.content.
+				
+				Pageable secondPageable = firstPage.nextPageable();
+				repository.findAll(secondPageable);
+				
+Custom queries in JPA:
+					In Interface you can add
+					findByName(String name);
+					findByNameAndId(String name, Long id)
+					countByName(String name);
+					findByNameandOrderByIdDesc(String name)
+					
+					You can also pass the query in the interface.
+					@Query("select c from course c where name like '%100steps'")
+					List<Course> courseWith100StepsName();
+					
+					// Pass the normal SQL query.
+					@Query("select c from course c where name like '%100steps'", nativeQuery = true)
+					List<Course> courseWith100StepsName();
+					
+					//Invoke by query name.
+					@Query(name = "find_by_id")
+					List<Course> courseWith100StepsName();
+					
+Spring Data Rest:
+					pom.xml
+						spring-boot-starter-data-rest.
+					Itis really not recommended for production.
+						It is used to expose your repository as a rest service.
+Caching with JPA and Hibernate:
+					First level cache - within the boundary of single tranasction.
+					Method annotated with @Transactional - if you call same query multiple times it will get it from cache.
+						else it will hit actual db.
+					Second level cache:
+						POm.xml
+						hibernate-ehcache
+						application.properties
+						
+						//enable second level cache.
+						spring.jpa.properties.hibernate.cache.use.second_level_cache = true
+						
+						//specify caching framework as EHCache
+						spring.jpa.properties.hibernate.cache.region.factory_class = org.hibernate.cache.EHRegionCacheFactory
+						
+						//cache only what i tell u to cache.
+						spring.jpa.properties.persistence.sharedcache.mode = ENABLE_SELECTIVE   // only whicever entities annotated with @cacheable should be cached.
+						
+						logging.level.net.sf.cache =debug
+						
+						
+						
+						//what data to cache
+						@Cacheable
+						class Course{
+						
+						}
+						
+						when you run the query, it will check with cache if available get the data else hit db put it to cache and then send it back to user.
+						if it is not present in cache it is called L2C miss.
+						
+	Soft delete:
+		To do soft delete
+		
+		// when a row is deleted this query is getting fired.
+		@SQLDelete(sql = "update course set isDeleted = true where id=?")
+		@Where(clause="is_deleted=false") -- this does not applied to native query. USer have to take care by adding the condition.
+		
+		
+		class Course{
+			private boolean isDeleted;
+		}
+		
+		Now in DB this is updated as true, instead of deleting.
+		
+		While fetching from DB, this row will also be fetched. - fetch only active row.
+		@Where is used for Hql.
+		Native query will not work if we use @Where clause
+		
+		when you remove from db, hibernate will not even know about it, so we have to update the cache with the entity.
+		so we are using PreRemove.
+		Whenever a row of specific entity deleted, a method with this annotation is called.
+		@PreRemove
+		private void preRemove(){
+			this.isDeleted = true;
+		}
+		
+JPA Entity life cycle methods:
+	@PostLoad -  called as soon as entity is retreived from db.
+	PostPersist - after entity is persisted to db
+	PostRemove - after entity removed from db - after delete query.
+	PostUpdate - update query.
+	
+	PrePersist - All these are called before the query is executed.
+	PreUpdate
+	PreRemove
+		
+Using Embedded and Embeddable with JPA:
+	
+		@Embeddable
+		class Address{
+		
+			Address(){
+			}
+		}
+		
+		class Student{
+		
+		@Embedded
+		private Address address;
+		
+		}
+		Note:
+			Even for Embeddable you need no argument constructor. Not only for entity.
+
+Using Enums with JPA:
+	
+	enum ReviewRating{
+	one,two,three,four,five
+	
+	}
+	
+	class Review{
+	
+	@Enumerated(EnumType.String)
+	private ReviewRating rating.
+	}
+	
+	Note:
+		In DB by default it will update the ordinal, that is the number.
+		If you depend on ordinals that is not good, in case if something getting added before after some time, then it is not good.
+		so add Enum as String
+		
+JPA Tips:
+		toString() in entity
+			be cautious ,if you had review also, then query for review will also be triggered, which will cause performance error.
+			
+	
+When to use JPA:
+		Good for Simple crud.
+		Mostly simple queries and mappings.
+		
+		Disadvantages:
+		Not good for batch.
+		Not good for performance related DB with 1000 and 1000 of rows.
+		
+Performance Tunning:
+		Measure the performance and then tune it.
+		Enable statistics in one of the environment
+		
+		logging.level.org.hibernate.stat = debug.
+		
+Performance Tunning Indexes:
+		Add the right index on db.
+			Automatically index will be created at id - primary key
+			if there often queries with other fields like name,city etc - then create the appropriate index.
+Performance tunning Caching:
+			Use appropriate caching.
+			First level - within tranasction. - regularly clear enity manager to clear entity.
+			second level - EH cache - different transaction on the same server or same instance of the application.(it is specific to one instance)
+			Distribute cache - if you are running multiple instance of one application, use cache - HazleCast.
+Performance Tunning Eager vs Lazy Fetch:
+			use lazy fetch mostly.
+					Do i need entity2 info every time whenever i fetch -think and configure.
+			Things which end with one like ManyToOne , OneToOne are eager by default.
+			Things which end with many  like ManyToMany are lazy by default		
+	
+Avoiding N+1 Problems:
+		Course contains list of students.
+		For each and every course a separate query will run to fetch the student details.
+		If courses are more - those many queries would run.
+		Solution:
+				Eager fetch 
+					but the problem is every time you acess course, it will query for student also.
+					Also in case if there are so many other relationship present for course, then it would be so complicated.
+		Solution 2 :
+		Entity Graph:
+			EntityGraph<Course> eg = em.createGraph(Course.class).addsubgraph(student.class)
+			em.setHint("javax.persistence.loadgraph",eg);
+		This will just create one query using join and fetch all details. Also no need to use eager fetch.
+		Solution 3:
+			create one more name query , write query with join fetch
+				select course c join fetch student s
+	
+How to connect different DB using SprinBoot:
+		Add dependency related to your database.
+		configure application.properties.
+			Spring boot will not create schema for you in DB.
+Approach to design great JPA application:
+			start with table first.
+			identify the relationship.
+			identify the constraints.
+			Then build java application to DB.
+Good Practices for JPA Applications:
+			All your Enity fields, components member variable should be private.	
+			
+			
+			

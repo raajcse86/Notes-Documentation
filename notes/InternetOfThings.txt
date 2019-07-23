@@ -1,0 +1,34 @@
+Internet of Things:
+
+AI:
+Human intelligence
+	hot , cold 
+	learn by experiment, knowledge and experience
+	
+Python libraries for AI:
+
+scikit Learn - machine learning
+Shogun - machine learning tool box
+mlpi
+
+nltk - natural language processing
+pynlpi
+
+Application of AI
+preventive maintenance - Industry with motor - when motor healthy take data, - do analysis, some sound gets that data
+	Doctor cannot give you the report instantly whether u are suffering from disease or not.
+	Ex: Take the picture of the problem, split the images - process it, mark the difference - identify the difference.
+	feature extraction like which part what problem.
+	it iwll tend to analyse.
+	Mark the difference, calculate the distance, get to conclusion with large number of data.
+	It is helping the doctor 
+	
+Voice based - sound based processing.
+Traffic flow analysing system.
+Text based analysis - on looking at text it is positive or negative
+Chatbot - Bank have chatbot to get to know more about end users.
+Fault detection in raw material
+Driverless car
+Image processing.
+
+Able to book the tickets, avoid standing in que for paying electricity, paying bill

@@ -1,0 +1,1666 @@
+Design patterns in java
+
+Adapter Design Pattern:
+//Need to write an adapter so that Drawing class can call drawAllShapes and in turn it will be able
+//to draw geometry shapes also.
+//Two different interface, have to make both of them compatible with each other.
+//Like Drawing, in case if there are any other class on the other side which holds all the operation.
+//then we can decide which way to mould.
+//As already Drawing class holds the entire stuff, we will write an adapter which will adapt or compatible to  Drawing class.
+//Write an adapter class which implements Shape, and it contains GemoetryShape interface
+
+//Object Adapter Pattern
+//In this approach, we will use the Java composition, and our adapter contains the source object. 
+//The composition is used as a reference to the wrapped class within the adapter. 
+//In this approach, we create an adapter class that implements the target ( Shape in this case) 
+//and references the adaptee — GeometricShape in this case. 
+//We implement all of the required methods of the target (Shape) and 
+//do the necessary conversion to fulfill our requirement.
+
+
+//Class Adapter Pattern
+//In this approach, we use the Java Inheritance and extend the source class. So, 
+//for this approach, we have to create separate adapters for the Triangle and Rhombus classes, as shown below:
+
+//Class adapters use inheritance and can wrap a class only. I can't wrap an interface since, by definition, it must be derived from some base class.
+//Object adapters use the composition and can wrap classes as well as interfaces. It contains a reference to the class or interfaces object instance. The object adapter is the easier one and can be applied in most of the scenarios.
+
+
+Note:
+Adapter vs. Decorator Design Pattern:
+	Here, are some key points to distinguise between Adapter and Decorator Pattern (see more in my article Decorator Design Pattern in Java).
+
+Adapter Pattern:
+		Makes a wrapper (Adapter) to create compatibility/conversion from one interface to the other interface which are incompatible.
+		Wrapper (Adapter) works on two incompatible interfaces/classes.
+		The intenstion of writing the wrapper class is to resolve the differences and make the interfaces compatible.
+		We rarely add any functionality in the wrapper class. 
+
+Decorator Pattern:
+		Makes a wrapper (Decorator) to add/modify functionalities in the interface/class without changing the original code of the class. We use Abstract wrapper to implement this pattern, in general.
+		Wrapper (Decorator) works on single interface/class.
+		The intension of writing the wrapper class is to add/modify functionalities of the interface/class.
+		There is no incompatibility issue since we deal only with one interface/classes at a time.
+
+
+package com.tutorial.adapter;
+
+import java.util.ArrayList;
+import java.util.List;
+
+interface Shape{
+	void draw();
+	void resize();
+	void description();
+	
+}
+
+class Circle implements Shape{
+	@Override
+	public void description() {
+		System.out.println("Circle object");
+		
+	}
+	@Override
+	public void draw() {
+		System.out.println("Drawing Circle.");
+		
+	}
+	@Override
+	public void resize() {
+		System.out.println("Resizing Circle.");
+		
+	}
+}
+
+class Rectangle implements Shape{
+	@Override
+	public void description() {
+		System.out.println("Rectangle object");
+		
+	}
+	@Override
+	public void draw() {
+		System.out.println("Drawing Rectangle.");
+		
+	}
+	@Override
+	public void resize() {
+		System.out.println("Resizing Rectangle.");
+		
+	}
+}
+
+class Drawing {
+
+	List<Shape> shapes = new ArrayList<>();
+	
+	void addShapes(Shape shape){
+		shapes.add(shape);
+		
+	}
+	
+	public void drawAllShapes() {
+		for(Shape shape:shapes) {
+			shape.draw();
+		}
+	}
+	
+	public void resizeAllShapes() {
+		for(Shape shape:shapes) {
+			shape.resize();
+		}
+	}
+
+}
+public class DrawingClient{
+	public static void main(String[] args) {
+		Drawing drawing = new Drawing();
+		drawing.addShapes(new Rectangle());
+		drawing.addShapes(new Circle());
+		drawing.drawAllShapes();
+		
+	}
+}
+
+-----------------------------------------------------------------------------------------------------
+package com.tutorial.adapter;
+
+interface GeometryShapes{
+	double area();
+	double perimeter();
+	void drawShape();
+	
+}
+
+class Triangle implements GeometryShapes{
+	private double a = 1.0;
+	private double b = 2.0;
+	private double c = 3.0;
+	
+	@Override
+	public double area() {
+		return a*b*c;
+	}
+	
+	@Override
+	public double perimeter() {
+		return a+b+c;
+	}
+	
+	@Override
+	public void drawShape() {
+		System.out.println("Drawing Triangle with area "+area()+" perimeter "+perimeter());
+		
+	}
+	
+}
+
+class Rhombus implements GeometryShapes{
+	private double a = 1.0;
+	private double b = 2.0;
+	
+	@Override
+	public double area() {
+		return a*b;
+	}
+	
+	@Override
+	public double perimeter() {
+		return a+b;
+	}
+	
+	@Override
+	public void drawShape() {
+		System.out.println("Drawing Rhombus with area "+area()+" perimeter "+perimeter());
+		
+	}
+	
+}
+
+public class DrawingGeometryShapesClient {
+
+	
+	public static void main(String[] args) {
+		
+	}
+}
+---------------------------------------------------------------------------------------------------
+class GeometryShapeAdapter implements Shape{
+	private GeometryShapes geometryShapes;
+	
+	public GeometryShapeAdapter(GeometryShapes geometryShapes) {
+		this.geometryShapes = geometryShapes;
+	}
+	
+	@Override
+	public void draw() {
+		geometryShapes.drawShape();
+	}
+	
+	@Override
+	public void description() {
+		if(geometryShapes instanceof Triangle) {
+			System.out.println("Triangle Object");
+		}else if (geometryShapes instanceof Rhombus) {
+			System.out.println("Rhombus Object");
+		}
+		
+	}
+	
+	@Override
+	public void resize() {
+		if(geometryShapes instanceof Triangle) {
+			System.out.println("Resize not possible for Triangle");
+		}else if(geometryShapes instanceof Rhombus) {
+			System.out.println("Resize not possible for Rhombus");
+		}
+	}
+		
+	
+}
+
+
+
+public class AdapterDesignPatternDemo {
+
+	
+	public static void main(String[] args) {
+		Drawing drawingShape = new Drawing();
+		drawingShape.addShapes(new Circle());
+		drawingShape.addShapes(new GeometryShapeAdapter(new Triangle()));
+		drawingShape.addShapes(new GeometryShapeAdapter(new Rhombus()));
+		
+		
+		drawingShape.drawAllShapes();
+		
+	}
+}
+
+
+
+ENUM:
+Java enum constructors must use a private or default package-level modifier. Enums can contain multiple constructors.
+Java enums implicitly extend the  java.lang.Enum class. Therefore, Java enums can't extend any class. But, enums can implement different interfaces.
+Java enums implicitly implement the   java.lang.Comparable and  the  java.io.Serializable  interfaces.
+We can't instantiate an enum using the new operator.
+We can also provide various values as enum-member variables with the enum constants.
+We can create abstract methods within an enum. In that case, all of the Enum constants will become abstract and will be required to implement declared abstract methods.
+In this article, I will mainly focus on these last two points — I am keeping the examples simple to focus only on the uses of the enums.
+
+Enums With and Without Variables
+The following code does not use variables or a set of values as enum members.
+
+enum WeekDays {
+   SUNDAY, MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY;
+}
+public class EnumWithoutValues {
+  public static void main(String[] args) {
+    WeekDays weekdays = WeekDays.THURSDAY;
+    switch (weekdays) {
+      case SUNDAY:
+      System.out.println("Sunday Funday");
+      doYourTaskForWeekEnds();
+      break;
+      case MONDAY:
+      System.out.println("Marketing Monday");
+      doYourTaskForWeekDays(weekdays);
+      break;
+      case TUESDAY:
+      System.out.println("Trendy Tuesday");
+     doYourTaskForWeekDays(weekdays);
+      break;
+      case WEDNESDAY:
+      System.out.println("Wellness Wednesday");
+        doYourTaskForWeekDays(weekdays);
+      break;
+      case THURSDAY:
+      System.out.println("Thankful Thursday");
+        doYourTaskForWeekDays(weekdays);
+      break;
+      case FRIDAY:
+      System.out.println("Foodie Friday");
+      doYourTaskForWeekDays(weekdays);
+      break;
+      case SATURDAY:
+      System.out.println("Social Saturday");
+     doYourTaskForWeekEnds();
+      break;
+    }
+  }
+  private static void doYourTaskForWeekEnds() {
+    System.out.println("Relax and Enjoy! It's Weekend :)");
+  }
+  private static void doYourTaskForWeekDays(WeekDays weekdays) {
+  System.out.println("Ohh! It's a weekday. Have to work!");
+  }
+}
+
+
+Now, the code below uses variables or a set of values as enum members.
+
+enum WeekDays {
+   SUNDAY("Sunday Funday", true), 
+   MONDAY("Marketing Monday"),
+   TUESDAY("Trendy Tuesday"), 
+   WEDNESDAY("Wellness Wednesday"),
+   THURSDAY("Thankful Thursday"),
+   FRIDAY("Foodie Friday"),
+   SATURDAY("Social Saturday", true);
+  private String daysGreeting;
+  private boolean isWeekend;
+  WeekDays(final String daysGreeting) {
+  this.daysGreeting = daysGreeting;
+  }
+  WeekDays(final String daysGreeting, final boolean isWeekend) {
+    this(daysGreeting);
+    this.isWeekend = isWeekend;
+  }
+  public String getDaysGreeting() {
+  return daysGreeting;
+  }
+  public boolean isWeekend() {
+  return isWeekend;
+  }
+}
+public class EnumWithValues {
+  public static void main(String[] args) {
+    WeekDays weekdays = WeekDays.THURSDAY;
+    System.out.println(weekdays.getDaysGreeting());
+    if (weekdays.isWeekend()) {
+      doYourTaskForWeekEnds();
+    } else {
+      doYourTaskForWeekDays(weekdays);
+    }
+  }
+  private static void doYourTaskForWeekEnds() {
+      System.out.println("Relax and Enjoy! It's Weekend :)");
+  }
+  private static void doYourTaskForWeekDays(WeekDays weekdays) {
+      System.out.println("Ohh! It's a weekday. Have to work!");
+  }
+}
+
+
+Enums With and Without Defined Methods
+The following code uses enums without any defined methods. In this code, we are trying to perform some basic arithmetic calculations.
+
+enum Operator {
+ADD,
+SUBTRACT,
+MULTIPLY,
+DIVIDE;
+}
+public class EnumWithoutDefinedFunctions {
+  public static void main(String[] args) {
+    int num1 = 10;
+    int num2 = 2;
+    Operator operator = Operator.DIVIDE;
+    int result = 0;
+    switch (operator) {
+      case ADD:
+      result = num1 + num2;
+      break;
+      case SUBTRACT:
+     result = num1 - num2;
+      break;
+      case MULTIPLY:
+      result = num1 * num2;
+      break;
+      case DIVIDE:
+            if (num2 != 0) {
+                    result = num1 / num2;
+            } else {
+                    System.out.println("Can't divide by zero.");
+            }
+      break;
+    }
+    System.out.println("result: " + result);
+  }
+}
+
+
+Below code uses enums with defined methods: We should define methods as abstract methods and then we have to implement defferent flavours/logic based on each enum members. Because of declaring abstract method at the enum level; all of the enum members require to implement the method. Basically, enum members are instances of the enum and to make it instantiable, we need to implement all of abstract methods as announemous class at each of the enum member.
+
+enum Operator {
+    ADD {
+       @Override int execute(final int num1, final int num2) {
+        return num1 + num2;
+        }
+    },
+    SUBTRACT {
+      @Override int execute(final int num1, final int num2) {
+    return num1 - num2;
+    }
+    },
+    MULTIPLY {
+      @Override int execute(final int num1, final int num2) {
+    return num1 * num2;
+    }
+    },
+    DIVIDE {
+   @Override int execute(final int num1, final int num2) {
+          if (num2 != 0) {
+              return num1 / num2;
+          } else {
+              System.out.println("Can't divide by zero.");
+          }
+          return 0;
+    }
+};
+abstract int execute(int num1, int num2);
+}
+-----------------------------------------------------------------
+public class EnumWithoutDefinedFunctions {
+      public static void main(String[] args) {
+        int num1 = 10;
+        int num2 = 2;
+        Operator operator = Operator.DIVIDE;
+        int result = operator.execute(num1, num2);
+        System.out.println("result: " + result);
+      }
+}
+
+-------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------
+How to use Enum as Configurable sorting field:
+
+This example is applicable for Java 7 or below only. For Java 8 or above with rich java.util.Comparator APIs and power of Lambdas You simply need of the Pojo class (Student). See the end of the article for Java 8 approach.
+
+Still, I must say that this article is to just give an idea on how and what you can do with enums in similar way. Just imagine and create your own examples.
+
+Steps
+Define your model-data (POJO) class and decide how to sort the fields. I will use the Student class for the example below:
+
+package sort;
+public class Student {
+     private int rollno;
+     private String name;
+     private int age;
+     private int marks;
+     public Student() {
+              super();
+     }
+     Student(int rollno, String name, int age, int marks) {
+        this.rollno = rollno;
+        this.name = name;
+        this.age = age;
+        this.marks = marks;
+     }
+      public int getRollno() {
+      return rollno;
+      }
+      public void setRollno(int rollno) {
+      this.rollno = rollno;
+      }
+      public String getName() {
+      return name;
+      }
+      public void setName(String name) {
+      this.name = name;
+      }
+      public int getAge() {
+      return age;
+      }
+      public void setAge(int age) {
+      this.age = age;
+      }
+      public int getMarks() {
+      return marks;
+      }
+      public void setMarks(int marks) {
+      this.marks = marks;
+      }
+      public boolean getResult() {
+          // return true if pass (more than 50 marks)
+          return (marks > 50);
+      }
+      @Override
+      public String toString() {
+            StringBuilder builder = new StringBuilder();
+            builder.append("Student [rollno=").append(rollno)
+            .append(", name=").append(name)
+            .append(", age=").append(age)
+            .append(", marks=").append(marks)
+            .append(", result=").append((getResult() ? "Pass" : "Fail"))
+            .append("]");
+            return builder.toString();
+      }
+}
+
+
+Create an enum for representing the sorting order as ASC or DESC. I will use the SortingOrder  enum for the following example:
+package sort;
+public enum SortingOrder {
+ASC,
+DESC
+}
+
+
+Create an enum having all the sorting-fields as a member. I will use the SortingField enum for the example here. This enum will act as a sub-comparator (this will be more clear at the end).  
+
+Implement the  java.util.Comparator interface at the enum-level in the SortingField. This will make all of the enum members abstract, and you need to implement a compare method of the interface at each of the enum members.
+
+It is optional to implement them in thejava.util.Comparator and the SortingField . But, I like to do it this way to make sure that we are following the right pattern to compare fields. We get an additional Comparator, which we can also use if we would like to only sort on one field.  This will give us additional benefits. See the below code: 
+
+// 1st way
+SortingFieldsOrder order = new SortingFieldsOrder().addField(SortingField.NAME);
+Collections.sort(studentList, new StudentComparator(order));
+printStudentList(studentList);
+// 2nd way
+Collections.sort(studentList, SortingField.NAME);
+printStudentList(studentList);
+// Both are same here.
+// Remember we have implemented java.util.Comparator also at SortingField.
+// This will work only when we have to sort on ONE field.
+
+
+Below is the code for the  SortingField:
+
+package sort;
+import java.util.Comparator;
+public enum SortingField implements Comparator<Student> {
+   AGE {
+      @Override public int compare(Student student1, Student student2) {
+      return Integer.compare(student1.getAge(), student2.getAge());
+      }
+   },
+   NAME {
+      @Override public int compare(Student student1, Student student2) {
+           if (student1.getName() != null && student2.getName() != null) {
+              return student1.getName().compareTo(student2.getName());
+           } else if (student1.getName() != null) {
+           return 1;
+           } else {
+           return -1;
+           }
+      }
+   },
+   ROLLNO {
+      @Override public int compare(Student student1, Student student2) {
+      return Integer.compare(student1.getRollno(), student2.getRollno());
+      }
+   },
+   MARKS {
+       @Override public int compare(Student student1, Student student2) {
+                return Integer.compare(student1.getMarks(), student2.getMarks());
+       }
+   },
+   RESULT {
+         @Override public int compare(Student student1, Student student2) {
+               // the default will be reverse order (descending), pass has to come up 
+               // so, comparison will be student 2 vs student1
+               return Boolean.compare(student2.getResult(), student1.getResult());
+         }
+   };
+// Below common method to control ASC or DESC order. the default is ASC.
+  public int compare(Student student1, Student student2, SortingOrder order) {
+    return (SortingOrder.DESC.equals(order)) ? compare(student2, student1) : compare(student1, student2);
+    }
+}
+
+
+Here, please note that I have added one extra method (over-loaded) called  compare(), based on the given SortingOrder (ASC/DESC).
+// Below common method to control ASC or DESC order. the default is ASC.
+public int compare(Student student1, Student student2, SortingOrder order) {
+return (SortingOrder.DESC.equals(order)) ? compare(student2, student1) : compare(student1, student2);
+}
+
+
+Create one Pojo class to maintain the user-defined SortingField and the  SortingOrder together. I will use the  SortingFieldOrder  class for this example.  Please note here that I have overridden both the  hashCode() and  equals() method just to make sure that we can't add a   SortingField  twice in the  SortingOrder list. And, hence, I have checked only for the  SortingField  in the both of the methods — not the  SortingOrder .
+package sort;
+public class SortingFieldOrder {
+      private SortingField sortingField;
+      private SortingOrder sortingOrder;
+      public SortingFieldOrder() {
+      super();
+      }
+      public SortingFieldOrder(final SortingField sortingField) {
+            this();
+            this.sortingField = sortingField;
+      }
+      public SortingFieldOrder(final SortingField sortingField, final SortingOrder sortingOrder) {
+            this(sortingField);
+            this.sortingOrder = sortingOrder;
+      }
+      public SortingField getSortingField() {
+      return sortingField;
+      }
+      public void setSortingField(SortingField sortingField) {
+      this.sortingField = sortingField;
+      }
+      public SortingOrder getSortingOrder() {
+      return sortingOrder;
+      }
+      public void setSortingOrder(SortingOrder sortingOrder) {
+      this.sortingOrder = sortingOrder;
+      }
+      @Override
+      public int hashCode() {
+          final int prime = 31;
+          int result = 1;
+          result = prime * result + ((sortingField == null) ? 0 : sortingField.hashCode());
+          return result;
+      }
+      // checked only for SortingField to make sure that we can't add any field twice.
+      @Override
+      public boolean equals(Object obj) {
+          if (this == obj)
+          return true;
+          if (obj == null)
+          return false;
+          if (getClass() != obj.getClass())
+          return false;
+          SortingFieldOrder other = (SortingFieldOrder) obj;
+          if (sortingField != other.sortingField)
+              return false;
+          return true;
+      }
+      @Override
+      public String toString() {
+            StringBuilder builder = new StringBuilder();
+            builder.append("SortingFieldOrder [sortingField=").append(sortingField)
+            .append(", sortingOrder=").append(sortingOrder)
+            .append("]");
+            return builder.toString();
+      }
+}
+
+
+Next, you will need to create one more Pojo class to maintain the user-defined order of the  SortingFieldOrder. I will use the SortingFieldsOrderBean class for the example. We can also avoid creating this order class since its just stores a list to maintain the order. We can also create a list directly to store the order of the fields. But, for making the code as clean as possible, I am creating the SortingFieldsOrderBean class.
+
+package sort;
+import java.util.ArrayList;
+import java.util.List;
+public class SortingFieldsOrderBean {
+      private List<SortingFieldOrder> fieldsOrder = new ArrayList<SortingFieldOrder>();
+      public SortingFieldsOrderBean() {
+      super();
+      }
+      // To Create SortingFieldOrder in ASC or DESC order
+      public synchronized SortingFieldsOrderBean addField(final SortingFieldOrder fieldOrder) {
+            // contains will check the implemented equals method of SortingFieldOrder
+            // and will make sure that we have not added any SortingField twice.
+            if (!fieldsOrder.contains(fieldOrder)) {
+            fieldsOrder.add(fieldOrder);
+            }
+            return this;
+      }
+      // To Create SortingFieldOrder in ASC order
+      public synchronized SortingFieldsOrderBean addField(final SortingField field) {
+            SortingFieldOrder fieldOrder = new SortingFieldOrder(field);
+            if (!fieldsOrder.contains(fieldOrder)) {
+            fieldsOrder.add(fieldOrder);
+            }
+            return this;
+      }
+      // To Create SortingFieldOrder in ASC or DESC order
+      public synchronized SortingFieldsOrderBean addField(final SortingField field, final SortingOrder order) {
+            SortingFieldOrder fieldOrder = new SortingFieldOrder(field, order);
+            if (!fieldsOrder.contains(fieldOrder)) {
+            fieldsOrder.add(fieldOrder);
+            }
+            return this;
+      }
+      public List<SortingFieldOrder> getFieldsInOrder() {
+      return fieldsOrder;
+      }
+      @Override
+      public String toString() {
+      return "SortingFieldsOrderBean [fieldsOrder=" + fieldsOrder + "]";
+      }
+}
+
+
+Create one more Comparator class (sub-class of the  java.util.Comparator), which will receive the SortingFieldsOrderBean as a parameter and will perform a comparison based on the order of fields passed. This Comparator class will act as the  main-comparator , and the  SortingField enum will act as a sub-comparator. I will use the StudentComparator   class as the main-comparator for the following example:
+
+package sort;
+import java.util.Comparator;
+import java.util.List;
+public class StudentComparator implements Comparator<Student> {
+      private SortingFieldsOrderBean orderBean;
+      public StudentComparator(final SortingFieldsOrderBean orderBean) {
+          super();
+          if (orderBean == null || orderBean.getFieldsInOrder() == null || orderBean.getFieldsInOrder().isEmpty()) {
+          throw new IllegalArgumentException("SortingFieldsOrderBean can't be null or empty");
+          }
+          this.orderBean = orderBean;
+      }
+      @Override
+      public int compare(Student student1, Student student2) {
+          List<SortingFieldOrder> orderFields = orderBean.getFieldsInOrder();
+          return compareInFieldOrder(orderFields, student1, student2);
+      }
+      // recursive method to perform sorting on multiple fields and order.
+      private int compareInFieldOrder(final List<SortingFieldOrder> orderFields, final Student student1,
+      final Student student2) {
+            SortingFieldOrder fieldOrder = orderFields.get(0);
+            SortingField field = fieldOrder.getSortingField();
+            SortingOrder order = fieldOrder.getSortingOrder();
+            int comparisonResult = field.compare(student1, student2, order);
+            // we check if the objects are same on the field comparison;
+            // if yes and there are any remaining fields to compare
+            // we call the method recursively by taking the sublist of order fields.
+            if (comparisonResult == 0 && orderFields.size() > 1) {
+            return compareInFieldOrder(orderFields.subList(1, orderFields.size()), student1, student2);
+            }
+      return comparisonResult;
+      }
+}
+
+
+Finally, create a main executable class to test the code. I will create a Main class for the example below:
+
+package sort;
+import java.util.ArrayList;
+import java.util.Collections;
+public class Main {
+      public static void main(String[] args) {
+          // preparing some hard-coded data to keep code simple and focused.
+          ArrayList<Student> studentList = new ArrayList<Student>();
+          studentList.add(new Student(101, "Vijay", 24, 98));
+          studentList.add(new Student(109, "Ajay", 27, 86));
+          studentList.add(new Student(108, "Jai", 26, 49));
+          studentList.add(new Student(106, "Ajay", 23, 45));
+          studentList.add(new Student(104, "Jai", 26, 62));
+          studentList.add(new Student(103, "Vijay", 23, 98));
+          studentList.add(new Student(105, "Jai", 21, 54));
+          System.out.println("Sorting by Name...");
+          // SortingFieldsOrderBean order = new SortingFieldsOrderBean();
+          // order.addField(SortingField.NAME);
+          // Or in short because of chaining based implementation of addField method by
+          // returning current object (return this)
+          SortingFieldsOrderBean order = new SortingFieldsOrderBean().addField(SortingField.NAME);
+          Collections.sort(studentList, new StudentComparator(order));
+          printStudentList(studentList);
+          System.out.println("Sorting by Name and age (both ascending)...");
+          order = new SortingFieldsOrderBean().addField(SortingField.NAME).addField(SortingField.AGE);
+          Collections.sort(studentList, new StudentComparator(order));
+          printStudentList(studentList);
+          System.out.println("Sorting by Name and age (desc) and rollno...");
+          order = new SortingFieldsOrderBean().addField(SortingField.NAME).addField(SortingField.AGE, SortingOrder.DESC)
+          .addField(SortingField.ROLLNO);
+          Collections.sort(studentList, new StudentComparator(order));
+          printStudentList(studentList);
+          System.out.println("sorting by age...");
+          order = new SortingFieldsOrderBean().addField(SortingField.AGE);
+          Collections.sort(studentList, new StudentComparator(order));
+          // Or Simply we can write as below
+          // Collections.sort(studentList, SortingField.AGE);
+          // Remember we have implemented java.util.Comparator in the SortingField as well
+          // This will work ONLY when we have to sort on ONE field only.
+          printStudentList(studentList);
+          System.out.println("sorting by rollno in descending order...");
+          order = new SortingFieldsOrderBean().addField(SortingField.ROLLNO, SortingOrder.DESC);
+          Collections.sort(studentList, new StudentComparator(order));
+          // Or Simply we can write as below
+          // Collections.sort(studentList, SortingField.ROLLNO);
+          printStudentList(studentList);
+          System.out.println("sorting by result, marks descending, rollno in ascending order...");
+          order = new SortingFieldsOrderBean().addField(SortingField.RESULT)
+          .addField(SortingField.MARKS, SortingOrder.DESC).addField(SortingField.ROLLNO);
+          Collections.sort(studentList, new StudentComparator(order));
+          printStudentList(studentList);
+}
+private static void printStudentList(ArrayList<Student> studentList) {
+          for (Student student : studentList) {
+                  System.out.println(student);
+          }
+          System.out.println();
+}
+}
+
+
+
+Now, I will take a look at an uncommon case to handle. Suppose we like to have a different sorting for the students that pass or fail. For the students who pass, we will sort them based on the given sorting order. But, for all the students who fail, sorting the order is fixed by the name and RollNo in the ascending order.
+
+To handle this uncommon case, we have to write a new main comparator and make sure that the first will always check for the result to distinguish between pass and fail students. For all students who pass, we will follow the given sorting-fields-order. Otherwise, for all students that failed, we will sort them by the fixed sorting order, Result, Name and RollNo. I am using  StudentResultComparator for the example.
+
+package sort;
+import java.util.Comparator;
+import java.util.List;
+public class StudentResultComparator implements Comparator<Student> {
+      private SortingFieldsOrderBean orderBean;
+      public StudentResultComparator(final SortingFieldsOrderBean orderBean) {
+          super();
+          if (orderBean == null || orderBean.getFieldsInOrder() == null || orderBean.getFieldsInOrder().isEmpty()) {
+          throw new IllegalArgumentException("SortingFieldsOrderBean can't be null or empty");
+          }
+        // by adding the Result as a 1st sorting field, I am forcing the 1st sorting to be done on pass vs fail.
+          orderBean.getFieldsInOrder().add(0, new SortingFieldOrder(SortingField.RESULT));
+          this.orderBean = orderBean;
+      }
+      @Override
+      public int compare(Student student1, Student student2) {
+      List<SortingFieldOrder> orderFields = orderBean.getFieldsInOrder();
+      return compareInFieldOrder(orderFields, student1, student2);
+      }
+      // recursive method to perform sorting on multiple fields and order.
+      private int compareInFieldOrder(final List<SortingFieldOrder> orderFields, final Student student1,
+      final Student student2) {
+            int comparisonResult = 0;
+            // if students are pass, sort in the given order
+            // else force to sort on name and rollno (fixed)
+            if (student1.getResult()) { //for all pass
+                SortingFieldOrder fieldOrder = orderFields.get(0);
+                SortingField field = fieldOrder.getSortingField();
+                SortingOrder order = fieldOrder.getSortingOrder();
+                comparisonResult = field.compare(student1, student2, order);
+                // we check if the objects are same on the field comparison;
+                // if yes and there are any remaining fields to compare
+                // we call the method recursively by taking the sublist of order fields.
+                if (comparisonResult == 0 && orderFields.size() > 1) {
+                return compareInFieldOrder(orderFields.subList(1, orderFields.size()), student1, student2);
+                }
+            } else { // else for all fail, force to sort on name and rollno (fixed)
+                if ((comparisonResult = SortingField.RESULT.compare(student1, student2)) == 0) {
+                    if ((comparisonResult = SortingField.NAME.compare(student1, student2)) == 0) {
+                        comparisonResult = SortingField.ROLLNO.compare(student1, student2);
+                }
+                }
+            }
+            return comparisonResult;
+      }
+}
+
+
+Below is the code to test the sorting:
+
+package sort;
+import java.util.ArrayList;
+import java.util.Collections;
+public class MainResult {
+    public static void main(String[] args) {
+          // preparing some hard-coded data to keep code simple and focused.
+          ArrayList<Student> studentList = new ArrayList<Student>();
+          studentList.add(new Student(101, "Vijay", 24, 98));
+          studentList.add(new Student(109, "Ajay", 27, 86));
+          studentList.add(new Student(108, "Jai", 26, 49));
+          studentList.add(new Student(106, "Ajay", 23, 45));
+          studentList.add(new Student(104, "Jai", 26, 62));
+          studentList.add(new Student(103, "Vijay", 23, 98));
+          studentList.add(new Student(105, "Jai", 21, 54));
+          System.out.println("Sorting by Name...");
+          // SortingFieldsOrderBean order = new SortingFieldsOrderBean();
+          // order.addField(SortingField.NAME);
+          // Or in short because of chaining based implementation of addField method by
+          // returning current object (return this)
+          SortingFieldsOrderBean order = new SortingFieldsOrderBean().addField(SortingField.NAME);
+          Collections.sort(studentList, new StudentResultComparator(order));
+          printStudentList(studentList);
+          System.out.println("Sorting by Name and age (both ascending)...");
+          order = new SortingFieldsOrderBean().addField(SortingField.NAME).addField(SortingField.AGE);
+          Collections.sort(studentList, new StudentResultComparator(order));
+          printStudentList(studentList);
+          System.out.println("Sorting by Name and age (desc) and rollno...");
+          order = new SortingFieldsOrderBean().addField(SortingField.NAME).addField(SortingField.AGE, SortingOrder.DESC)
+            .addField(SortingField.ROLLNO);
+          Collections.sort(studentList, new StudentResultComparator(order));
+          printStudentList(studentList);
+          System.out.println("sorting by age...");
+          order = new SortingFieldsOrderBean().addField(SortingField.AGE);
+          Collections.sort(studentList, new StudentResultComparator(order));
+          // Or Simply we can write as below
+          // Collections.sort(studentList, SortingField.AGE);
+          // Remember we have implemented java.util.Comparator in the SortingField as well
+          // This will work ONLY when we have to sort on ONE field only.
+          printStudentList(studentList);
+          System.out.println("sorting by rollno in descending order...");
+          order = new SortingFieldsOrderBean().addField(SortingField.ROLLNO, SortingOrder.DESC);
+          Collections.sort(studentList, new StudentResultComparator(order));
+          // Or Simply we can write as below
+          // Collections.sort(studentList, SortingField.ROLLNO);
+          printStudentList(studentList);
+          System.out.println("sorting by result in ascending order...");
+          order = new SortingFieldsOrderBean().addField(SortingField.RESULT)
+            .addField(SortingField.MARKS, SortingOrder.DESC).addField(SortingField.ROLLNO);
+          Collections.sort(studentList, new StudentResultComparator(order));
+          printStudentList(studentList);
+      }
+    private static void printStudentList(ArrayList<Student> studentList) {
+          for (Student student : studentList) {
+            System.out.println(student);
+          }
+          System.out.println();
+    }
+}
+
+
+Please notice that the program is the same as the previous Main, except that we have used our newly written StudentResultComparator instead of  StudentComparator.
+
+Java 8 Approach
+Now, I am using Java 8  with the  java.util.Comparator APIs and the power of Lambdas. In that case, we need only the Pojo (Student) class. That's all! Interesting, isn't it?
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+public class MainJava8 {
+   public static void main(String[] args) {
+   // preparing some hard-coded data to keep code simple and focused.
+      ArrayList<Student> studentList = new ArrayList<Student>();
+      studentList.add(new Student(101, "Vijay", 24));
+      studentList.add(new Student(109, "Ajay", 27));
+      studentList.add(new Student(108, "Jai", 24));
+      studentList.add(new Student(106, "Ajay", 23));
+      studentList.add(new Student(104, "Jai", 26));
+      studentList.add(new Student(103, "Vijay", 23));
+      studentList.add(new Student(105, "Jai", 21));
+      System.out.println("Sorting by Name...");
+      Collections.sort(studentList, Comparator.comparing(Student::getName));
+      printStudentList(studentList);
+      System.out.println("Sorting by Name and age (both ascending)...");
+      Collections.sort(studentList, Comparator.comparing(Student::getName).thenComparing(Student::getAge));
+      printStudentList(studentList);
+      System.out.println("Sorting by Name and age (desc) and rollno...");
+      Collections.sort(studentList, Comparator.comparing(Student::getName).thenComparing(Student::getAge).reversed().thenComparing(Student::getRollno));
+      printStudentList(studentList);
+      System.out.println("sorting by age...");
+      Collections.sort(studentList,Comparator.comparing(Student::getAge));
+      printStudentList(studentList);
+      System.out.println("sorting by rollno in descending order...");
+      Collections.sort(studentList, Comparator.comparing(Student::getRollno).reversed());
+      printStudentList(studentList);
+   }
+    private static void printStudentList(ArrayList<Student> studentList) {
+    studentList.stream().forEach(System.out::println);
+    }
+}
+
+
+
+
+-----------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------
+Decorator Design Pattern
+The decorator design pattern allows us to dynamically add functionality and behavior to an object without affecting the behavior of other existing objects in the same class. 
+
+We use inheritance to extend the behavior of the class. This takes place at compile time, and all of the instances of that class get the extended behavior.
+
+Decorator design patterns allow us to add functionality to an object (not the class) at runtime, and we can apply this customized functionality to an individual object based on our requirement and choice.
+
+Decorator patterns allow a user to add new functionality to an existing object without altering its structure. So, there is no change to the original class.
+
+The decorator design pattern is a structural pattern, which provides a wrapper to the existing class.
+
+Decorator design pattern uses abstract classes or interfaces with the composition to implement the wrapper.
+
+Decorator design patterns create decorator classes, which wrap the original class and provide additional functionality by keeping the class methods' signature unchanged.
+
+Decorator design patterns are most often used for applying single responsibility principles since we divide the functionality into classes with unique areas of concern.
+
+The decorator design pattern is structurally similar to the chain of responsibility pattern.
+
+Let's take a look at an example to better understand the pattern.
+
+Steps to Implementing the Decorator Design Pattern
+Suppose, we have a Shape interface, which can includedraw(), resize() ,  isHide(), anddescription().
+
+package design.decorator;
+public interface Shape {
+    void draw();
+    void resize();
+    String description();
+    boolean isHide();
+}
+
+
+Now, we have two concrete classes of Shape  — Circle and Rectangle — to define a specific shape.
+
+Below is the code for Circle: 
+
+package design.decorator;
+public class Circle implements Shape {
+    @Override
+    public void draw() {
+    System.out.println("Drawing Circle");
+    }
+    @Override
+    public void resize() {
+    System.out.println("Resizing Circle");
+    }
+    @Override
+    public String description() {
+    return "Circle object";
+    }
+    @Override
+    public boolean isHide() {
+    return false;
+    }
+}
+
+
+Below is the code forRectangle:
+
+package design.decorator;
+public class Rectangle implements Shape {
+    @Override
+    public void draw() {
+    System.out.println("Drawing Rectangle");
+    }
+    @Override
+    public void resize() {
+    System.out.println("Resizing Rectangle");
+    }
+    @Override
+    public String description() {
+    return "Rectangle object";
+    }
+    @Override
+    public boolean isHide() {
+    return false;
+    }
+}
+
+
+Now, let's take a look at the decoration portion. So far, all is good, and we can draw Circle and Rectangle. But, we would like to have some additional functionalities for the Shape, like Fill-Color, Line-Color,  Line-Thinkness, Line-Style, and so on.
+
+First, we will create an abstract wrapper (decorator) class that implements the Shape. I will use theShapeDecorator for this example.
+
+package design.decorator;
+public abstract class ShapeDecorator implements Shape {
+      protected Shape decoratedShape;
+      public ShapeDecorator(Shape decoratedShape) {
+            super();
+            this.decoratedShape = decoratedShape;
+      }
+}
+
+
+I kept this abstract to avoid any direct instantiation since this is just a wrapper and does not add any functionality into the shape. Also, I have implemented Shape to allow adding additional functionalities to all of the defined, concrete Shape classes — Circle andRectanagle — for this case.
+
+Create enums for  Color and LineStyle for shapes. Below is the enum for  Color:
+
+package design.decorator;
+public enum Color {
+      RED,
+      GREEN,
+      BLUE,
+      YELLOW,
+      WHITE,
+      BLACK,
+      ORANGE,
+      MAROON
+}
+
+
+Below is the enum for  LineStyle:
+
+package design.decorator;
+public enum LineStyle {
+      SOLID,
+      DASH,
+      DOT,
+      DOUBLE_DASH,
+      DASH_SPACE
+}
+
+
+Create the FillColorDecorator to add the functionality of the fill-color in the shape.
+
+package design.decorator;
+public class FillColorDecorator extends ShapeDecorator {
+      protected Color color;
+      public FillColorDecorator(Shape decoratedShape, Color color) {
+            super(decoratedShape);
+            this.color = color;
+      }
+      @Override
+      public void draw() {
+            decoratedShape.draw();
+            System.out.println("Fill Color: " + color);
+      }
+      // no change in the functionality
+      // we can add in the functionality if we like. there is no restriction
+      // except we need to maintain the structure of the Shape APIs
+      @Override
+      public void resize() {
+      decoratedShape.resize();
+      }
+      @Override
+      public String description() {
+      return decoratedShape.description() + " filled with " + color + " color.";
+      }
+      // no change in the functionality
+      @Override
+      public boolean isHide() {
+      return decoratedShape.isHide();
+      }
+}
+
+
+Create the  LineColorDecorator to add the functionality of line-color in the shape.
+
+package design.decorator;
+public class LineColorDecorator extends ShapeDecorator {
+      protected Color color;
+      public LineColorDecorator(Shape decoratedShape, Color color) {
+      super(decoratedShape);
+      this.color = color;
+      }
+      @Override
+      public void draw() {
+      decoratedShape.draw();
+      System.out.println("Line Color: " + color);
+      }
+      // no change in the functionality
+      @Override
+      public void resize() {
+      decoratedShape.resize();
+      }
+      @Override
+      public String description() {
+      return decoratedShape.description() + " drawn with " + color + " color.";
+      }
+      // no change in the functionality
+      @Override
+      public boolean isHide() {
+      return decoratedShape.isHide();
+      }
+}
+
+
+Create the  LineThicknessDecorator to add the functionality of the custom line thickness in the shape.
+
+package design.decorator;
+public class LineThinknessDecorator extends ShapeDecorator {
+      protected double thickness;
+      public LineThinknessDecorator(Shape decoratedShape, double thickness) {
+                super(decoratedShape);
+                this.thickness = thickness;
+      }
+      @Override
+      public void draw() {
+                decoratedShape.draw();
+                System.out.println("Line thickness: " + thickness);
+      }
+      // no change in the functionality
+      @Override
+      public void resize() {
+      decoratedShape.resize();
+      }
+      @Override
+      public String description() {
+      return decoratedShape.description() + " drawn with line thickness " + thickness + ".";
+      }
+      // no change in the functionality
+      @Override
+      public boolean isHide() {
+      return decoratedShape.isHide();
+      }
+}
+Create LineStyleDecorator to add functionality of custom line styles in the shape.
+
+package design.decorator;
+public class LineStyleDecorator extends ShapeDecorator {
+        protected LineStyle style;
+        public LineStyleDecorator(Shape decoratedShape, LineStyle style) {
+        super(decoratedShape);
+        this.style = style;
+        }
+        @Override
+        public void draw() {
+        decoratedShape.draw();
+        System.out.println("Line Style: " + style);
+        }
+        // no change in the functionality
+        @Override
+        public void resize() {
+        decoratedShape.resize();
+        }
+        @Override
+        public String description() {
+        return decoratedShape.description() + " drawn with " + style + " lines.";
+        }
+        // no change in the functionality
+        @Override
+        public boolean isHide() {
+        return decoratedShape.isHide();
+        }
+}
+
+
+Create a sample Main program to execute and test the decorator code.
+
+package design.decorator;
+public class Main {
+  public static void main(String[] args) {
+            System.out.println("Creating Simple Shape Objects...");
+            Shape rectangle = new Rectangle();
+            Shape circle = new Circle();
+            System.out.println("Drawing Simple Shape Objects...");
+            rectangle.draw();
+            System.out.println();
+            circle.draw();
+            System.out.println();
+            System.out.println("Creating Decorated Circle with Red Color, Blue Lines in dash pattern and thickness of 2 ...");
+            Shape circle1 = new FillColorDecorator(new LineColorDecorator(new LineStyleDecorator(
+            new LineThinknessDecorator(new Circle(), 2.0d), LineStyle.DASH), Color.BLUE), Color.RED);
+            circle1.draw();
+            System.out.println();
+            // order of decorator is also not much important here since all are unique functionalities.
+            // we can also do this nesting of functionalities in separate statements.
+            System.out.println("creating object with similar functionalities in separate statements.");
+            Circle c = new Circle();
+            LineThinknessDecorator lt = new LineThinknessDecorator(c, 2.0d);
+            LineStyleDecorator ls = new LineStyleDecorator(lt, LineStyle.DASH);
+            LineColorDecorator lc = new LineColorDecorator(ls, Color.BLUE);
+            FillColorDecorator fc = new FillColorDecorator(lc, Color.RED);
+            Shape circle3 = fc;
+            circle3.draw();
+            System.out.println();
+            System.out.println("Creating Decorated Circle with Green Color, Black Lines ...");
+            Shape circle2 = new FillColorDecorator(new LineColorDecorator(new Circle(), Color.BLACK), Color.GREEN);
+            circle2.draw();
+            System.out.println();
+            System.out.println("Creating Decorated Rectange with Yellow Color, Red Lines in double dash pattern...");
+            Shape rectangle1 = new FillColorDecorator(new LineColorDecorator(new Rectangle(), Color.RED), Color.YELLOW);
+            rectangle1.draw();
+            System.out.println();
+      }
+}
+-------------------------------------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------------------------------------
+Strategy & Factory Design pattern:
+
+
+Strategy Design Pattern
+The strategy design pattern (also known as the policy design pattern) is a behavioral design pattern that allows us to select an algorithm at runtime. In this pattern, the code receives run-time instructions to decide which group of the algorithms to use.
+
+Strategy design patterns make the algorithm vary independently from the context, clients, and codes that use it.
+
+For example, a validating object that performs validation on data received may use the strategy pattern to select a validation algorithm, depending on the type, source of data, or based on other user parameters.
+
+These validation algorithms will be written separately from the validating object and, hence, can easily be used by different validating objects without any code duplication. Any validating object can also use different validation algorithms, as well, based on type, source, or user input.
+
+The strategy pattern stores a reference to some algorithm or code and supplies it wherever required.
+
+So, in short, the strategy design pattern is one of the many defined algorithms in the design pattern family, which may be applied or used on data. 
+
+The ability to decide which algorithm to use at runtime allows the calling or client code to be more flexible and reusable and avoids code duplication.
+
+The client or context does not know which strategy (algorithm) it has to use.
+
+Factory Design Pattern
+The factory design pattern is a creational design pattern, which provides one of the best ways to create objects. This pattern uses factory methods to deal with the problem of creating objects without specifying the exact class of the object that it has to create.
+
+In factory patterns, we create objects by calling a factory method rather than by calling a constructor.
+
+The factory pattern is one of the most used design patterns in Java. 
+
+The object creation logic is:
+
+Implemented either in an interface or implemented by child classes.
+
+Or, it is implemented in a base class and optionally overridden by derived classes.
+
+In the factory design pattern, we create an object without exposing the creation logic to the client.
+
+So, in short, the factory pattern gives the applicable object from the family of classes that we can use. This object represents an algorithm as well as lots of other functionalities. 
+
+In the below example, I will further attempt to highlight some of the differences. I am keeping the example relatively easy to understand and keep the focus strictly on the coding style.  Here, I am using an example of account-management:
+
+Account-Management Example With the Strategy Pattern
+We have various strategies for calculating the interest amount on the principal amount saved in the account.
+
+So, first, we have to create an interface to define the layout of the strategy (algorithm). I am creating the  InterestCalculationStrategy interface.
+
+package design.strategy;
+public interface InterestCalculationStrategy {
+double calculateInterest(double principal, double rate, int term);
+}
+
+
+Now, I am defining two flavors of the interest calculation logic or strategy algorithm,
+
+ SimpleInterestCalculator, to calculate simple interest for the defined rate and given term.
+
+package design.strategy;
+public class SimpleInterestCalculator implements InterestCalculationStrategy {
+    @Override
+    public double calculateInterest(final double principal, final double rate, final int term) {
+    return ((principal * term * rate) / 100);
+    }
+    @Override
+    public String toString() {
+    return "Simple Interest";
+    }
+}
+
+
+And, I will use the  CompoundInterestCalculator to calculate compound interest for the defined rate and given term.
+
+package design.strategy;
+public class CompundInterestCalculator implements InterestCalculationStrategy {
+    @Override
+    public double calculateInterest(final double principal, final double rate, final int term) {
+    return (principal * Math.pow(1.0 + rate/100.0, term) - principal);
+    }
+    @Override
+    public String toString() {
+    return "Compound Interest";
+    }
+}
+
+
+We have two account types: Saving or Current. The rate of interest is fixed and defined based on this account type. Here, please notice that I have fixed the rate of interest based on the account type.
+
+package design.strategy;
+public enum AccountType {
+    SAVING (2.0d),
+    CURRENT (1.0d);
+    private double rate;
+    AccountType (final double rate) {
+    this.rate = rate;
+    }
+    public double getRate() {
+    return rate;
+    }
+}
+
+
+Then, we have a model object to hold the Account details, as shown below:
+
+package design.strategy;
+public class Account {
+      private long accountNo;
+      private String accountHolderName;
+      private AccountType accountType;
+      private InterestCalculationStrategy interestStrategy;
+      private double amount;
+      public Account() {
+      super();
+      }
+      public Account(long accountNo, String accountHolderName, AccountType accountType) {
+      this();
+            this.accountNo = accountNo;
+            this.accountHolderName = accountHolderName;
+            this.accountType = accountType;
+      }
+      public Account(long accountNo, String accountHolderName, AccountType accountType,
+      InterestCalculationStrategy interestStrategy) {
+      this(accountNo, accountHolderName, accountType);
+      this.interestStrategy = interestStrategy;
+      }
+      public long getAccountNo() {
+      return accountNo;
+      }
+      public void setAccountNo(long accountNo) {
+      this.accountNo = accountNo;
+      }
+      public String getAccountHolderName() {
+      return accountHolderName;
+      }
+      public void setAccountHolderName(String accountHolderName) {
+      this.accountHolderName = accountHolderName;
+      }
+      public AccountType getAccountType() {
+      return accountType;
+      }
+      public void setAccountType(AccountType accountType) {
+      this.accountType = accountType;
+      }
+      public InterestCalculationStrategy getInterestStrategy() {
+      return interestStrategy;
+      }
+      public void setInterestStrategy(InterestCalculationStrategy interestStrategy) {
+      this.interestStrategy = interestStrategy;
+      }
+      public double getAmount() {
+      return amount;
+      }
+      public void setAmount(double amount) {
+      this.amount = amount;
+      }
+      public void deposit(double amount) {
+              // check for only positive/valid amount
+              if (amount > 0.0d) {
+              this.amount += amount;
+              }
+      }
+      public void withdraw(double amount) {
+              // check for only positive/valid amount and also for below than the available amount in account
+              if (amount > 0.0d && amount < this.amount) {
+              this.amount -= amount;
+              }
+      }
+      public double getInterest(int term) {
+              if (getInterestStrategy() != null && getAccountType() != null) {
+              return getInterestStrategy().calculateInterest(getAmount(), getAccountType().getRate(), term);
+              }
+              return 0.0d;
+      }
+      @Override
+      public String toString() {
+            StringBuilder builder = new StringBuilder();
+            builder.append("Account [accountNo=").append(getAccountNo())
+                  .append(", accountHolderName=").append(getAccountHolderName())
+                  .append(", accountType=").append(getAccountType())
+                  .append(", rate=").append((getAccountType() != null) ? getAccountType().getRate() : 0.0d)
+                  .append(", interestStrategy=").append(getInterestStrategy())
+                  .append(", amount=").append(getAmount()).append("]");
+            return builder.toString();
+      }
+}
+
+
+Now,  we will test the strategy pattern via the below code:
+
+package design.strategy;
+public class Main {
+    public static void main(String[] args) {
+          Account acct1 = new Account(12345678l, "Vijay Kumar", AccountType.SAVING);
+          acct1.setInterestStrategy(new CompundInterestCalculator());
+          acct1.deposit(10000.0d);
+          System.out.print(acct1);
+          System.out.println(" has interest : " + acct1.getInterest(5));
+          Account acct2 = new Account(12345680l, "Jay Kumar", AccountType.SAVING);
+          acct2.setInterestStrategy(new SimpleInterestCalculator());
+          acct2.deposit(10000.0d);
+          System.out.print(acct2);
+          System.out.println(" has interest : " + acct2.getInterest(5));
+    }
+}
+
+
+Please notice here that both of the accounts are part of the Saving type, and we are using different interest calculation algorithms ( Compound or Simple ) based on our choice. Basically, algorithms are free to use with the context (account) loosely coupled. This is the benefit of using the strategy design pattern.
+
+We can also create a factory for the strategy (StrategyFactory) here like below:
+
+package design.strategy;
+public class StrategyFactory {
+    public InterestCalculationStrategy createStrategy(String strategyType) {
+    InterestCalculationStrategy strategy = null;
+          if (strategyType != null) {
+              if ("COMPOUND".equalsIgnoreCase(strategyType)) {
+              strategy = new CompundInterestCalculator();
+              } else if ("SIMPLE".equalsIgnoreCase(strategyType)) {
+              strategy = new SimpleInterestCalculator();
+              } else {
+              System.err.println("Unknown/unsupported strategy-type");
+              }
+          }
+          return strategy;
+    }
+}
+
+
+In that case, our code to test strategy pattern will look like below:
+
+package design.strategy;
+public class Main1 {
+public static void main(String[] args) {
+          StrategyFactory factory = new StrategyFactory();
+          Account acct1 = new Account(12345678l, "Vijay Kumar", AccountType.SAVING);
+          acct1.setInterestStrategy(factory.createStrategy("COMPOUND"));
+          acct1.deposit(10000.0d);
+          System.out.print(acct1);
+          System.out.println(" has interest : " + acct1.getInterest(5));
+          Account acct2 = new Account(12345680l, "Jay Kumar", AccountType.SAVING);
+          acct2.setInterestStrategy(factory.createStrategy("SIMPLE"));
+          acct2.deposit(10000.0d);
+          System.out.print(acct2);
+          System.out.println(" has interest : " + acct2.getInterest(5));
+}
+}
+
+
+Below is the output for the program using the factory pattern:
+
+Account [accountNo=12345678, accountHolderName=Vijay Kumar, accountType=SAVING, rate=2.0, interestStrategy=Compound Interest, amount=10000.0] has interest : 1040.8080320000008
+Account [accountNo=12345680, accountHolderName=Jay Kumar, accountType=SAVING, rate=2.0, interestStrategy=Simple Interest, amount=10000.0] has interest : 1000.0
+
+
+Account-Management Example Using the Factory Pattern
+We have the AccountType interface to define account-types with the pre-defined or fixed rate of interest.
+
+package design.factory;
+public enum AccountType {
+      SAVING (2.0d),
+      CURRENT (1.0d);
+      private double rate;
+      AccountType (final double rate) {
+      this.rate = rate;
+      }
+      public double getRate() {
+      return rate;
+      }
+}
+
+
+I am implementing an abstract base class for the account and creating the various flavors of Account by sub-classing it.
+
+Below is the code for the  Account . Please note that I have defined the class as abstract to force the sub-classing of it.
+
+package design.factory;
+public abstract class Account {
+          private long accountNo;
+          private String accountHolderName;
+          private AccountType accountType;
+          private String interestStrategy;
+          private double amount;
+          public Account() {
+          super();
+          }
+          public Account(long accountNo, String accountHolderName, AccountType accountType) {
+                  this();
+                  this.accountNo = accountNo;
+                  this.accountHolderName = accountHolderName;
+                  this.accountType = accountType;
+          }
+          public long getAccountNo() {
+          return accountNo;
+          }
+          public void setAccountNo(long accountNo) {
+          this.accountNo = accountNo;
+          }
+          public String getAccountHolderName() {
+          return accountHolderName;
+          }
+          public void setAccountHolderName(String accountHolderName) {
+          this.accountHolderName = accountHolderName;
+          }
+          public AccountType getAccountType() {
+          return accountType;
+          }
+          public void setAccountType(AccountType accountType) {
+          this.accountType = accountType;
+          }
+          public String getInterestStrategy() {
+          return interestStrategy;
+          }
+          public void setInterestStrategy(String interestStrategy) {
+          this.interestStrategy = interestStrategy;
+          }
+          public double getAmount() {
+          return amount;
+          }
+          public void setAmount(double amount) {
+            this.amount = amount;
+          }
+          public void deposit(double amount) {
+                // check for only positive/valid amount
+                if (amount > 0.0d) {
+                this.amount += amount;
+                }
+          }
+          public void withdraw(double amount) {
+                // check for only positive/valid amount and also for below than the available amount in account
+                if (amount > 0.0d && amount < this.amount) {
+                this.amount -= amount;
+                }
+          }
+            // this need to be defined by the sub-classes by applying right algorithm 
+          public abstract double getInterest(int term);
+          @Override
+          public String toString() {
+                StringBuilder builder = new StringBuilder();
+                builder.append("Account [accountNo=").append(getAccountNo())
+                      .append(", accountHolderName=").append(getAccountHolderName())
+                      .append(", accountType=").append(getAccountType())
+                      .append(", rate=").append((getAccountType() != null) ? getAccountType().getRate() : 0.0d)
+                      .append(", interestStrategy=").append(getInterestStrategy())
+                      .append(", amount=").append(getAmount()).append("]");
+                return builder.toString();
+          }
+}
+
+
+Now, we have to create the types for the account. I create the SavingAccount, which is tied up with the compound interest algorithm.
+
+package design.factory;
+public class SavingAccount extends Account {
+      public SavingAccount(long accountNo, String accountHolderName) {
+            super(accountNo, accountHolderName, AccountType.SAVING);
+            setInterestStrategy("Compound Interest");
+      }
+      @Override
+      public double getInterest(int term) {
+            if (this.getAccountType() != null) {
+            return this.getAmount() * Math.pow(1.0 + this.getAccountType().getRate()/100.0, term) - this.getAmount();
+            }
+            return 0.0d;
+      }
+}
+
+
+Next, I created the CurrentAccount, which is tied up with the simple-interest algorithm.
+
+package design.factory;
+public class CurrentAccount extends Account {
+      public CurrentAccount(long accountNo, String accountHolderName) {
+      super(accountNo, accountHolderName, AccountType.CURRENT);
+      setInterestStrategy("Simple Interest");
+      }
+      @Override
+      public double getInterest(int term) {
+            if (this.getAccountType() != null) {
+            return ((this.getAmount() * term * this.getAccountType().getRate()) / 100);
+            }
+            return 0.0d;
+      }
+}
+
+
+So, basically, the types of accounts not only have pre-defined rates (as in the strategy) but also the pre-defined interest calculation algorithms, which are tightly coupled. Therefore, the account instance will have defined functionality.
+
+Now, let's take a look at the most important step. We have to define the factory class (AccountFactory) for the Account based on the given account-type.
+
+package design.factory;
+public class AccountFactory {
+      public Account createAccount(long accountNo, String accountHolderName, String accountType) {
+            Account account = null;
+            AccountType type = AccountType.valueOf(accountType);
+            if (type != null) {
+                switch (type) {
+                    case SAVING:
+                    account = new SavingAccount(accountNo, accountHolderName);
+                    break;
+                    case CURRENT:
+                     account = new CurrentAccount(accountNo, accountHolderName);
+                    break;
+                    default:
+                    // if we create any new account-type but failed to define the class for Account
+                    System.err.println("Unknown/unsupported account-type.");
+                }
+            } else {
+                  System.err.println("Undefined account-type.");
+            }
+      return account;
+      }
+}
+
+
+And, now, at last, let's look at the code to test the factory pattern.
+
+package design.factory;
+public class Main {
+      public static void main(String[] args) {
+            AccountFactory factory = new AccountFactory();
+            Account acct1 = factory.createAccount(12345678l, "Vijay Kumar", "SAVING");
+            acct1.deposit(10000.0d);
+            System.out.print(acct1);
+            System.out.println(" has interest : " + acct1.getInterest(5));
+            Account acct2 = factory.createAccount(12345680l, "Jay Kumar", "CURRENT");
+            acct2.deposit(10000.0d);
+            System.out.print(acct2);
+            System.out.println(" has interest : " + acct2.getInterest(5));
+      }
+}
+------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------
+
+
+Single responsibility principle:
+	There should never be more than one reason for a class to change.
+		Ex:
+		A class sends a message to server.
+		What are the things so we can change the class, Ex: message change from xml to json(message format change), adding authentication(security feature).
+		If this is the case, then we should have different classes for all these.
+		A class should be focus, single.
+		Controller:
+		 only to handle request and send response.
+		 no business logic should be there.
+		 Make sure we have test case, n
+		 
+		 
+		 

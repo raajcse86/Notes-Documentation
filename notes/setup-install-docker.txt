@@ -1,0 +1,13 @@
+C:\Users\username\AppData\Local\Programs\Git\bin\bash.exe --login -i "C:\Program Files\Docker Toolbox\start.sh"
+
+C:\Users\rajasekar.murugesan\AppData\Local\Programs\Git\bin
+
+"C:\Users\rajasekar.murugesan\AppData\Local\Programs\Git\bin\bash.exe" --login -i "C:\Program Files\Docker Toolbox\start.sh"
+
+
+https://www.youtube.com/watch?v=ymlWt1MqURY
+
+Enable hyper v on windows
+
+
+docker-machine create -d virtualbox --virtualbox-no-vtx-check test

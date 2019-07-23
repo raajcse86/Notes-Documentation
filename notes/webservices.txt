@@ -1,0 +1,371 @@
+Webservices:
+two application talk to each other by request and response.
+
+Two data exchange formats are XML and json.
+XML - Xtensible markup language.
+Json - Javascript object notation.
+
+Application knows the data exchange format through servic definition
+Service definition:
+	Request/Response format, structure and end point.
+
+Key terminology:
+		service provider - server
+		service consumer - client
+		service definition is the contract - tells the structure format and end point(where the service is available)
+		Transport - how a service is called(Is the service exposed over internet) Example: Http and MQ.
+		
+SOAP and Rest:
+			Not really comparable.
+SOAP : simple Object Access Protocol: It is all about adhere to SOAP xml services
+				we use XML as exchange format.
+				Soap defines specific structure like soap envelope, soap header and soap body(content of the response).
+				It just impose restriction like u can usee http and MQ
+WSDL:
+				endpoint - where service hosted
+				operations - show all operations
+				request structure 
+				response structure
+
+ReST:
+			Representational Transfer
+			It uses http
+			once url entered, request sent to website server. server sends the response back to the client(browser)
+			these request and response are in format of http - hyper text transfer protocol.
+			server sends http response containing html, client uses that response.
+			http - it contains headers and body.
+					it also defined Method - get, post, put
+					response - it also includes status code like 404, 500 are status codes.
+			Resource:
+				anything that u want to expose to the outside world.
+				A resource can have different representation like xml, html, json.
+				WADL - web application deployment lanaguage - explains about the service.
+				swagger - explains about the resources.
+start.spring.io:
+				Spring - address the dependency
+				what are beans
+				what are dependencies of bean
+				where to search for a bean
+To debug all the beans that spring has created				
+logging.level.org.springframework = debug:				
+
+Dynamic autowiring:
+					if there are two implementation for an interface, then spring container does not know what to autowire.
+@Primary:
+			if there are multiple implementation, this will solve , just put this on top of any implementations - this is equivalent to @Qualifier
+Be default it is autowire by type.
+if it is mandatory dependency use constructor injection.
+if it is optional dependency use setter injection.
+				the above line becomes so thin - as we just have to declare and then use it.
+Spring modules:
+Spring data/integration
+				spring jdbc - 	
+				Spring good integration with Hibernate , Ibatis
+				Spring good integration with JMS.
+				Spring OXM - object to XML conversion - it takes care of.
+				Spring Transactions - great support for transaction management
+Spring Web:
+				integrates with Struts,
+				it also has it own web called spring mvc
+Cross cutting concerns:
+				good support for testing
+				Spring AOP.
+Spring security:
+					
+Integration with AspectJ - for advanced aspect				
+
+Spring Projects:
+				Spring boot - to develop application quickly.
+				Microservice
+				Spring cloud - cloud native application. - to cloud enable microservice
+				Spring Data - connect with sql and No sql database.
+				Spring integration - address problem with enterprise application.
+				Spring Batch - continue from where it left off, 
+				Spring security - solutin for securing your applications. basic, oauth2.0
+				Spring Hateoas - return related links for all the apis that we write in restful
+				Spring webservice , Spring session, Spring mobile - 
+Why Spring popular:
+				Enbables testable code - dependency injection.
+				good integration with mockito and junit.
+				No plumbing code at all - like multiple try catch for connecting to db and execuring query - use jdbctemplate()	
+				Flexible architecture.
+				Spring has its own support for rest - at the same time it can support integration with Jersey as well.
+				It able to stay with trend , Spring boot and Spring cloud.
+Spring Boot:
+			embedded server
+			metrics
+			health check
+			externalize configuration.
+Starter:			
+	When u use spring mvc - configure dispatcher servlet, view resolver - 
+	logging
+	spring core
+	spring validator
+	instead use spring web starter.
+JPA starter:
+		default implementation with hibernate.
+I developing application, build war, install server and deploy it on server.
+			Instead - on the linux box, if i have java installed thats enough to run the application.
+Spring boot actuators:
+				how many time service called, servic failed, application up or not.
+Externalize configuration:
+					dev, prod, -different property file and set the profile.
+Befor Spring boot:
+						identify the framework example jstl, 
+						hibernate validator, 
+						logging, 
+						integration with database,configuring database connectivity
+						jaxb conversion - dependency
+						identify the version.
+						identify all the other dependencies.
+						create complete configuration, 
+						view resolver, 
+						locale resolver 
+						internationalization, 
+						web.xml, 
+						dispatcher servlet,
+						spring security, 
+						configure filter to intercept all the request, 
+						config for logging.
+	
+What is Spring boot Auto configuration:
+		@SpringBootApplication
+			it is spring context, it enables autoconfiguration, it enables compoenent scan. - starts scanning in the packages and subpackages.
+			run methods returns the application context - loop around get the bean.
+			Autoconfiguration:
+					lot of logic built look through classes that are on classpath. - if there is spring mvc , then it will configure view resolver.
+					it looks at existing bean - based on that it will configure all other bean.
+						Example:
+							DataSourceAutoconfiguration - this class is created only if datasource is present in the class path.
+				logging.level.org.springframework = debug:				
+			
+				It also tells what not configured.
+Sproing SpringBoot andSpring MVC:
+Spring core : 
+	It solves the following
+	IOC - defining bean, definining dependencies(Autowired) - helps to build loosely coupled application - easy to test
+	Duplicate and plumbing code.
+	Good integration with other framework like hibernate, ibatis, mockito, junit.
+	Provides simple way for developing web application.(with concepts like Dispatcher servlet, view resolver,locale,,datasoruce, entity manager and transaction etc.)
+Starter web and Starter JPA:
+				Starter web : contains starter json, starter tomcat, spring mvc, hibernate-validator,logging framework
+				starter jpa - kind of interface for hibernate, it defines how ORM should work.
+						hibernate core , transaction api, spring data spring jpa
+Other started project:
+						spring boot starter jdbc : spring +jdbc
+											Hateaos: add hateoas features to your service
+											security: basic and Oauth2
+											jpa - by default uses hibernate
+											cache - support wide range of caching including distributed cachine like hazzlecast.
+											actuator - for monitoring
+Spring boot actuator:
+						add starter for actuator
+						it gives monitoring, you can read metadata of application, how many times a particular service called/failed.
+						it exposes lot of rest service.
+							it depends on spring-data-rest-hal-browser.
+							localhost:8080/actuator - this is the url to launch
+							management.endpoints.web.exposure.include=*
+				Note:	
+					Spring Tools Exlipse plugin - when u press alt+space it displays all the available properties.
+			in the response body ,
+			take it append to /actuator/jvmused
+			you could see all the memory related to that service.
+Developer tools:
+				whenever u made a code change, it automatically deployed to server.
+				fresh restart it take 8 to 9 seconds, for a change it takes just 2.5 seconds.
+				(it will only load only the application bean again not all the dependency related bean)
+Soap web services - Spring boot:
+				webservices as starter, h2 db(in memory).
+creating Soap webservice using ContractFirst:
+				Service definition: xml ,xsd(xml schema definition), wsdl
+					soap:envelope
+					soap:header(it is an optional)
+					soap:body(contains the  request and response)
+					both request and response will have same high level structure.
+					we will define the structure of the request and response. - this is called xsd.
+					Jaxb - java api for xml binding.
+							it takes care of converting xml to java objects and viceversa
+					end point - 
+					wizdler chrome plugin - client	
+Define xml structure for request and response:
+						we want to do how our request would look like.
+							have to send input as request , output would be response as courserdetails
+						namespace - make the xml request unique	
+						if you want add some validations,like id should be number -this can be achieved using xsd.
+Define xsd for xml:
+						helps to validate the request is fine or not.
+							it will tell how an xml should look like
+							map the targetnamespace as namespace from xml.
+							<element name="getcoursedetailrequest">
+								<complexType>// when one node contains other node you can put it inside complex type.
+									<element name="id" type=integer></element>//this make sure that node name is 'id' and the value type is integer.
+								</complexType>
+							</element>
+							
+						Then go back to xml assign that xsd to the xml.
+							xsi:schemaLocation = "http://courserdetaik course.xsd"
+						Then you have to define xsi - as one of the xml schema instance	
+					From the xsd, the client will be able to create the xml request.
+Define xsd for response:
+						<element name="getcoursedetailresponse">
+								<complexType>
+									<sequence>
+										<element name="CourseDetails" type=tns:courseDetails></element>//this make sure that node name is 'id' and the value type is integer.
+									</sequence>	
+								</complexType>
+							</element>
+							
+							<complexType name="CourseDetails">
+								<sequence>
+								<element name="id" type=integer/>
+								<element name="name" type=string/>
+								<element name="description" type=string/>
+								</sequence>
+							</complexType>
+						
+Jaxb:
+			it will take the xsd and will create the java object.
+				pom.xml - define plugin
+							xjc plugin
+							<configuration>
+								<schemaDirectory>${project.baseDir}/src/main/resources
+								<outputDirectory>
+								<clearOutputDirectory>false</clearOutputDirectory>
+							</configuration>
+					Right click maven update project, it create all the java files from the xsd definition.
+Configuring an endpoint for GetCourseDetailsRequest:
+						//create a method
+						input as request 
+						output as response
+Initialize webservice:
+						create a class WebServiceconfiguration
+						@EnableWs
+						@Configuration
+							class WebServiceConfig{
+								//configure Message dispatcher servlet - handles all soap request, identify end points
+								ServletRegistrationBean(messagedispatcherservlet,""/ws/*);
+							}
+Generating WSDL		
+					/ws/courses.wsdl
+						this something like interface.
+						porttype
+						namespace
+						schema
+						pom.xml - need to add wsdl4j as dependency
+Using wizdler for soap request:
+soap-env:fault
+		when there is an exception with the server, it throws fault code.
+		create a custom exception and throw it and send a proper message.
+		@SoapFault(faultCode=faultCode.Custom)
+Implementing security for soap:
+			securoty with WS-security	
+				it is transport independent.
+				it provides authentication,digital signatures and certificates.
+			Implementations:
+					xwss
+					securityPolicy
+					XwsSecurityInterceptor
+				Only if request contain user id and password - as authenticated only then allow to acess
+
+REstful Webservices:
+					@RestController
+						it has @ResponseBody - it automatcally maps the response bean to respective json using jackson mapper.
+Enhancing post method to return correct http status code and return status as created. , return the uri
+		ResponseEntity<>.created(location of the resource);
+		
+							
+Implementing Exceptionhandling:
+		create a custom exception and throw it back
+		now when u run you would get status code as 500, 
+		actually it is not server error, it is actually not found.
+		
+		
+		class UserNotFoundException extends RuntimeException{
+		
+		
+		}
+Generic Exception handling:
+
+			@ControllerAdvice
+			class customizedExceptionHandler extends ResponseEntityExceptionHandler{
+			
+					@ExceptionHandler(Exception.class)
+					handleAllException(){
+					
+						new ExceptionResponse();
+						ResponseEntity(exceptionResponse, HttpStatus.InternalError);
+					}
+					
+			
+			}
+		
+Implementing validation for restful resources:
+							In controller 
+								@Valid @RequestBody User user
+						Class User{
+						
+						@Size(min=2, message= "Name should have atleast two character")
+						private String name;
+						@past
+						private Date birthDate;
+						}
+						When u run u will 400 as status code in the response.
+						The consumer will not get any idea what is wrong.
+						
+						
+						Override the below method from ResponseEntityExceptionHandler in the CustomizedExceptionHandler class
+						handleMethodArgumentNotValid() 	{
+							ex.getBindingResults().getAllErrors() // you can loop thru all errors and add it in the exception response.
+						
+						}
+Implementing Hateoas for restful webservices:
+							pom.xml - add the starter for Hateoas.
+							in one of the method Ex: /users/{id} post method - if you want to add link to retreive all users.
+							Resource<User> resource = new Resource<User>();
+							ControllerLink cl = ControllerLink.linkTo(methodOn(this.class.retreiveAllUsers)) // on which class what is the method name.
+							cl.withRel("all-users"); // what should be the name of the link.
+							return user; // instead it should be return Resource<User>
+							
+							Response:
+							{
+							
+							_links{
+								all-users:{
+									href: http://localhost:8080/users/
+								}
+							
+							}
+							
+							}
+Internationalization for restful services:
+					All these things do it main class
+					Create bean for LocalResolver - set default as US
+					create property file like messages.properties, messages_fr.properties
+					Create a bean called ResourceBundleMessageSource - set baseName(messages);
+					
+					In controller class:
+					@Autowired
+					MessageSource msource;
+					
+					msource.getMessage("good.morning.message",null,locale);
+					locale as to come from RequestHeader with the name as Accept-language, when we do not pass request header it will be default 
+
+Introduction to JPA:
+				Introduction - history, jdbc, Spring jdbc mybatis
+				JPA concepts - mapping entity, entitymanageer
+				Frameworks - Hibernate, Spring Data , Spring Data JPA	
+				Spring jdbc:
+						provide a layer on top of jdbc.
+						jdbcTempalte, Row mapper - removes boiler plate code.
+				JPA architecture:
+					jpa provides mapping - you can map applicaiton class to tables using entities and relationship.
+					Entity manager
+					criteria api and jpql - to get query the db, similar to sql however we would be using java objects
+					@Table
+					@Entity
+						@Id - primary key
+						@GeneratedValue
+					You can establish relationship between entities
+						if it is more than one table - we can use inheritance annotation
+					
+				

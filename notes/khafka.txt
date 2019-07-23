@@ -1,0 +1,279 @@
+Kafka
+
+website events
+pricing data
+Financial transaction
+user interactions
+Database
+analytics
+Email system
+Audit
+
+kafka theory:
+Topics:
+ a particular stream of data.
+ similar to table in database
+ you can have as many topics as you want
+ A topic is identified by name
+ 
+ 
+
+Partition
+	Each topic are split into partition
+	P0		0 1 2 3 4 5 
+	
+	
+	p1		0 1 2 3 4 5
+	p2		0 1 2 3 4 5
+	Each message within the partition gets an increment id called offset
+	
+	
+	
+Offset:
+
+	Order is guaranteed within a partition.
+	Data is kept for limited time (default - one week.)
+	offset is keeps incrementing
+	once data written to partition it can't be changed.(immutabliity)
+	Data is assigned randomly to partition if you dont send with key
+	
+Brokers:
+		Brokers is  server.
+		Each broker identified by id.
+		Kafka cluster is composed of multiple broker.
+		Each broker contains certain topic partition.
+		After connecting to one broker - u can connect to clusters.
+		A good number to start is 3 number of brokers - A big cluster can have 100 brokers.
+Data is distributed with different brokers.
+			A topic is spread across different brokers.
+			Topic A, P0 P1
+			B1	B2 B3
+			AP0	Ap1	Ap3
+
+Topic Replication factor:
+				default between 2 and 3
+				if one broker is down other can serve the data
+Leader:
+					only one broker can be a leader
+					multiple ISR(In syn replication)
+Producer:
+			Producer will send data to Topic.
+				kafka takes care of writing to broker, topic and partition.
+				Automatic load balance by broker
+Acknowledgement mechanism for producer:
+	ACK0 - Producer wont wait for acknowledgement.
+	ACK1 - Producer will wait for ack from leader
+	ACK2 - Producer will wait for ack from leader and replication
+Message key:
+	Producer can choose to send a key with message
+	Example:
+	Truck with their position sends to kafka a message.
+	Each truck identified by id.
+	A key is sent if you need message ordering for that specific field.
+	If key is null - the data is sent as round robin to partition
+	If key is sent, all those messages for that key will be stored in same partition
+	Example - TruckId can be key here, If you want to store all the messages from one particular truck
+	
+Consumer and Condumer Group:
+		Read data from topic.
+		Know which broker to read from.
+		In case of broker failure they know how to recover.
+		Data is read in order within each partition.
+			Across partition it read data in parallel - the order is not guaranteed.
+Consumer Groups:
+		consumer read data in conumer group.
+		Each consumer within the group read from exclusive partition.
+		if you have more consumer than partition - some consumer will be inactive.
+
+Consumer offset and delivery semantics:
+		consumer commit the offset once read from topic.
+		Atmost once:
+			offsets are commited once it read, before processing. - if processing goes wrong message will be lost.
+		Atleast once:
+			offsets are committed only after processed, if processing goes wrong, it will again read from topic, make sure that processing idempotent
+			means should be same when it processed mulitple times.
+		Exactly once:
+			perfered for kafk - kafka workflow stream api
+			kafka - to external - atleast once it prefered.
+Kafka Broker discovery:
+			Each broker is called bootstrap server.
+				connect to one server u can connect to entire cluster.
+				Each broker knows about all broker, topics and partition.
+Zookeeper:
+			manages the broker.
+			helps in performing leader election.
+			it sendsz notification to kafka when broker dies,come up , delete etc.
+			kafka cannot work without zookeeper.
+			Zookeper has leader(handle writes) and follower(handle read).
+
+Download and start kafka:
+In summary, for Windows
+Download and Setup Java 8 JDK
+
+Download the Kafka binaries from https://kafka.apache.org/downloads
+
+Extract Kafka at the root of C:\
+
+Setup Kafka bins in the Environment variables section by editing Path
+
+Try Kafka commands using kafka-topics.bat (for example)
+
+Edit Zookeeper & Kafka configs using NotePad++ https://notepad-plus-plus.org/download/
+
+zookeeper.properties: dataDir=C:/kafka_2.12-2.0.0/data/zookeeper (yes the slashes are inversed)
+
+server.properties: log.dirs=C:/kafka_2.12-2.0.0/data/kafka (yes the slashes are inversed)
+
+Start Zookeeper in one command line: zookeeper-server-start.bat config\zookeeper.properties
+
+Start Kafka in another command line: kafka-server-start.bat config\server.properties
+			
+
+CLI introduction:
+			Windows user - should not delete the topic - its a bug in kafka
+
+			
+Create a Topic:
+kafka-topics.bat --zookeeper 127.0.0.1:2181 --topic first_topic --create --partitions 3 --replication-facor 1
+
+To list all the created topic
+kafka-topics.bat --zookeeper 127.0.0.1:2181 --list
+
+To descibe a particular topic
+kafka-topics.bat --zookeeper 127.0.0.1:2181 --topic first_topic --describe			
+
+To delete a topic:			
+kafka-topics.bat --zookeeper 127.0.0.1:2181 --topic first_topic --delete			
+				
+Kafka Console producer
+kafka-console-producer.bat --broker-list 127.0.0.1:9092 --topic first_topic				
+	create a  topic before producing to it, because if it produces automatically, then default partition and replication factor will be 1
+	
+	
+kafka-console-producer.bat --broker-list 127.0.0.1:9092 --topic first_topic --producer-property acks=all
+		This will set the producer property.
+		
+nano config\server.properties
+num.partitions = 3
+//You can override the default partition.
+		
+kafka consumer group:		
+kafka-console-consumer.bat --bootstrap-server 127.0.0.1:9092 --topic first_topic --group my_first_group
+kafka-console-consumer.bat --bootstrap-server 127.0.0.1:9092 --topic first_topic --group my_first_group
+
+when u open multiple consumer in different window, each will get different message from topic depending upon the partition.
+
+kafka-console-consumer.bat --bootstrap-server 127.0.0.1:9092 --topic first_topic --group my_first_group --from-beginning
+It will not display anything.
+
+even if you stop the consumer group, during that time if producer produces something, then when you start that consumer group, you can see all the messages.
+
+
+kafka-consumer-groups --bootstrap-server 127.0.0.1:9092 --describe --group my_first_group
+this will describes the group.
+this will give you the partition wise details - number of current offset, lag,host,consumer-id etc
+
+Reset offsets:
+kafka-consumer-groups --bootstrap-server 127.0.0.1:9092 --group my_first_group --reset-offsets --to-earliest --execute --topic first_topic
+It resets the topics offset
+
+Now when you run the consumer, you will get all messages from beginning
+>kafka-console-consumer --bootstrap-server 127.0.0.1:9092 --topic first_topic --group my_first_group
+
+
+KafkaCat as a replacement for Kafka CLI
+Section 6, Lecture 41
+KafkaCat (https://github.com/edenhill/kafkacat) is an open-source alternative to using the Kafka CLI, created by Magnus Edenhill.
+
+While KafkaCat is not used in this course, if you have any interest in trying it out, I recommend reading: https://medium.com/@coderunner/debugging-with-kafkacat-df7851d21968
+
+
+Kafka java programming:
+Java producer:
+Java producer callback:
+
+When you change the group name(application) and if you start consuming, it will consume all messages.
+	when you again run it with one more instance, regrouping will happen among the instances and 
+	second instance will consume partition 1 , partition 2 and
+	the first instance will consume partition 0.
+	when you again start one more instance with the same group, again regrouping will happen, 
+		third instance will consume parition 1
+		second instance will consume partition 0
+		first instance will consume partition 2.
+		
+	Similarly when you shutdown any one of the instance, again regrouping will happen - 
+		now only two instance would be running right, some	
+		second instance will consume partition 1 , partition 2 and
+		the first instance will consume partition 0
+Consumer co-ordinator takes care of regrouping among the consumer in the consumer group.
+
+Java consumer with threads:
+better way of shutting down the application:
+
+Real world examples:
+Twitter Producer and Advanced configuration:
+
+twitter hbc -  twitter api for java
+log on to 
+developer.twitter.com
+create a developer account - create a project - it would generate keys and token - using this we have to invoke the twitter api and send the message to producer.
+create a separate topic called twitter_tweets with partition, replication factor.
+run the application - which will load the message to Blocking queue from twitter, which inturn sends the message to producer.
+run the consumer console witht the created topic - with which we would be able to see the tweets from twitter
+
+
+Producer  Ack deep dive:
+acks = 0 (no ack from leader(broker) to producer)
+acks =1(only leader acks, no acks from replicator) - If ack is not received from leader, then the producer may retry
+acks = all(leader and all replicator ack) - leader will receive all ack then it sends the ack to producer.
+	Ack = all must be in conjunction with min.insync.replicas
+	means min.insync.replicas = 2 (should be atleast 2(including leader) if replication factor is 3)
+	This min.insync.replicas  can be set at the broker level or topic leve
+	if ack = all, replication-facor =3 and min.insync.replicas = 2 - you can only tolerate single broker to go down - otherwise the producer will receive an exception on send.
+	Example -if all replicas are down, apart from leader then we will get NOT_Enough_Replicas
+
+	
+Producer Retries:	
+max.inflight.request.perconnection - Ordering guarantee
+	Default : 5 (If you not want to bother about ordering - you can set, this is like these many request can be parallely sent to topic)
+	set to 1 - if you want to ensure ordering.(this will impact the throughput)	
+
+Idempotent Producer:
+ Producer can introduce duplicate error to kafka due to network errors
+	Producer sends, kafka commit it, sends ack due to network error it did not reaches the producer.
+	Producer sends again as it did not get ack, kafka commmits again - results in duplicate commit.
+		To avoid this producer sends idempotent request with an id, with that id kafka detects the duplicate will not commit again but only sends ack back in the second time.
+		
+Settings are:
+			retries = Integer.MAxValue
+			max.inflight.request = 1 (kafka > 0.11 < 1.1)
+			max.inflight.request = 5 (kafka > 1.1) - high performance.
+	Developer just have to set the following.
+		producerProps.set("enable.idempotence", true);
+			
+Producer Compression:
+Ex: json data
+				compression.type - none || gzip || lz4 || snappy
+	this is set at the producer
+		In producer batch  - this is going to be so faster and userful, less latency, high throughput.
+		almost 4 times will be less. Disk will have more space
+		gzip - highly compressed but not that fast.
+		try all see the best that works for you. - always enabel compression in the production.
+Linger.ms and batch  size:
+ linger.ms = 0		
+	It is number of millisec producer willing to wait before sending to kafka, if you increase it will batch it out
+batch.size:
+ maximum number of bytes that will included in one batch. Default it is 16kb.
+	Increase it to 64kb or 32 kb will increase compression,throughput, efficiency etc
+	if it is too high - producer memory will be wasted.
+
+Producer default partition and key hashing:
+using 'murmur2' algorithm.
+no need to override default partitioner class.
+number of partitions cannot be increased at run time - if you are willing to do then same key will not go to same partition.
+
+max.blocks.ms and buffer memory:
+the default buffer size in producer is 32mb, if you producer produces way faster than kafka, or kafka is down and if you buffer is full, then send()
+will not return right way, it will block.
+max.block.ms=60000(1 minutes) - on either of the cases you will get exception.
+	

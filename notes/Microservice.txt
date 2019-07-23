@@ -1,0 +1,577 @@
+Microservice Patterns:
+
+links:
+https://microservices.io/patterns/
+
+	
+	
+	why fail
+	lack of planning, knowledge,skills and time.
+	Desing and implementation takes more time.
+	
+	Prevent failure:
+		determine applicability
+		priortise automation
+		Have a clear planning - design, estimate to develop,
+		avoid common pit falls - taking design decision without proper knowledge
+		
+	Microservice Template:
+		Significant amount of time in setting up
+		similar code for each microservice set up
+		Cross cutting concerns:
+			logging
+			metrics
+			db connection
+			message broker config
+		project structure
+
+Code Repository set up:
+			Mono vs Discrete
+			Mono:
+					easier to keep input/output contract in sync
+					easier to  version the entire repo with build number.
+					Cons:
+						different teams working on same repo can break build disrupt CI/CD build.
+						Build might take more time as code repo is large
+			Discrete:
+				Each team have their own repo
+				Cons:
+					contract sync is complex
+					more cost in setting up repos and CICI pipeline
+				
+				Which should we use.?
+				separate repo for UI and backend - make versioning together manually.
+Microservice Decomposition:
+				Two types:
+				Decompose by business capabilties:
+				Decompose by sub-domain
+				
+				Decompose by subdomain:
+				Define services corresponding to Domain-Driven Design (DDD) subdomains. DDD refers to the application’s problem space - the business - as the domain. A domain is consists of multiple subdomains. Each subdomain corresponds to a different part of the business.
+
+				Subdomains can be classified as follows:
+
+				Core - key differentiator for the business and the most valuable part of the application
+				Supporting - related to what the business does but not a differentiator. These can be implemented in-house or outsourced.
+				Generic - not specific to the business and are ideally implemented using off the shelf software
+				Examples
+				The subdomains of an online store include:
+
+				Product catalog
+				Inventory management
+				Order management
+				Delivery management
+				
+				
+				Decompose by business capabilities:
+
+				Issues
+					There are the following issues to address:
+
+				How to identify business capabilities? Identifying business capabilities and hence services requires an understanding of the business. An organization’s business capabilities are identified by analyzing the organization’s purpose, structure, business processes, and areas of expertise. Bounded contexts are best identified using an iterative process. Good starting points for identifying business capabilities are:
+
+				organization structure - different groups within an organization might correspond to business capabilities or business capability groups.
+				high-level domain model - business capabilities often correspond to domain objects
+				Forces that makes us to decompose application in to micro service:
+				The architecture must be stable
+				Services must be cohesive. A service should implement a small set of strongly related functions.
+				Services must conform to the Common Closure Principle - things that change together should be packaged together - to ensure that each change affect only one service
+				Services must be loosely coupled - each service as an API that encapsulates its implementation. The implementation can be changed without affecting clients
+				A service should be testable
+				Each service be small enough to be developed by a “two pizza” team, i.e. a team of 6-10 people
+				Each team that owns one or more services must be autonomous. A team must be able to develop and deploy their services with minimal collaboration with other teams.
+				
+				What:
+				loosely coupled and high cohesion
+				Based on business capabilties, each microservices should have suitabe level of granularity
+				Ex: Order management and  Shopping Cart management	
+					Order management:
+						Order history
+						Order placement
+						Order Track
+						Order dispute
+					Car management:
+						Cart upselling
+						Cart cost calculator
+						Cart Recovery.
+Interservice communication:
+						Async message based communication - using Message broker like RabbitMQ - publish and subscribe.
+Service Registry:
+	purpose - one ms sends request to ms - 
+				instances scales dynamically.
+	Service -> Registry
+		on start - service registers to registry
+		On shutdown - service removed from registry
+		At regular intervals - Service checks with registry
+	Service Discovery:
+		how microservice query registry.?
+	Client side discovery
+		What:
+		client queries registry and send the request to respective instance.
+		Advantages:
+		Fewer moving parts and network hops compared to Server-side Discovery
+		Disadvantage:
+		This pattern couples the client to the Service Registry
+		You need to implement client-side service discovery logic for each programming language/framework used by your application,
+		e.g Java/Scala, JavaScript/NodeJS. For example, Netflix Prana provides an HTTP proxy-based approach to service discovery for non-JVM clients.
+	Server side discovery:
+		Why:
+		 a modern microservice-based application typically runs in a virtualized or containerized environments where the number of instances 
+		 of a service and their locations changes dynamically.
+		What : 
+		client send the request to load balancer.
+		load balancer queries to registry.
+		load balancer calls to respective instance of the service, client not aware of the instance.
+		Ex: AWS Elastic load Balancer (ELB)
+		Advantages:
+		Compared to client-side discovery, the client code is simpler since it does not have to deal with discovery. 
+		Instead, a client simply makes a request to the router
+		Some cloud environments provide this functionality, e.g. AWS Elastic Load Balancer
+		Disadvantage:
+			Unless it’s part of the cloud environment, the router must is another system component that must be installed and configured. 
+			It will also need to be replicated for availability and capacity.
+			The router must support the necessary communication protocols (e.g HTTP, gRPC, Thrift, etc) unless it is TCP-based router
+			More network hops are required than when using Client Side Discovery
+Shared Database:
+				it is called antipattern for large application
+Database per service:
+					different service can use different technology db like sql, NoSQL
+API Composition:
+				query multiple db and then compose the solution
+Event Sourcing:
+				Event store 
+				Event store acts as message broker
+				Product service update price, publish event to event store.
+					Product Search service and Product Recommendation Service would have subscribed to event store for price update event.
+					
+				
+Two phase commit
+	In distributed transaction to ensure integrity of data two phase commit is used.
+		Co-ordinator
+		
+		
+	PaymentService  OrderService	ProductService	
+	
+Phase 1:
+		co-ordinator sends a query message to all service
+		Each service execute the transaction and send the reply Yes/No
+		If all service replies Yes, then co-ordinator sends commit message to all services.
+		If any of the service replies with No, then co-ordinator sends Rollback to all services
+Saga:
+	alternative to two phase commit on distributed transaction.
+Choreography based sagas:
+		
+Orchestration based sagas:
+	An orchestration which takes care of entire all of those transaction
+Other Approach:
+		write trigger to database table when it is changed.
+		
+Note:
+			If application is large prefer Event source pattern as data is more.
+			Prefer API composition - like in memory cache when the application data is less.
+	
+FailOver mechanism:
+		We sshould have redundant service registry,that both should be in sync
+		Both run in different machines - in case of hardware failure.
+		If services failed to connect to primary service registry, then connect to secondary auitomatically
+
+Circuit breaker:
+		One service calls other service, and that other  service gets more load, it gets pile up lead to error and resource exhaustion.
+		It logs all the failure request for a period of time, after some period of time if the request again fails, it sends timeout exception.
+		Its a cross cutting concern should be included in all microservice.
+Health check API:
+			Service Registry and Monitoring service checks on each service.
+			Each service has health check api.
+Logging Techniques:
+			RequestId assigned and send across all request.
+			This should be send in the payload or header.
+			This id should be logged in the logger.
+			Each service will have own log files, we can aggregate all those logs
+				Ex: Sleuth, Splunk, AWS Cloud Watch, ELK.
+TroubleShooting microservices:
+				
+
+
+Spring cloud config:
+   Package config along with application - have to rebuild and restart
+	Use common file system to store
+	Use environment variables - different for different os
+	cloud vendor specific solution
+		Ex:cloud fountry -coupling your application to specific cloud fountry libraries
+		
+Other challenges:
+			large dependent services.
+			Ex: Netflix has 600 microservices for video streaming.
+			Version  control.
+Desired solution	
+				platform independent, cloud independent, language independent.
+				Centralized
+				Dynamic ability - set while application running like changing db.
+				Controllable - same source code management for application.
+				Passive - each microservice register themselves like self registering
+solution - spring cloud config
+Spring cloud bus - will notify client to config changes
+Netflix - Eureka service discovery - service register themselves as clients with registry				
+
+config server themselves backed by version control like git or flat files.
+
+org.spring.cloud
+cloud-starter-parent
+
+spring-cloud-config.
+
+Springcloud config server:
+	application.yml
+		contains git uri
+		
+	@EnableConfigServer
+
+At client side:
+		dependency : cloud-starter-config
+		
+		appication.properties:
+		spring.application,name=''
+		spring.cloud.config.uri=''			
+
+EnvironmentRepository - interface
+			Two implementation (Git and native(local file system))
+			If u want to implement for svn, u can implement this interface on your own.
+			Configuration file naming convention:
+				<spring.application.name>-<profile>.yml  or properties
+				
+				<profile> - clients spring profile active
+				yml takes higher precedent
+				
+			Example:	lucky-word-profilename.yml
+	How properties work in spring:
+		Environment object - populated by spring from multiple propertysource like environment variable, system properties, jndi , user defined property file.
+		Spring cloud config client :
+		Springboot make a call to server withthe url and load the environment object	.
+				http:<server>:<port>/<spring.appication.name>/<profile>
+	For non java application:
+		spring cloud server exposes properties over http interface
+		http:<server>:<port>/<spring.appication.name>/<profile>
+		
+Service Discovery:
+			analogy:
+				chat client:
+				client itself registers with the server.
+				server provides you with the list of other known clients.
+				client register themselves discover other registrants
+				Solutions : Eureka,Consul,Etcd, Zookeeper,smartstack.
+				Eureka:
+					provides lookup server.
+					we made highly available by running multiple copies.
+					Client register with Eureka, provide metadata on host,port, health
+					Client sends heartbeat to Eureka
+				
+				spring-cloud-starter-eureka-server
+					Spring cloud wrote a kind of wrapper on top of netflix libraries
+				
+				@EnableEurekaServer
+				
+	
+Mutipleservers:
+		Each run in different region, each know the url of the other server(this can be configured from config server)
+		Each server will communicate with other server to share the state
+		It provides high availability.
+		Each server should run simultaneously
+Client:
+			spring-cloud-starter-eureka-server
+			@EnableDiscoveryClient
+			
+			application.properties
+			eureka.client.serviceUrl.defaultZone=http://server:8761/eureka,http://server:8762/eureka
+				
+Note:
+	Eureka server is for mutiple instance usage.
+	Each run in different zone or different region or different datacenter.
+	Eureka server does not persist client registrations, when you restart everything goes off. everytying is in memory
+	Each server connected with its peers.
+	
+Use config server to locate Eureka server.
+	spring.cloud.config.uri configured in each app.
+
+If both are used, spring cloud first bootstrap config server	
+	
+Use Eureka to expose location to config server
+	Config server is just another client.
+	implies ---> spring.cloud.config.discovery.enabled=true
+				eureka.client.serviceUrl.defaultZone configured in each app.
+
+Spring cloud Ribbon Load balancer - client side				
+				Client side load balancing.
+				Spring cloud api written a wrapper for Netflix Eureka ribbon.
+				client will sends the request, loadbalancer will select the server based on some algorithm or some criteria.
+				Among several server registry, some may be fault, still loadbalancer tries to find the closest server.
+				Ribbon:
+				auitomatically integrates with Eureka service discovery.
+				built in failure resiliency(Hystrix)
+				Caching/batching
+				Mutliple protocols like http, tcp and udp.
+				
+Feign:
+		Declarative Rest client.
+		Call rest service using feign libraries
+		It helps how feign helps Eureka Ribbon to collaborate
+		
+		@EnableClientFeign - at the client side is enough.
+		There will be a interface which will annotataed with this @Enable.
+Client side Circuit breaker:			
+	this will protect against cascase failure.
+	Establish simple monitoring of  circuit breakers using  Hystrix dashboard and turbine
+	
+	statistics report
+	30 interrelated service takes 11 hours of down time.
+	100 - 36 hours
+	
+	when failure occurs it opens the circuit.
+	Once problem solved we manually switch.
+	
+	Similarly it behaves.
+	Spring cloud api to interacts with htystrix .
+	It deducts failure, opens ciurcuit and will not allow further calls.
+	Like try-catch block.
+	Fallback can be chained.
+	Automatically closes itself after interval of 5 secons.(closes the circuit)
+	
+Also add dependency spring boot cloud starter as dependency	
+@EnableHystrix
+@EnableHystrixDashboard	
+
+	@HytrixCommand(fallbackMethod="defaultStores")
+	getStores(){
+	
+		//actuall fail occur
+	}
+	defaultStores(){
+	
+	}
+	Asynchronous command Execution:
+	Future<Store> getStore(){
+		return new AysnResult<Stores>(){
+		};
+	
+	}
+	
+	Observable<Store> getStores)}
+		return new ObsrvaableResult<>{}
+	}
+	
+	certain properties are present which we can set for circuit breaker
+Hystrix dashboard - will be able to see the application status.
+Turbine  - used to see all the microservices status in an consolidated view
+
+http:<host>:<port>/hystrix.stream 
+http:<host>:<port>/hystrix.stream
+	
+	
+Spring cloud bus - Dynamic configuration updates.
+	potenetial solution.
+	periodically poll the server for changes.
+	Probably will try to push the changes to the client from serve.
+	How it works:
+	cloud config server publish the message to the broker AMQPand as client subsribed would recieve message from mesage broker
+
+		Spring cloud config server.
+		When there is a change happen in these server, client subscribe
+	Spring-cloud-starter-busamqp should be in could config server
+	
+Spring cloud bus auitomatically works with RabbitMQ.
+Spring boot application will be refreshed at run time.
+Actuators provides end point /refresh(POST). - this affects the following.
+@ConfigurationProperties
+@RefreshScope
+Logging level
+	@configurationProperties - is alternative to @Value annotations
+	
+@RefreshScope	
+	It helps us to safely refresh - entire bean is reloaded in safe way - It will create a new bean and replaces it with original bean
+	This annotation creates a proxy for the original bean.
+	When any menthod in the orginal bean called, proxy will be called which inturn calls the original bean
+	
+API Gateway:
+	Need: Different client have different needs, they come from different browser(CORS), nultiple trips to backend
+	Provides:
+	Simplified access for cient
+	No CORS required.
+	Single place where security can be applied.
+	We can reduce the multiple trips, if gateway has the capability to combine multiple call to single call.
+	Advantages/prupose it solves:
+	Built for specific client needs.(facade)
+	Reduces remote calls.
+	Route call to specific server
+	Handle security/SSO.
+	Handles caching
+	Protocol Translation(If your http protocol has to be converted to other and then have to call the other service)
+	Optimizes call/ Link Expansion(If there is HATEOAS in the response, it will not make unnecessary calls(inline the response
+	
+Zuul:
+	Router and load balancer.
+	Router- client call gateway, it will take care of calling actual server.
+	@EnableZuulProxy
+	It registers with Eureka and get to know the url of all the clients.
+	It maintains a map
+	zuul.iognerd-services: verb(ignore a particular service)
+	zuul.iognerd-services:*(It will ignore all services
+Caching:
+	client side caching and server side caching.
+	@Cacheable(value="" key=sku"
+	Method(@pathVariable(/sku/)
+	}
+	RestTemplate u can configure
+	CloseableCache
+	HttpClient.setCache(closeableCache)
+	RestTemplate.setHttpClient();
+	ETag:
+		Shallow Etag, server sends the etag in the response with the hashcode(content of the response) to the client.
+		Client send the etag in the header back to the server, if matches server respond with code 304(no modification)
+		Else server sends new response with code 200 with new etags.
+		Most of the browser on these days support etags.
+		Cache - Cache can implement some cache manager like EHCache etc.
+		This is just reduces the network trip do not reduce the work load of the server, hence called shallow etag.
+Resource Expansion:
+			Rest service follow HATEOAS principles
+	
+	
+Challenges:
+		Boundaries (Bounded context)
+		Configuration management(50 microservices for prod, dev)
+		Dynamic scale up and scale down(dynamic load balancer, when multiple instance we want to distribute the load)
+		Visibilty(How to identify the bug, centralized log and monitoring(need to identify which are up and down))
+		Pack of Cards(out of many microservice, one may be fundamental if one goes down entire application might goes down - have fault tolerant)
+Introduction to Spring cloud:
+		Config server - externalize config in one place - a git repo for all microservice.
+		Zuul Api gateway - logging, analytics, security -for all microservice can be in one place. - acts as unified interface to external world
+		Eureka naming server - service registry
+		Ribbon - client side load balancing.
+		Hystrix - for fault tolerance
+		Sleuth - a unique id generation for all components helps in tracing .
+		Zipkin - helps in tracing the logs
+		
+		
+Advantages of microservice:
+			New technology and process can be adapted.
+			Each microservice can be built in different technology
+			dynamic scaling - example during holidays traffic will be more, during weekend will be more, you can procure ur hardware and release as when possible.
+			Faster releases cycles
+Microservice components:
+			Standardising URLs and Ports
+Feign client:
+			makes it very easy to invoke restful api.
+			It provides integration with Ribbon(client side load balancing)
+			spring-cloud-starter-feign
+			Create a interface, with mapping and method name similar as we have in another service
+			@FeignClient(name="",url="localhost:8080")
+			interface CurrencyExchangeServiceProxy{
+			
+			@GetMapping("currency-exchange-from/from/{from}/to/{to}")
+			retreiveExchangeValue(@pathvariable("from") string from, @pathvariable("to") string to)
+			
+			
+			}	
+			
+			@EnableFeignClient("com.test")//give the package name to scan
+			
+			Without feign you have prepare the request and then send.
+			
+Setup client side load balancing with Ribbon:
+			@FeignClient(name="",url="") - here url is hardcoded
+			spring cloud starter ribbon
+			In the interface enable ribbon.
+			@RibbonClient(name="");
+			remove url in feign client
+			In application.properties of Currency conversion
+			currency.exchangeservice.listOfServers=http:localhost:8000, http:localhost:8001
+			Each and every time when you run the service, each time you can see the different port in the response
+Understand the need for naming server:
+			based on load u would be able to increase or decrease the number of instances dynamically.
+			you cannot hardcode the instance in the property file.
+			All the instances of all microservice would register itself with Eureka naming server.
+			Whenver one service wants to talk to other service, each service ask Naming server for the instance of other service, this is called service discovery.
+Set up Eureka server
+Connect client with eureka
+					spring-cloud-starter-eureka
+					@EnableDiscoveryClient in the main application of client
+					In appication.properties
+					euraka.client.service-url.default-zone=http://localhost:8761/eureka
+Distributing calls using Eureka and Ribbon:
+					Instead of hardcoding we want to ribbon to talk to naming server and get the instance
+					comment out the list of server in the client
+					no where we have hardcoded the url of one service in another	
+API gateways:
+			provinding the common features like authentication
+			aggregation service for all multiple microservice
+			Fault tolerance
+			Rate limits
+Spring cloud seuth will assign the unique id for each request , which will help us to trace the request.			
+All microservice will put the logs to Rabbitmq and Zipkin will pick up the logs from rabbitmq.
+Zipkin uses db to store the logs, here we are using in memory db
+
+Example: 
+	If you want to call any particular service
+	http://localhost:8300/currency-exchange-from/from/
+	To call via gateway.
+	http://localhost:8765/{applicationName}/{URI of the application}
+	http://localhost:8765/currency-exchange-service/currency-exchange-from/from/
+
+Setting up Zuul gateway between microservice invocation:
+		ask feign not to connect to other service directly, instead change feign to connect to gateway directly
+		That is in proxy change it accordingly
+		@FeignClient("netflix-zuul-gateway-server");
+		@GetMapping("currency-exchange-service/currency-exchange-from/from/")
+		//add service name also before the actual uri, that is the application name before the actual uri.
+	Every call in microservice goes through via gateway.
+	
+Distributed tracing:
+when mutiple things are running, how do you debug the code when something goes wrong.
+one place to see what happen to request.
+see the complete chain of the request.
+to solve u need a centralized
+Spring cloud sleuth with Zipkin solves that problem.
+sleuth - assign a unique id to a request.
+zipkin - distributed tracing system.
+We will use rabbitmq and send it to zipkin.
+
+when fire a request, hit inturn calls mutliple other service, puts the log in rabbitmq, zipkin picks it from there and store it in db, 
+in this case we are putting in memory
+you should add sleuth in gateway, and all other services
+	spring-cloud-starter-sleuth
+In the main application of gateway, add the following
+@Bean
+public Sampler defaultSampler(){
+	return Sampler.AlwaysSample;
+}	
+
+Other examples - ELK (ElasticSerach , Logstash and Kibana)
+	
+set RABBIT_URI=amqp://localhost
+java -jar zipkin-server-2.7.0-exec.jar
+
+RABBIT_URI=amqp://localhost java -jar zipkin-server-2.5.2-exec.jar
+
+RABBIT_URI=amqp java -jar C:\Users\rajasekar.murugesan\springboot-tutorial\spring-microservices-master\zipkin-server-2.5.2-exec.jar
+
+zipkin.collector.rabbitmq.uri=amqp:\\localhost java -jar C:\Users\rajasekar.murugesan\springboot-tutorial\spring-microservices-master\zipkin-server-2.5.2-exec.jar
+
+Download the jar and run the same using java -jar <name of the jar>
+localhost:9411/zipkin
+you have to start zipkin	
+
+first start 
+1.naming server
+2. zipkin
+3. other microservices
+4.zuul-gateway-server
+
+go to eureka and check all. (try and connect zipkin also to Eureka)
+
+Need for Spring cloud config bus
+changs made in the config server, git repo will not reflected to all instances of microservice.
+Each and every instance you have to hit the refresh url to get the updated value from git repo.
+Just hit one url will refresh.
+will use rabbit mq
+spring-cloud-starter-bus-amqp
+
+fault-toloerant
+

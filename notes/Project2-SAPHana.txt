@@ -1,0 +1,93 @@
+OD 11547 55288 75811 000
+
+38024PP29
+
+IN1905171108460206207
+
+
+Installation of second java instance - 7 days
+	This includes 
+	Creating another instance fully for all modules. - 7 days
+Adjustment of java application according to newly created technical fields - 23 days
+	This includes 
+		Modify the mapping in the java with respect to DB fields - 6 days
+		Change the query. - 10 days
+		Also have to see the possibilty of modifying all the business rules from oracle to SAP HANA. - 7 days
+Replacement of old libraries - 11 days
+	This includes
+		Have to identify all the unused libraries. - 4 days
+		Remove the unused libraries and verify the impact. - 2 days
+		Test the whole application(like whole modules) - 5 days
+JCO connection replacement using API interface from SAP HANA BW - 10 days
+	This includes
+		Identifying the java libraries to connect with SAP Hana. - 2 days
+		POC to connect. - 4 days
+		Implementation and testing.	- 4 days
+local DB migration according to new fields. - 20 days
+	This includes
+		Have to see all the affected tables because of new field inclusion. - 4 days
+		Have to change all the queries pertaining to that. - 8 days
+		Have to identify the migration script for old data. - 8 days
+Authorization to migrated using Azure SSO. - 16 days
+	This includes
+	Idenntify all the available authorization - 5 days
+	POC on Azure SSO. - 3 days
+	Migrating to Azure SSO (connect to Azure SSO, implementation and test) - 6 days
+	Testing - 2 days
+	
+Modify UI according to user requirements - 23 days
+	This includes
+	Identify the screen getting impacted. - 4 days
+	POC - if there is a screen with new component. - 4 days
+	Implementation(alignment) and testing.- 5 days
+Maintenance of the whole application. - this includes complete testing of the whole application) - 10 days
+
+Other Task - Prework.- 18 days
+	Environment set up like VPN, Software installation like DB,server,code repository - 5 days
+	Understand the application.- 4 days
+	Queries - 2 days
+	Prepare impact analysis document - 7 days
+	
+Regression Testing - 10 days	
+
+All together it takes = 138 days
+
+
+Things to Read:
+
+Introduction read:
+Atom bot - explanation, roles, responsibilities, explain about project, enhancement that we made using multithreading
+Recruitment portal application - features - roles responsibilities,
+AppViewX - ADC - explanation Roles and responsibilities.(scrum master), Impact Analysis team
+
+Technical read :
+Spring security
+	Basic authentication.
+	OAuth -
+	SAML
+	SiteReminder
+	Azure SSO
+Web services - restful - soap
+Java 8 features example
+Java 9 features example
+Core java scenario based interview questions
+Spring Boot, Spring CLoud components example
+Performance optimization
+	Migration script in mongodb.
+	JVisualVM(to analyse at run time), JMeter(To simulate the request), MAT(Memory Analyser Tool to analyse heap dump memory)
+Deployment knowledge like - PCF, Kubernetes, Docker
+Mongo DB - features examples query
+Angular 6 - features working examples
+TDD
+Junit and Mockito
+Maven build - code metrics for java
+
+
+Project Read:
+Oracle DB - connectivity
+SAP HANA - details
+JCO connection details
+Azure SSO
+
+
+Upload all the read materials, Project like Spring Cloud to Git

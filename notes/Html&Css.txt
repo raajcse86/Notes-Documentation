@@ -1,0 +1,186 @@
+HTML and CSS Tutorial:
+
+Author: Todd McLeod
+	7 habbits of highly effective people
+	Outliers (Story of success) - Malcolm Gladwell
+
+websites or App:
+
+every user visites 24 apps per month whereas 10 to 30 times unique websites user visits every month.
+
+Code Bootcamp:
+Hack Reactor:
+
+	make u place in companies - they train ppl
+	
+Maker Square:
+		average pay - 106k
+
+Art of building websites:
+			it is engineering and art(color) - like handicraft work
+			
+
+			
+Resource:			
+	http://goo.gl/YJTNed
+			
+	https://learn.shayhowe.com/
+
+	https://www.codecademy.com/
+
+	https://developers.google.com/web/fundamentals/		
+
+
+	https://developer.mozilla.org/en-US/docs/Learn
+
+	http://learnlayout.com/
+	https://css-tricks.com/snippets/css/a-guide-to-flexbox/
+	https://caniuse.com/
+	https://webplatform.github.io/
+MDN
+	all html elements
+	all attributes
+	css reference.
+	
+Testing the web page:
+		https://search.google.com/test/mobile-friendly
+		
+		https://developers.google.com/speed/pagespeed/insights/
+		
+	https://support.google.com/webmasters/answer/35769?hl=en
+
+Performance:
+	https://varvy.com/pagespeed/critical-render-path.html		
+	
+Icon:
+	https://realfavicongenerator.net/
+
+Tools:
+		http://thewebahead.net/
+		rand fishkin moz
+		https://frontendfoc.us/
+
+History of Internet:
+			Darpa (Defence Advnaced Research Organization)in 1969 -in internet they sent the word log- then system crashed
+			packet switching - send the info in packets and retreived.
+www - came in 90s
+			www is aservice runs on that hardware - (fibre under ocean)
+			Tim berner lee - father of www	
+			in 1990 - created http, browser and web server and html to create document.
+				scientist , reasearchers sends the document like this without any order or beautifications etc
+				Browser - takes html and renders
+
+w3C - consortium, ppl from standard organization like Google, Yahoo etc
+IETF - helps the growth of internet (Internet Engineering Task Force)			
+
+codepen.io
+		where u can write html,css and js
+		https://emmet.io/ - it is a plugin  for many text editors which helps to write the code so easily.
+		emmet cheat sheet. - give you lot of shortcut to write the code.
+		Ex: ! and tab - give you the structure of the html
+Other tools:
+			Atom
+			Web storm
+				these also work with emmet
+Separation of concerns:
+				html -structure
+				css - formatting
+				js - functionality
+Semantic html:	
+					put a valida tag instead of just div.
+					<body>
+						<header></header>
+						
+						<section></section>
+						<footer></footer>
+				</body>
+					
+css rule set:
+	selctor = element selector
+		.css
+		header{
+			width:100
+			hieght:100
+		
+		}
+	this will select all the elements with this tag name in the html	
+Linking css to Html:
+		MEthod 1:
+		<link rel="stylesheet" href="main.css"/>
+		Method 2:
+			<style>
+				header{
+				
+				}
+			</style>		
+			
+		Method 3:
+			<header style="width:100%"/>  -- least prefered - difficult to read, update, maintain.
+Method 1 is always recommended.
+
+Multiple css selectors:
+			.css
+
+			*{
+				margin:50px
+			}	
+		selects all the elements in the html element.
+		
+IDE for html css and javascript
+		Webstorm - it is paid - it is so good.
+		Atom - it is free
+		Sublime
+		DreamWeaver	
+	Atom:
+		install emmet packages by going to settings.
+		install atom-html-preview
+Git hub terminal essentials:		
+	Create a local repo and remote repo
+	create a folder 
+	git init - this will make that folder as a repo in the local.
+	git status
+	git add <Name of the file> or
+	git add --all
+	git commit -m 'message to commit'
+	git log
+	
+	Creaet a Remote repo by logging in the browser ,then push this local branch changes from local to remote.
+	git remote add origin https://github.com/raajcse86/test-repo.git
+	git push -u origin master
+	or even we can give git push directly from second time
+	
+Using Emmet
+		ol>li*10+tab
+			it creates ordered list of 10 li.
+		ul>li*10+tab
+			it creates unordered list of li
+		child:
+		div>p
+		siblings:
+		div+p
+		form#header.tile - This creates <form id="header" class="title"/>	
+		
+css:
+			div{
+  width:300px;
+  height:100px;
+  background-color: yellow;
+  margin: 10px;
+  border-radius: 200%;
+  border:1px solid blue;
+
+}
+
+
+.happy{
+  color:red;
+  margin-left: 20px;
+  margin-right: auto;
+  margin-top: 200px;
+  border: 0.1px solid orangered;
+
+}
+
+		
+	
+	

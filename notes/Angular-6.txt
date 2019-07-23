@@ -1,0 +1,605 @@
+angular 6 forms
+
+
+ng lint - for code style check
+ng test - for running individual test cases
+ng e2e - for running all test
+Jasmine is the framework karma is the one which is used to run the test cases.
+Protractor is the framework which integrates with /selenium interface and helps running the angular application test cases in browser automatically.
+
+app
+	all compornents and modules present
+assets
+		images
+enviornments
+			all different enviroments related goes here - dev specific and production specific
+tsconfig.js
+			your browser understands only javascript, we write code in typescript, this file takes care of converting typescript to javascript.
+package.json
+			define all the tools- we run ng serve, build, test, tools , packages are present, the modules that declared here are downloaded by npm  to node_modules.
+Inside src			
+main.ts and index.html - loaded up and responsible for bootstraping the angular appplication. Root modules will be launched by ts file which will be included in index.html			
+
+polyfill.ts
+			take care of running the code in all different browser.(browser cap)	
+test.ts
+			file responsible for running the test cases	
+			
+Understanging bootsraping of Angular app with Root module
+	index.html:
+			This is the file which we mention the app component (selector) like directive
+	main.ts	
+		In this file we  will mention bootstrap module as AppModule.
+	app.module.ts	
+		In this file in bootstrap attribute, we will mention as AppComponent.
+	app.component.html:
+			< Code for header>
+			<router-outlet>
+			<Code for footer>
+			
+service.ts			
+@Injectable({
+  providedIn: 'root'
+})		
+	This  statement makes the service ready for dependency injection, so that in other classes u can use it in constructor for dependency injection.
+	
+sessionStorage - is available where we can use it to store the username etc
+
+Write a service which can implement CanActivate{}
+this will take care of verifying the input	
+	
+		
+We should call all the http service asynchronously using Obervables.
+Observalble will run only when you subscribe it
+
+Accessed blocked by Cors policy, if you go to network tab now , you could see request getting executed, response is error.
+It is like calling one server to other server, Spring boot will not allow - so we have to use @CrossOrigin(orgins="http://localhost:4200")
+Now when we run we will get response - as soon as you subscribe the call will happen to backend.
+If you call multiple times subscrivbe, those many times the call to backend will happen
+subscribe is an async call -  tell what should we do when we get the response.
+
+
+open Restlet in chrome
+by default when you send any request it ask for username and password - this is called form based authentication. 
+click cancel and send the header with basic auth(encoded username and passowrd)
+
+
+Spring boot starter secuties:
+By default spring enables both formbased and basic authenticatuion
+There are two type of authentication. 
+Form based 
+Basic Authentication
+
+Form based:
+ Here we send the username and password, server creates the session, ans set the cookie and send it back to browser.
+ Broswser uses the cookie and session and does the authentication.
+ In this mode of authentication you need both session and cookie for authentication.
+ 
+Basic authentication:
+	In the header you have to pass basic authentication (encoded username and password) while calling the rest service.
+	Here it does not session to do authentication, each every request send the basic authentication header.
+	Server directly validates it 
+ 
+ 
+You can even confgure the username and password directly in the application.properties.
+spring.security .user.name=
+spring.security .user.password=
+This can be used for both form based and basic authentication.
+
+jwt - header, payload and secret key
+
+
+
+@SpringBootApplication
+	-Spring context
+	enables auto configuration - spring-boot-autoconfigure - contains lot of logic to autoconfigure all
+		It is the most fundamental
+		It checks for class file(frameworks) in the classpath, then it would configure as per that.
+		It looks the existing bean already configured, based on that it configures.
+		Example: DataSourceAutoConfiguration
+				@ConditionalClass(Datasource.class, EmbeddedDataType.class) - only when these classes are present it is going to autoconfigure that class
+				
+				logging.level.org.springframework = DEBUG
+					you can see lot of loggin printed - lot of config related autoconfig.
+		Example : Webmvc - autconfigure Dispatcher servlet, ViewResolver,etc
+					It also shows what are the other beans not configured
+	eanables auto component scan
+	
+	run method returns ApplicationContext
+	applicationContext.getBeans()
+	
+Spring vs Spring MVC vs Spring Boot
+		Spring - It solves testability by providing IOC,
+		
+Spring boot starter web , Spring boot starter jpa	
+	starter -web
+		depends on starter tomcat, starter json, starter hibernatevalidator
+		
+	jpa:
+		an interface tells how orm should work
+		starter- jpa
+			we have hibernate core, jdbc,transaction all those are present inside,
+		
+		
+npm install -g @angular/cli
+npm install -g @angular/cli@latest
+
+ng new <nameofproject> -d
+	instructs angular cli to list the files that will be created.
+
+ng new <nameofproject> --skip-test
+		This skips the spec.ts files creation.
+		
+ng s o
+			ng serve open 
+			It runs the application directly
+
+angular.json - angular cli.json in the latest version 6 it is called angular.json
+
+Install bootstrap  - it is depend on jquery .
+			In Angular.json	
+				"styles" :[
+					src/style.css
+					nodemodules/bootstrap/dist/css/bootstrap.min.css
+				]
+				"scripts":[
+					nodemodules/jquery/dist/jquery.min.css,
+					nodemodules/bootstrap/dist/js/bootstrap.min.css
+				]
+
+	
+Routing:
+			ng g c employee/create-employee --spec=false --flat=true
+				This will create component, without test file, and with flat=true it directly creates the files without folder for create-employee
+			ng g c employee/list-employee --spec=false --flat=true
+			
+			In the app.module.ts > these two components are imported and also declared.
+			
+			ng g m app-routing --flat=true --module=app
+			This creates routing module with this file name directly without folder, and module=app imports the routing module in the root module.
+			create a constant of type 
+			const appRoutes Routes=[
+			{path:'list',component: ListEmployeeComponent},
+			{path:'create',component: CreateEmployeeComponent},
+			{path:'',redirectTo:'/list' pathMatch:'full'},
+			
+			]	
+			
+			RouterModule.forRoot(appRoutes);
+			
+			Need to define navigation menu in app.component.html
+			<nav>
+			<a routerLinkActive="active" routerLink="list">List</a>
+			<a routerLinkActive="active" routerLink="create">Create</a>
+			<nav>
+			
+			
+			<router-outlet></router-outlet>
+			This is the place it will display.
+			
+Note:
+				You also have to import newly created routing module in app.module.ts,
+				For that we have to export routing module that we created.
+				
+Angular Form Control and For Group:
+			This is part of Reactive form
+					AbstractFormControl ---> here we have certain properties like dirty, pristine,etc
+					
+				FormGroup	FormControl	
+			
+			Usage: html
+				[formGroup] = "employeeform"
+				[formControlName] = "email"
+				
+			TS:
+				employeeform: FormGroup = new FormGroup();
+				enamil : FormControl = new FormControl();
+			
+					
+			To Access form values:
+				1. employeeform.control.email.value
+							OR
+				2. employeeform.get('email').value
+
+Angular Nested FormGroups:
+					Just have one more thing inside the other group.
+Angular setValue and Patch value:
+						employeeform.setValue - used to load value from the service/db
+						setValue - to update all form controls
+						patchvalue - to update all form controls also for sub set of form controls.
+						Note:
+							You cannot use patchValue alone to update other than subset of form controls
+Angular FormBuilder: - for complex reactive forms, it reduces the amount of boiler plate code that we write.
+				we have to inject the formbuilder in the constructor
+					control()
+					group()
+					array()	
+				Usage:
+					this.fb.group({
+						fullName:[''],
+						email[''],
+						skills: this.fb.group({
+							skillName:[''],
+							
+						})
+					})
+Angular reactive form validation:
+						this.fb.group({
+						fullName:['',[Validators.required,Validators.minlength(2),Validators.maxlength(10)]],
+						email[''],
+						skills: this.fb.group({
+							skillName:[''],
+							
+						})
+					})
+					To display on html:
+					<div class="formGroup" [ngClass]="{
+						has-error:employeeform.get('fullname').errors && 
+						(employeeform.get('fullname').touched || employeeform.get('fullname').dirty)
+					}"
+					has-error is the class from bootstrap
+					To display error message on ui
+					<span *ngIf="employeeform.get('fullname').errors.required">
+					Full name is required
+					</span>
+					<span *ngIf="employeeform.get('fullname').errors.minlength" || "employeeform.get('fullname').errors.maxlength">
+					Full name is minimum of 2 character maximum of 10 character
+					</span>
+Angular form control value changes:
+						AbstractControl class has property called valueChangesObservable
+						employeeform.get('fullname').valuechange.subscribe(value =>{
+							console.log(value);
+						});
+						this is for specific form group element changes
+						
+						employeeform.valuechange.subscribe(value =>{
+							console.log(value);
+						});
+						this is for entire form group changes.
+Loop through all form controls in form group:
+						onloadDataClick():void{
+						
+						}
+						logKeyValuePairs(group:FormGroup){
+						Object.keys(group.controls).forEach((key:string) =>{
+							const abstractFormControl = group.get(key)
+							if(abstractFormControl instanceof FormGroup){
+								logKeyValuePairs(abstractFormControl);
+							}else{
+								console.log('key '+key+"  value "+abstractFormControl.value);
+							}
+							
+						})
+						}
+						other:
+						abstractFormControl.disable() - to disable the form control.
+						abstractFormControl.markAsDirty() - to make the form control as dirty
+						
+Move validation messag to component class in reactive form:
+							TS;
+							validationMessages={
+								"fullname":{
+									"required":""
+									"minlength":""
+								},
+								"email":{
+								
+								}
+								
+							}
+							formErrors={
+								"fullName":"",
+								"email":"",
+								"skill-name":""
+							}
+							UI will bind to this object and display message accordingly
+						
+							logValidationErrors(){
+							
+								else{
+									if(abstractFormControl && !abstractFormControl.valid){
+										const messages = this.validationMessages[key]
+										for(constant errorkey in abstractFormControl.errors){
+											if(errorkey){
+												this.formsError[key] += messages[errorkey] + ' ';
+											}
+										}
+									
+									}
+								
+								}
+							
+							}
+Move validation logic to compoenent class:
+						
+Dynamically adding or removing validators in Reactive form:
+							Example: email and phone can be radio button - any one is prefered as primary.
+							setValidators()
+							clearValidators()
+							updateValueandValidity();
+							Usage:
+								click event write a javscript in ts
+								const phoneControl = employeeform.get('phone)
+								if(selectedvalue == phone){
+									phoneControl.setValidators([Validators.required,Validators.minlength]);
+								}else{
+									phoneControl.clearValidators();
+								}
+								phoneControl.updateValueandValidity();
+								
+							Instead of click event use
+								employeeform.get('contactpreference')valuechange.subscribe((data:string =>{
+									Call the defined function.
+								}));
+Angular Reactive forms Custom Validators:
+								static required(control:AbstractControl):Validators.Errors | null;
+									the above function is from Validtors class, parameter of type AbstractControl, return type as null if no validation and return validationErrors if there are errors.
+									
+								function emailDomain(control:AbstractControl):{[key:string]:any} | null{
+									const email = control.value;
+									const domain = email.substring(lastIndexOf('@')+1);
+									if(domain.toLowerCase() === pragim){
+										return null;
+									}else{
+										return {'emailDomain':true}
+									}
+								}		
+								return null if there is no error.
+								return key value if there is error.
+								ValidationMessage{
+									'email':
+										'emailDomain':"Domain must be so and so"
+								
+								}
+								Also in the form attach emailDomain
+								email:['',[Validtor.required,emailDomain]]
+Custom validator with parameter:
+								It uses concept called closure in js.
+								A function calling another function. Exmaple minlength defined in Validators
+								function emailDomain(domain:string){
+									return (control:AbstractControl):{[key:string]:any} | null => {
+									const email = control.value;
+									const domain = email.substring(lastIndexOf('@')+1);
+									if(domain.toLowerCase() === pragim){
+										return null;
+									}else{
+										return {'emailDomain':true}
+									}
+								
+								}	
+								
+How to make custom validor reusable:
+									minlength,maxlength - can be used any where in any form control
+									create a fold, create a ts file
+
+									import AbstractControl;	
+									export class CustomValidtor{
+										static emailDomain();
+									
+									}
+									
+									Usage:
+									import customValidators in any component
+										CustomValidtor.emailDomain();
+Angular form cross field validation:
+										email and confirm email.	
+Form Array:
+											new FormArray();
+											fb.array()
+					
+
+					
+Import httpclient module in app.module.ts file.
+						then we will be able to use it out application
+						all http calls are called aysnhronously.
+						It make use of Obeservables.
+						The request is not executed until we call subscribe method.
+	Access blocked by CORs policy:
+				This is like calling one web server from another.
+				By default spring boot prevents these kind of request.
+				Go to controller - add an annotation @CrossOrigin(origins="http://localhost:4200")
+	If I call subscribe many times - those many times it got executed.
+			just need to subscribe again - to call that method again and again.
+				We need to tell what we need to do when we get the response.
+				
+				.subscribe({
+				response =>this.handleResponse(response);
+				});
+				console.log("value 1");
+				
+				handleResponse(){
+					console.log("value 0");
+				}
+				
+				The line value 1 gets printed first, as it takes some time to get the response from the service. value 0 will be printed later.
+				
+				Again in the response you wanted to get the actual object from the service , have to create a class in Angular accordingly.
+				
+				export class HelloworldBean{
+				
+					string message;
+					
+				
+				}
+					
+				http.get<HelloworldBean>
+				console.log(response.message) - // now this will work
+				
+Handling Error response:
+	how do we handle when server throws exception.
+	
+	.subscribe({
+				response =>this.handleResponse(response);
+				error => this.errorHandleResponse(error);
+				});
+
+				
+				errorHandleResponse(){
+				console.log();
+				}
+
+				
+Lazyloading
+ngRx - data store example
+Module level Routing
+externalizing properties in json file.
+
+Spring security OAuth and Jwt in Java and Angular:
+Basic authentication:
+	Along with every request u will send userid and password.
+	Always you cannot send username and password every request - as it is not safe.
+Set up:
+		Spring-boot-starter-security
+		By default it enables both form based and basic authentication
+		Form based authentication:
+					When u type any url of rest service in the browser, an page asking to sign in.
+					you can find password in console,enter that username and password.once u enter and password u will be able to access all api
+					It is based on session created in the server and cookie in the browser
+			
+
+						In the Rest client - when you send any request.	an prompt window ask for username and password.(This is called form based authentication).
+						Click add Authorization click basic button, add username and password - this is called basic authentication.
+		Basic authentication:
+			In the header u have to send username and password - u do not really need a session created for u at the server side.
+			You have to basic authentication header(it will have encoded form of username and encode form of password.)
+			Advantage:
+				we dont really need a session
+			
+			Standard username and password:
+			In application.properties
+				spring.security.user.name = raj
+				spring.security.user.password = test
+			
+
+			Error:
+				blocked by CORS policy.
+				U have to create a basic authentication header
+				Write a method in UI, which does this sends basic authenticaiton header in all the request.
+				let basicauthString = 'Basic' + window.btoa(username +":"+ password);
+				import HttpHeader
+				let header = new HttpHeaders({
+					Authorization: basicauthString
+				});
+				
+			now modify the call: This is the way we have to set the headers
+				http.get("url",{headers})
+				
+			you will get another error - check in network tab
+			Request Method : Options - this was sent before actual Get method.
+			This was triggerd by framework , to check whether it is triggered by right person.
+			
+			
+			CSRF: Cross Site Request Forgery:
+				WSCA - WebSecurityConfigurerAdadpter
+				configure(httpsercurity){
+				}
+				we have to override this method to overcome csrf and that error.
+				
+				Create a new class , in new package  extends WebSecurityConfigurerAdadpter
+				
+				@Configuration
+				@EnableWebsecurity - it has spring security
+				class SpringSecurityBasicAuth extends WebSecurityConfigurerAdadpter{
+				
+				confgure(httpsecurity){
+				csrf.disable()
+				.authorizeRequest()
+				.antMatchers(httpmethod.options,'/**').permitAll()
+				.anyRequest.authenticated()	
+				
+				}
+				
+			Angular HttpInterceptor:
+				it enable to add specific header to every request.
+				export class HttpInterceptorService implements HttpInterceptor{
+				
+					intercept(request,response){
+						request = request.clone({
+							setHeaders:{
+								Authorization:basicauthString
+							}
+						
+						});
+					return next.handle(request);
+					}
+							
+				}
+			Configure interceptor in angular module:
+				in app.module.ts:
+				providers:[
+					provide: HTTP_INTERCEPTORS,useclass:HttpInterceptorService,multi:true
+				]
+			Create Basic Authentication Restful service in the SpringBoot:
+				create a controller class and class that returns AuthenticationBean
+			Create Angular Basic Authentication service:
+				Create a class - instead of hardcoding username and password, get it from UI and send it to the backend as a part of basic authorization header.
+				modify the method that it return AuthenticationBean
+			Construct Login page to Basic authentication service:		
+				in the method call 
+				http.get("").pipe({
+					data =>{
+						sessionStorage.setItem('authenticatedUSer',username);
+						sessionStorage.setItem('token',basicauthString);
+					}
+				
+				})
+			Modify the interceptor in angular which will clone the request and set it to header only if the token and username are present from basi-auth-service
+		JWT:
+			Disadvantages of Basic authenticaiton:
+				No expiration time.
+				Does not have any authorization details, it has only username and password.
+				Here in jwt final is token.
+				It is standard.
+				It can contain user authorization and other details.
+				It is an standard for representing claims securely between two parties
+			It is a token in encoded form.
+			Token = header + Payload + verify signature.
+			header:
+				algorithm used
+			Payload:
+				it can be customized, ex: it can even have authorization info.
+			verify signature
+				encoded(encodedform of header +"."+encoded form of payload+"."+ 512 bits of secret key which should not be shared to anyone.)
+				
+			Code Explantion:
+			add jwt in pom.xml
+			Executing jwt resource:
+			when i hit url - i get 401 unauthorized.
+			first hit the url
+			/authenticate - post 
+			{
+				username:'in28minutes',
+				password:'dummy'
+				
+			
+			}
+			response back with token - this is the token important for us
+			{
+				token:''
+			}
+			
+			when u hit the url - u will get 401
+			In the header u have to send 
+			Authorization: Bearer ${token}
+			Now you will get the response back
+			/refresh  -Get method
+			Also send the authorization header with the old token
+			Now you will get the new token
+Code understanding:
+				JwtTokenutil
+				 helps to get details from token, it takes care of expiration
+				 JwtAuthenticationRestController:
+				 /authenticate
+				 It checks whether username and password are valid, if valid then fetches the userdetails from db, generate the token and return back.
+				 JwtTokenAuthorizationOncePerFilter:
+				 once user is valid it will put userdetails into security context.
+				JwtInMemoryUserDetailsService.java implement UserDetailsService - this is the interface we have to implement it
+				JwtUserDetails.java	 - this is the return type, after loading from db we have to return jwtuserdetails.
+					Spring uses this everywhere to verify the authentication
+				BCryptPasswordEncoder - it will endode all the password and then save it to db
+						when u run it in loop
+				WebSecurityConfigurerAdadpter - we have to extend this class.
+					configure(httpsecurity){
+						here we have to configure filter(AuthorizationPerRequestFilter)  -which will run for all request
+					}
+					

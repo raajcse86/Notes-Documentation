@@ -1,0 +1,70 @@
+Kubernetes:
+Orchestration of containers(computer system, middleware and services)
+we will define the manifest file, describe the container,describe the replica, restoring in case of crash.
+Load balancer
+hard drive
+security config - all these thing would be handled by kubernetes.
+it can run on any cloud provider.
+It originated by google, now managed by cloud native computing federation company.(almost 200 companies) - 
+
+Docker Swarm:
+	it has its own orchestration system.
+
+Adv of Kubernetes vs Docker Swarm:
+		Docker Swarm - built in , simpler. - u have to do it manually ,it is not that sohisticated.
+		Kubernetes is bigger - far richer, hard to learn - take these manifest file and deploy to different cloud platform without changing manifest file.
+		
+Installing Minikube for local kubernetes development:
+			install hypervisor
+			install kubectl
+			install minikube
+			
+kubectl:
+				controller program for kubernetes
+
+virtual box:
+					u can install manually for VM.
+hyper V:
+			it comes with inbuilt. just u can enable -after enabling this should not use oracle virtual box - it would be horrible.
+
+To Start Minikube on Window 10 Professional edition:
+minikube start --vm-driver="hyperv" --hyperv-virtual-switch="switch"						
+kubelet
+kubeade
+
+set HTTP_PROXY=http://10.212.192.234:8080
+set HTTPS_PROXY=https://10.212.192.234:8080
+
+setx http_proxy http://"rajasekar.murugesan:Raj$250417"@10.212.192.234:8080
+setx https_proxy http://"rajasekar.murugesan:Raj$250417"@10.212.192.234:8080
+
+
+Docker:
+enable us to create container. These containers are complete, u can deploy directly to server.
+container contains all the dependency. - just pass the container and then u can run on any computer.
+
+To uninstall:
+open  ey toolbox>machine>tools>avecto programs utility     
+
+--env HTTP_PROXY="http://'rajasekar.murugesan:Raj$250417'@10.212.192.234:8080"
+
+
+
+
+If you are struck try running: - this is temporary fix.
+minikube start --bootsrapper=localkube                  
+
+it can even crash while using
+minikube stop -- stoping local kubernetes cluster
+
+minikube delete - remove vm from vm manager
+
+then again you can start
+minikube start
+
+
+What is Kubernetes and Why?
+	system for running different containers over multiple different machines(may be vm or physical machines)
+
+minikube start --vm-driver hyperv --hyperv-virtual-switch "Primary Virtual Switch"
+

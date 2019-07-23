@@ -1,0 +1,34 @@
+It is similar to TDD
+
+BDD is next step of Test Driven Development
+Behavior-Driven Development (BDD) is a collaborative process where the Product Owner, developers, and testers cooperate to deliver software that brings value to the business.
+
+
+Principles of BDD
+	Define a test set for the unit first;
+	Make the tests fail;
+	Then implement the unit;
+	Finally verify that the implementation of the unit makes the tests succeed.
+
+
+	
+BDD focus on 	
+It is largely facilitated through the use of a simple domain-specific language (DSL) using natural language constructs (e.g., English-like sentences) that can express the behavior and the expected outcomes.
+These DSLs convert structured natural language statements into executable tests. 
+These statements are nothing but the acceptance criteria for a given function and tests used to validate that functionality
+
+How it Works?
+It is not just any requirements, executable ones! 
+You write scenarios in a format that can be run against the software to ascertain whether the software behaves as desired.
+
+
+Example:
+Given the ATM has $250
+And my balance is $200
+When I withdraw $150
+Then the ATM has $100
+And my balance is $50
+
+BDD Frameworks or Tools
+Cucumber/easyb/JBehave,JDave and RSpec
+	

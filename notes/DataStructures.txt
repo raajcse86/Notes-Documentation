@@ -1,0 +1,221 @@
+DataStructures:
+
+finding duplicates in a array:
+Method 1 : Brute force:	
+	take each element and compare with rest of the elements in the array,
+	Time complexity = O(N^2)
+Method 2 : insert it to hashset - if it returns false - then it means it is already present.
+Method 3 : using absolute values , without the need for extra memory, O(N)	
+
+	where integer values are smaller than the length of the array.
+	values within the array are smaller than the length of the array.
+		2 3  1 2 4 3
+		
+		check the sign of T(abs(T(i))), 
+			if the number is positive 
+				flip the sign
+			else
+				it is the repitition.
+		i=0		
+		T(abs(2)) => t(2) => 1 it is positive so flip the sign.
+			2 3 -1 2 4 3
+		
+		i=1
+		T(T(3)) => 2> 0 so flip the sign.
+			2 3 -1 -2 4 3
+			
+		i=2;
+		T(abst(T(2))) = T(1) so flip the sign 3 to -3 at index 1.
+			2 -3 -1 -2 4 3
+		
+		i=3;
+			T(absT(3)) => T(2)=> it is -1 , that is <0, so the value at the given index is the repitition.
+			so 2 is the repitition.
+		
+		i=4;
+			T(abstT(4)) => T(4) => 4 , it is positive, so we have to flip the sign 
+			2 -3 -1 -2 -4 3
+		i=5
+			T(absT(3)) => -2, it is negative, so the value at the given index is repitition.
+			so 3 is the repitition.
+	
+Reservoir Sampling problem:
+		when u search in google or facebook u will get a very big results,u have to show the more distributed random results.
+		in n items of an array, select k items from the array.
+		This array with k items are called reservoir.
+		Next iterate the original array from k+1 index to total length of the array.
+			randomly get next index based on i value, that value is called j.
+			if(j < k)
+				reservoir[j] = orginalArray[i]
+			this is like trying to find the next random index, if the index+1 is less than the k(the random number that we picked),
+			this is like probability of replacing k/i with new element and skipping for all the remaining element with probalility of 1-(k/i)
+			
+Linked list:
+				u can randomly pick the elements in the array based on index, whereas in linked list cannot be done,
+				insert , remove or search u have to go through sequentially.
+				array - random access with index is there so it is faster.
+				To traverse in reverse order - with single linked list is difficult so they brought doubly linked list,
+				Both single and double linked list consume more memory as we have to store reference
+				
+				insert at the beginning:
+					Linked List - O(1)
+					Array - O(N), it has to rearrange all the other elements inthe list.
+				insert at the end:
+					Linked List - O(N)
+					Array - O(1) - as we know the last index, it is easy to insert at the last.
+				Remove
+					To remove a specific element, start from root node and traverse and then delete the element and update the reference for previous node.
+						O(N)
+				Remove at the beginning:
+					O(1)
+				In generagl Linked list
+				on average = O(N/2) => O(N)
+		
+	create interface List<T> - write all the methods like insert, remove.
+	Node<T>
+	LinkedList<T extends Comparable<T>> implements List<T>
+	
+	www.syslinux.org
+	Linked list Applications:	
+		 Memory management.
+		Applications in window like Image viewer - as we navigate to previous and next images.
+	Interview:
+		find middle element in the linked list.
+			Method 1: - first time loop it and find the counter, second time when the index is counter/2 - thats the middle node.
+			MEthod 2: slow pointer, fast pointer -slow jumps one at a time, fast pointer jumps two at a time, by the time fast reached the last, slow would have reached
+			middle.
+			
+		Reverse a linked list.
+			Method 1 - first time loop through, and create another linked list and keep inserting at the front side or beginning. it is not inplace as we create one more list.
+			Method 2 - in this case we will have three pointer prev,current and next.
+						  Once next reaches the last, assign that as a head.
+						  5<-4<-3<-2<-1-null.
+						  
+Stack:
+	 it is an abstract data type, 
+	 pop, push and peek. 
+	 LIFO
+	
+Binary search tree:
+		O(logN) - faster for all the operation.
+		left subtree is smaller than root node. Right sub tree is larger than root node.
+		on every iteration it like we discard half of the tree. - so it is O(logN)
+	DELETE: - soft delete.
+		search and find - o(log N)
+		To delete - O(1)
+		overall - O(logN)
+	Delete - node with single child.- just update the reference()
+	Delete a node which has both child
+		Ex: root node, look for largest node in the left sub child called Predessor.
+				look for smallest node in the right sub tree it is called successor.
+				Method 1:
+					Swap the root with predessor 
+					In case if they have child, then have to update it accordingly.
+				Method 2:
+					Swap the root node with successor.
+	In-order traversal:(this will yield the numerical ordering)
+						leftsubtree + root + rightsubtree
+	Pre-order traversal:
+						root + leftsubtree + rightsubtree
+						
+	Post-order traversal:
+						leftsubtree + rightsubtree + root
+						
+	Insert, delete , search - O(logN)
+						worst case - O(N) - if the tree is unbalanced it takes.
+						that is why it is important to keep the tree balanced.
+						
+10 ,-1, 1 , 0 , 1000 , -22
+
+		Practical applications:
+			To represent hierachy system like OS filesystem
+			game trees
+Kth smallest item in the binary search tree:
+				Ex: 2nd smallest item in a binary search tree.
+				Check the number of nodes in the left subtree.
+				if k == n, return node.
+				if n>k, more number of nodes in the left subtree than the value of k, then definitely k is present in the left subtree.
+				if n<k, then k is present in the right subtree,
+		
+		
+Recursion introduction:
+			define the base case 
+			keep repeating or call the problem to step by step.
+Without recursion:
+		public static void main(String[] args) {
+		
+		int n= 5;
+		int result= 0;
+		
+
+		for(int i=1;i<=n;i++) {
+			result = result +i;
+		}
+		
+		
+		System.out.println("Result is "+result);
+		
+	}
+With recursion:
+	static int sumRecursive(int n) {
+		if(n == 1) return 1;
+		return n+ sumRecursive(n-1);
+	}
+	
+	
+	public static void main(String[] args) {
+		int n=5;
+		System.out.println("Value "+sumRecursive(n));
+	}	
+
+		Head recursion:
+			we call recursion at the beginning.
+						public void buildLayer(int height) {
+					if(height == 0) return;
+					buildLayer(height-1);
+					System.out.println(height);
+					
+				}
+			It will print in ascending order. 1, 2, ,3 ,4	
+				
+		Tail recursion:
+			we do something with the data at the beginning and we call recursion at the end.
+						public void buildLayer(int height) {
+					if(height == 0) return;
+					System.out.println(height);
+					buildLayer(height-1);
+				}	
+			It will print in descending order, it is like for loop.
+
+Dynamic programming:
+				Problem with recursion is , the same computation is repeated again and again and it consumes more memory.
+				Ex: with recursion it takes 30 seconds.
+					with memoization it takes 0.3 seconds.
+					
+				Overlapping sub problems - we use dynamic programming, reuse the calculated values. Reduce exponential run time to linear run time.
+				non overlapping sub problems - then it is called divide and conquer approach Ex: Merge sort and quick sort.
+							here we are computing the repeated task.
+				
+				Fibonacci:
+					F(N) = F(N-1) + F(N-2);
+					f(4) = f(3) + f(2);
+					f(3) = f(2) + f(1); => here it calculates f(2)
+					f(2) = f(1) + f(0); => here also it calculates f(2)
+							this is called overlapping subproblems.
+					
+					Solution:
+						Store them in a  separate hashtable and use it.
+						instead of exponential time => then we will have O(N) time complexity + O(N) space.
+					
+					
+					
+		
+				
+				
+				
+		
+		
+		
+		
+		
+			

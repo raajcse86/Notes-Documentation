@@ -1,0 +1,1131 @@
+Docker
+
+Why we need docker:
+	we have to ensure that all the version of software or runtime should be compatible with OS.
+	we were having upgrade to new version of libraries.
+	Everytime we have to check the compatiblity with software and OS.
+	Each developer has to set all this every time.(set up new environment -right versionss of OS etc)
+	We could not guarantee the application will run fine in all version of OS.(differenr environment like staging, development)
+	All these made developing and shipping very difficult.
+
+	
+			MongoDB Redis Webserver.
+			Libraries , Dependencies
+			OS
+			Hardware infrastructure	
+
+Application changes like db, technology, we have to do same process like checking compatiblity.
+
+			
+	
+Each component will able to run in a separate container with all libraries.
+	Run each service with its own dependencies in separate containers
+
+Container - own process, own libraries all share same OS kernel.
+types:
+lxc - Docker(offers tool to use it easily)
+lst	
+	
+OS:
+Ubuntu, centos ,ferora - OS kernel is responsible for all different OS.
+	here OS kernel - linux is same.
+	Few drivers, and other software are different between different flavors of OS.
+	
+Docker share OS Kernel and it can run on all those differnt os.
+
+You will not be able to run windows based image on Docker that is present in linux.
+Whereas VM will be able to run on different OS kernel.
+The main purpose of docker is to containerize the application and ship them
+
+
+Difference:	
+	
+VM will consume more resources, it will take more time its size is huge like in gbs
+Docker will consume less resources it will take less time, it is less size in mbs, it boots up in seconds
+We have hypervisor software that sits on top of OS and on each VM we have own separate OS.
+Whereas Container sits on top of docker.
+	
+	
+Most org have registered their product as image in the docker hub.
+
+docker run ansible
+
+docker run mongodb
+docker run nodejs
+docker run nodejs.
+
+Container vs image:
+Docker Image(Package Template plan.) kind of vm template
+		Docker Container 1 running instance of images. They have their own proces and environment
+		Docker Container 2
+		
+Set up and install Docker:
+
+How it works:
+docker client request the server with the commands,docker server tries to find the image in the image cache, if not found - it goes to docker hub and download the image to image cache.
+container is an instance of an image.
+
+What a container is:?
+	how os runs on our computer.
+	OS - have kernel , a running software process - it governs all the software and hardware
+	All those s/w talks to kernel.
+	kernel exposes different endpoints - each every s/w calls respective endpoint to interact with hardware.
+	Namespacing and Controlgoruping:
+		they are belong to linux.
+	A container is a grouping of resources.
+	A container is running process with subset of resources like CPU, memory.
+	
+	When install docker for mac or Windows it installs Linux Virtual machine which inturn has linux kernel.
+	All these containers that we created a running on linux kernel.
+	even when we run docker version - it shows operating system as Linux.
+	
+Manipulating containers with docker client:
+
+list all running container - docker ps
+
+container lifecycle:	
+docker create + docker start = docker run
+docker create = taking the snapshot from the filesystem and creating the container.
+docker start = starting along with other resources(executing the start up command)
+
+docker create hello-world
+// u will get the id of the container.
+
+docker start <id>
+//it will print the id again.
+
+docker start -a <id>
+//docker client wait for the output from the container and prints it to the outputstream.
+
+docker ps --all
+	it will list out all the containers that are created and exited.
+docker system prune
+ remove all the stopped container
+
+docker logs <id> 
+	//print the output of that container
+	
+docker stop <container-id> - it will send stop signal to primary running process, which inturn will do some cleaning process and then will shut down.
+docker kill <container-id>	- it will kill immediately and will not allow running process to do any other additional task.
+
+Note: - after issuing stop command if it did not stop in 10 seconds, then it will be killed.
+
+Multicommand container:
+		docker exec -it <container-id> <command>
+		Ex:
+			docker exec -it redis-container-id rediscli
+	
+Purpose of -it flag:	
+			every container running inside vm, each will have 3 communiction channel stdin, stdout, stderr
+			-it -it is like -i and -t 
+			docker exec -i redis-container-id rediscli
+			//this will also give same output as before, but the input is formatted. so we are using -it
+	
+Getting a command prompt in a container:
+		how to open a terminal in the context of container
+		docker exec -it <container-id> sh
+		//it will open the terminal in the context of that container and all the commands that u put  will run on the process.
+
+docker run -it busybox sh
+
+
+Container Isolation:
+	if u run two container in a separate window, they are isolated from each other.
+	Ex:
+	Window 1
+	docker run -it busybox sh
+	# ls
+	# touch hithere
+	# ls
+		Now you could see the file hi there.
+		But this will not be present in the other container.
+
+	Window 2:
+	docker run -it busybox sh
+	#ls
+	# touch newhithere
+	#ls	
+		Now you could see new file newhithere.
+		
+Creating Docker Images:
+			Steps:
+			#pull base image.
+			#Define dependency and download.
+			#define commands to run at the start.
+Example:
+				# Use an existing docker image as a base.
+				FROM alpine
+					//use base image from alpine.
+
+				# Download and install dependency.
+				RUN apk add --update redis
+					
+
+				# Tell the image what to do when it starts as a container.
+				CMD ["redis-server"]
+				
+				save these as Dockerfile.
+				then build as 
+					docker build .
+				
+				// all these first word tell docker server what to do like FROM, RUN, CMD
+What is Base image:			
+			it is like OS for an computer.
+			Ex: If i ask u to install a chrome on your computer.
+				Install OS - base image(it is like we want to use alpine as base image.)
+					apline - it consist of default set of programs
+				open default browser, download chrome exe file, then execute the exe file.
+					
+					RUN apk add --update redis (apk - package manager program to download redis)
+Build process in detail:
+						docker build .
+							it is like giving docker file to docker server.
+						From alpine - checked in the local for the image called alpine, if not found it would have downloaded alpine.
+						RUN apk add --update redis - download and install it to container.
+							its output is temporary image, Now add it to the container.(temporary image )
+							CMD ["redis-server"]/
+							
+						RUN apk add --update gcc
+								// to add cache
+								
+			Note:
+				changing the order, will have to again install them
+				
+
+Tagging a image:
+	docker build -t dockerraajcse86/redis:latest .
+	docker build -t <dockerId>/<name of the project>:<version>
+	
+Manual Image Generation with Docker commit:
+		generate a container, from image,add some dependency and add run command.
+		
+		docker run -it alpine sh - we are running the container with shell script.
+		#apk add --update redis - adding redis server to the alpine container.
+								- nothing but modifying the file system of the container.
+		docker ps -
+				get the id of the running container.
+		docker commit -c 'CMD["redis-server"]' <id of the container>
+				this will return the id of the image.
+		docker run <id of the image> - this will run the container(nothing but an instance of the image)
+						
+Making Real projects:
+	create package.json file
+			{
+			"dependencies": {
+				"express": "*"
+			},
+			"scripts": {
+				"start": "node index.js"
+			}
+}
+
+create index.js file:
+		const express = require ('express');
+		const app = express();
+
+		app.get('/',(req,res) =>{
+		res.send('Hi There welcome to Node Js');
+		});
+
+		app.listen(8080,()=>{
+			console.log("Listening on port 8080");
+		});
+
+Dockerfile
+		# Specify the base image.
+		FROM node:alpine
+
+		# this is to copy all the files from current direcoty in the file system to 
+		# to copy in the container
+		COPY ./ ./
+
+		# specify the dependencies
+		RUN npm install
+
+
+		#specify the commands to run 
+		CMD ["npm","start"]
+		
+
+Run:
+docker build . - this will generate with id.
+
+It is good to tag the project instead of using id.
+docker build -t dockerraajcse86/simpleweb .
+	Note: Here simpleweb:latest- it is optional if you do not put version it will automatically add it.
+	
+docker run dockerraajcse86/simpleweb
+
+when we run in the web it is not working. Our browse hit localhost:8080 - it is not directing to container - we have to set port mapping
+
+specify the port at run time
+docker run -p 8080:5000 <image name>
+
+8080 - port in the localhost
+5000 - port in the container
+	
+To open the container in the sh mode.
+docker run -it dockerraajcse86/simpleweb sh
+
+now change the code 
+		# Specify the base image.
+		FROM node:alpine
+
+		# we have to specify the working dir - we cannot put all in the project root directory.
+		WORKDIR /usr/app
+		# this is to copy all the files from current direcoty in the file system to 
+		# to copy in the container
+		COPY ./ ./
+
+		# specify the dependencies
+		RUN npm install
+
+
+		# specify the commands to run 
+		CMD ["npm","start"]
+now again build the image.
+	docker build -t dockerraajcse86/simpleweb .
+and then run the image.	
+	docker run -p 8080:8080 dockerraajcse86/simpleweb
+	
+To run one more process in a container.
+		docker exec -it <container id> sh
+					-it it is to attach stdin and stdout.
+					sh - the program that we want to run.
+		now it is show as /usr/app#
+			so all the commands that user runs will directly run on this directory as we have specified as working direcoty.
+			
+Unnecessary rebuilds:
+	when u change the src code node.js, the changes would have reflected in the browser.
+	when building the container it takes the snapshot of the filesystem and then builds it. -so we have to build again and then run it.
+	docker build -t dockerraajcse86/simpleweb .
+		this will again run the dependencies - npm install - though we have not changed the dependencies only the source code.
+	we have to avoid this
+
+	Solution:
+		make the copy as two steps.
+		
+# Specify the base image.
+FROM node:alpine
+
+# we have to specify the working dir - we cannot put all in the project root directory.
+WORKDIR /usr/app
+# this is to copy only the json file to the container so that we can run npm install.
+COPY ./package.json ./
+
+# specify the dependencies
+RUN npm install
+
+# this is to copy all the files from current direcoty in the file system to 
+# to copy in the container
+COPY ./ ./
+
+
+# specify the commands to run 
+CMD ["npm","start"]
+
+ONe more application which count the visits
+
+Docker Compose:
+	it is another cli
+	used to start up multipe docker container at the same time.
+	Automates few arguments that we pass while running docker run
+
+To Run:
+docker-compose up
+To build:
+docker-compose up --build	
+	
+docker-compose.yml
+version: '3'
+services:
+  node-app:
+    build: .
+    ports:
+    - "4001:8081"
+    links:
+    - redis-server
+  redis-server:
+    image: redis
+
+To run the container in the background:
+docker-compose up -d
+
+To stop the containers
+docker-compose down	
+
+Container maintenance with comppose:
+
+Automatic restart containers:
+	Restart policies:
+		no
+		always
+		on-failure
+		unless-stopped
+
+docker-compose.yml		
+version: '3'
+services:
+  node-app:
+    restart: always
+    build: .
+    ports:
+    - "4001:8081"
+    links:
+    - redis-server
+  redis-server:
+    image: redis
+
+	
+on-failure - will restart the container if it stops with the exit code other than 0.
+always - will restart if the container exit with code 0.
+no - never restart
+unless-stopped - if forcibly stopped by user, then keep restarting.
+
+docker-compose ps
+ - u need to run in the directory where docker-compose.yml file is present
+ 
+ 
+Deploy React app in AWS using Docker Container:
+Creating Environemnt: 
+ npm install -g create-react-app
+	
+
+create-react-app frontend
+
+cd frontend
+npm run test - run the tester
+npm run build - build the production ready
+npm run start - start the development server	
+
+create a separte file for dev
+	Dockerfile.dev
+	
+For build:
+		docker build -f Dockerfile.dev .
+
+
+Changing in the source code - have to rebuild the container and start it again, to avoid we can use Volume feature in docker		
+Docker Volume:
+	Local folder		Docker container
+	src						reference
+	public					reference
+	
+	docker run -p 3000:3000 -v /app/node_modules -v $(pwd):/app <imageId>
+	
+Example:
+		docker run -p 3000:3000 -v /app/node_modules -v C:\Users\rajasekar.murugesan\Documents\Assignment-poc\docker-examples\frontend:/app 
+		
+Shorthhand with Docker Compose:
+
+			docker-compose.yml
+
+version: '3'
+services:
+  web:
+    build: .
+        context: .
+        dockerfile: Dockerfile.dev
+    ports:
+      - "3000:3000"
+    volumes:
+      - /app/node_modules
+      - .:/app 
+
+	  
+docker run -it <ContainerId> npm run test	  
+	Again this is like overriding the container with command.
+	
+To run along with docker-compose we have to write one more test services
+
+version: '3.7'
+services:
+  webapp:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    ports:
+      - "3000:3000"
+    volumes:
+      - /app/node_modules
+      - .:/app 
+  tests:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    volumes:
+      - /app/node_modules
+      - .:/app
+    command: ["npm","run","test"]        
+
+
+This will run two container one will run the web-app other will run the test using npm run test.
+	
+	  
+	  
+Kubernetes:
+
+Kubernetes:
+Orchestration of containers(computer system, middleware and services)
+we will define the manifest file, describe the container,describe the replica, restoring in case of crash.
+Load balancer
+hard drive
+security config - all these thing would be handled by kubernetes.
+it can run on any cloud provider.
+It originated by google, now managed by cloud native computing federation company.(almost 200 companies) - 
+
+Docker Swarm:
+	it has its own orchestration system.
+
+Adv of Kubernetes vs Docker Swarm:
+		Docker Swarm - built in , simpler. - u have to do it manually ,it is not that sohisticated.
+		Kubernetes is bigger - far richer, hard to learn - take these manifest file and deploy to different cloud platform without changing manifest file.
+		
+Installing Minikube for local kubernetes development:
+			install hypervisor
+			install kubectl
+			install minikube
+			
+kubectl:
+				controller program for kubernetes
+
+virtual box:
+					u can install manually for VM.
+hyper V:
+			it comes with inbuilt. just u can enable -after enabling this should not use oracle virtual box - it would be horrible.
+
+To Start Minikube on Window 10 Professional edition:
+minikube start --vm-driver="hyperv" --hyperv-virtual-switch="switch"						
+kubelet
+kubeade
+
+set HTTP_PROXY=http://10.212.192.234:8080
+set HTTPS_PROXY=https://10.212.192.234:8080
+
+setx http_proxy http://"rajasekar.murugesan:Raj$250417"@10.212.192.234:8080
+setx https_proxy http://"rajasekar.murugesan:Raj$250417"@10.212.192.234:8080
+
+
+Docker:
+enable us to create container. These containers are complete, u can deploy directly to server.
+container contains all the dependency. - just pass the container and then u can run on any computer.
+
+To uninstall:
+open  ey toolbox>machine>tools>avecto programs utility     
+
+--env HTTP_PROXY="http://'rajasekar.murugesan:Raj$250417'@10.212.192.234:8080"
+
+
+
+
+
+kubectl:
+	Need to add home folder path in path env variable
+once u installed kubectl - go to cmd and type kubectl, you ll get the commands
+
+Virtualization should be enabled:
+	For windows 10 professional
+		- install virtual box or hyperv.
+		hyperv- advanced built in vm for windows.
+			can enable or disable the feature on your own.
+			
+		windows - Apps&Features -> search and Select Turn Windows feature on and off.->	enable Hyperv option.
+	
+	Download kubectl and minikube-amd-64.exe and put it in c:\kube
+	make the path in env variable.
+	now start the
+	minikube start --vm-driver hyperv --hyperv-virtual-switch "Primary Virtual Switch"
+
+	if it did not start.
+	Option 2:
+	Try installing minikube installer and try the same. - if it did not start.
+	
+		
+	then u can use
+	
+Resources:
+		https://medium.com/faun/minikube-installation-on-windows-10-9908d17cfad9
+		https://kubernetes.io/docs/tasks/tools/install-kubectl/#install-kubectl-on-windows
+		https://blogs.sap.com/2019/02/17/run-minikube-from-docker-desktop/
+		
+		
+	
+
+
+Troubleshooting:
+
+
+If you are struck try running: - this is temporary fix.
+minikube start --bootsrapper=localkube                  
+
+it can even crash while using
+minikube stop 
+	-- stoping local kubernetes cluster
+
+minikube delete 
+	- remove vm from vm manager
+
+then again you can start
+minikube start
+
+
+What is Kubernetes and Why?
+	system for running different containers over multiple different machines(may be vm or physical machines)
+
+minikube start --vm-driver hyperv --hyperv-virtual-switch "Primary Virtual Switch"
+
+
+minikube start --vm-driver hyperv --hyperv-virtual-switch "My Virtual Switch"
+
+Option 3:
+	
+	Docker Desktop for Windows comes with Kubernetes Minikube
+	click settings and enable kubernetes - it will take almost 30 mins to configure the cluster.
+
+	kubectl config get-context
+	kubectl config use-context docker-for-desktop
+	
+	
+
+	
+Pod:
+	group of containers with shared storage and network and specification of how to run the container.
+	pods are disposable objects.
+	if nodes failed - all the pods will die
+	if node goes cpu full - kubernetes will kill the pod.
+	
+U can run all your pod commands in kubectl:
+
+kubectl get all
+		gets all the services running in the pod.
+		it wil show u the inbuilt webservice that is running in kubernetes which will have all the apis
+		
+kubectl apply -f first-pod.yml		
+	it will create the pod.
+	
+Example for a Pod: first-pod.yaml
+
+			apiVersion: v1
+			kind: Pod
+			metadata:
+			  name: webapp
+			spec:
+			  containers:
+			  - name: webapp
+				image: richardchesterwood/k8s-fleetman-webapp-angular:release0
+
+	
+	
+
+kubectl get all
+	it will show the created pod.
+	
+you cannot access the pod from outside, pod is present inside the kubernetes cluster, may be u can get the ip of minikube.	
+	
+kubectl describe pod webapp
+	this will describe the pod, here pod name is webapp
+
+kubectl exec webapp ls
+	to execute a command inside the pod.
+	
+	
+kubectl -it exec webapp sh
+		this will open the shell script, kind of interactive , where in you can run multiple commands inside the pod.
+		
+
+#> wget http://localhost:80
+
+			this will download the index.html file
+			
+#> cat index.html
+				this will open the index.html file
+		
+	
+Kubernetes Services:
+	By services only we would be able to access the pod present in the cluster.
+	It has selector app:webapp = a key value pair.
+	Similarly each pod has labels , app:webapp , key value pair.
+	Using this only a service will be able to identify a pod and can access it.
+	we have to create a separate file for services.
+		services:
+			it has something called selector
+			app:webapp
+Example for Services: webapp-service.yaml
+		apiVersion: v1
+		kind: Service
+		metadata:
+		  name: fleetman-webapp
+
+		spec:
+		  # This defines which pods are going to be represented by this Service
+		  # The service becomes a network endpoint for either other services
+		  # or maybe external users to connect to (eg browser)
+		  selector:
+			app: webapp
+			release: "0-5"
+
+		  ports:
+			- name: http
+			  port: 80
+			  nodePort: 30080
+			  #this is port number greater than 30000, and it is port of the Node where this cluster is present.
+
+		  type: NodePort
+				#there are two types 1.ClusterIp other NodePort, when u want ur services to be acessed within the cluster then use clusterip.
+				#if you want ur services to be access from external world like browser then give NodePort- as it is webapp we are giving Nodeport.
+				#if it is internal microservice we would have given clusterip.
+			
+			
+			
+kubectl describe node docker-for-desktop
+	it gives the details for docker for desktop
+
+You can have multiple labels 
+		Ex:release=0 and release=0.5
+		
+first-pod.yaml		
+apiVersion: v1
+kind: Pod
+metadata:
+  name: webapp
+  labels:
+   mykey: webapp
+   release: "0-5"
+  
+spec:
+  containers:
+  - name: webapp
+    image: richardchesterwood/k8s-fleetman-webapp-angular:release0
+		
+		
+	
+Few commands:
+kubectl get pods
+
+kubectl get po
+	this also returns all the pods - this is shortcut.
+	
+kubectl get po --show-labels
+		this will return the pods with labels.
+		
+kubectl get po --show-labels -l release=0
+			this will filter the pods with label value that we pass 
+	
+	
+Note:
+		In the same file u can put --- and write another pod code in the same file.
+	
+kubectl apply -f .
+		this to create all pods in the current directory.
+		
+See the project folder for 
+			Writing ActiveMQ as a pod and as a service
+	
+	
+Service in Pod:	
+To describe a service in the kubernetes:
+	
+	kubectl describe service webapp-service.
+			or
+	kubectl describe svc webapp-service
+	
+Example to describe service for webapp and ActiveMQ.
+
+		apiVersion: v1
+		kind: Service
+		metadata:
+		  name: fleetman-webapp
+
+		spec:
+		  # This defines which pods are going to be represented by this Service
+		  # The service becomes a network endpoint for either other services
+		  # or maybe external users to connect to (eg browser)
+		  selector:
+			app: webapp
+			release: "0-5"
+
+		  ports:
+			- name: http
+			  port: 80
+			  nodePort: 30080
+
+		  type: NodePort
+		---
+		apiVersion: v1
+		kind: Service
+		metadata:
+		  name: fleetman-queue
+
+		spec:
+		  # This defines which pods are going to be represented by this Service
+		  # The service becomes a network endpoint for either other services
+		  # or maybe external users to connect to (eg browser)
+		  selector:
+			app: queue
+
+		  ports:
+			- name: http
+			  port: 8161
+			  nodePort: 30010
+
+		  type: NodePort
+
+	
+
+To delete a pod or service	- it will gracrfully terminate the pod or service.
+	kubectl delete pod webapp or kubectl delete po webapp
+	kubectl delelte service webapp-service or kubectl delete svc webapp-service
+
+Replica Set:
+	Notes:
+		you don't need to write a separate set for replica and pod.
+		Replica set can be wrapped over pod.
+		
+		
+Example for Replicaset:
+		apiVersion: apps/v1
+		kind: ReplicaSet
+		metadata:
+		  name: webapp
+		spec:
+		  selector:
+			matchLabels:
+			  app: webapp
+		  replicas: 2
+		  template: # template for the pods
+			metadata:
+			  labels:
+				app: webapp
+			spec:
+			  containers:
+			  - name: webapp
+				image: richardchesterwood/k8s-fleetman-webapp-angular:release0-5
+Note:
+	Replicasets is also has a selectors, matchlabels - it should match the labels of pod.
+	only then replica will know on which(pod) it has to do replica.
+	It also has template - that shows template for the pods.
+	
+To Delete all Pods:
+		kubectl delete po --all
+			even if u have 1000 pods it will delete all in one shot.
+		
+		kubectl get all	
+			now u could see the replica set also present in the list.
+			
+		kubectl describe rs webapp
+			this will describe the replicaset webapp
+			
+		Now run the service file again 
+		kubectl apply -f service.yaml
+
+Now when u delete a pod manually with the id.
+		kubectl delete po webapp-qxvnc
+			it will delete the pod.
+Now when u do 
+		kubectl get all
+			the kubernetes will create another pod, -> as we have given replica set as 2
+			
+Note:
+		During the deletion if u refresh the webapp evertime in the browser - it is up always.
+		It is clear that services are getting responses from the pod(more than one pod or the one which is available always)
+		This is the power of kubernetes.
+		
+Deployment Overview:
+			purpose of deployment is zero down time with rolling updates.(that is if u want to update the app with other releases)
+			This is going to wrap the replica set.- Need to modify the pod.yaml file accordingly.
+			We can directly work on deployment than working on replica set.
+			
+		kubectl delete rs webapp
+			this will delete the replicaset webapp
+		kubectl get all
+			now it will not show the replica set
+			
+		Now we have to write the file with deployment. Previosly we were using labels to identify the various release images.
+		Now we can directly change the image name in the file.
+		In spec: minReadySeconds : 30 (this is the minimum time that we can configure for new replicaset to be powered up.)
+		till that time old replicaset will be serving the request, the moment new replicaset start serving the request, the old replicaset will be powered off.
+		Note:	
+			In case if something wrong with new release image and if u want to replace old one - still it is not possible using a command.
+			it is the power of kubernetes.
+		If u dont specify time in 0 seconds it will power up the new replica set.
+Managing Rollouts:
+		Managing the rollout without having to change the pods.yaml file everytime we can manage with rollout feature in kubernetes
+		Its nice feature but have to use it only during emergency,bcos yaml file will be different.
+			Ex: when an image name is wrong, if u run kubectl get all - it shows status 'Imagepulloff'
+			if needed run describe for that specific replica set
+		Note:
+			Advantages: still kubernetes will run with the older deployment.
+			so no need to worry as a developer - relax, think what went wrong and fix it.
+				
+			
+		kubectl rollout status deployment webapp
+			or
+		kubectl rollout status deploy webapp	
+			this will roll out the deployment.
+				then u can edit the image and then run
+		kubectl apply -f pods.yaml
+
+		kubectl rollout history deploy webapp
+				this will show the hostory of rollout that we made.
+		kubectl rollout undo deploy webapp
+				this will automatically undo the latest deployment andput the before one.
+		kubectl rollout undo deploy webapp --it-revisionnumber
+				u can specify the revision number u want 
+			
+Networking Overview:
+			Docker containers are designed to have single service on one.
+			what if u have multiple containers in a single pod.?
+				It is not recommended bcos - it is difficult to manage the pod. if pod fails u will not it is failed because of db or java.
+			It is good to have them in a separate pod.
+			kubernetes maintains it own DNS called  kube dns service
+				it contains key value pair- key is the name of the service, value is the ip address - kubernetes takes care of managing.
+Namespaces Kube system:
+			kubectl get namespaces
+				or 
+			kubectl get ns
+				it gives u all the namespace in the kubernetes, they are default, docker, public and kube system.
+			kubectl get po -n kube-system.	
+				it is to get pods in a namespace
+			kubectl get all -n kube-system	
+				it is to get all pods,services,deployment,replicaset,daemonset,etc from the namespace
+			kubectl get po -n kube-public	
+				this is to get all pods in the kube-public namespace - there are no resources found.
+			kubectl describe svc -n kube-system
+				this will describe the service present in the namespace called kube-system.
+Acessing MySQL from a pod:
+			kubectl apply -f networking-test.yaml
+				this creates the pod for MyDql db.
+			kubectl exec -it <id of the pod webapp> sh			
+				#>cat /etc/resolv.conf
+						it configures how DNS going to work ,that where DNS server is present like IP address.
+				#>nslookup database
+					it gives me the ip address of database service container.
+				we will see hot to connect to Database from this container.
+					kubectl exec -it <id of the pod webapp> sh
+					#>apk update
+					#>apk add mysql-client
+						if there is symantic endpoint protection firewall - it will not allow to give the internet. and u ll not be able to download from internet
+					once downloaded,
+						#>mysql> -h database -u root -p <password>
+						msql>create table test(varchar(2) name);
+						mysql>It creates the db.
+						
+Full Qualified Domain Names:
+							when u type nslookup  in the sh inside the web-app container,
+							nslookup database
+						it displays ip along with fqdn	
+							10.20.30.40 database.default.svc.cluster.local
+								this is like namespace.service.cluster.local
+							nslookup will work if i put first element of that string - so it worked for nslookup database
+To start minikube with more memory:
+								Now restart minikube with "minikube start --memory 4096".
+								
+Microservice architecture:
+						Each highly cohesive
+							should handle one business requirements. single responsibility
+								Ex: Mailing list service.
+									user details, validation of user, security
+								Ex: broadcasting to newletter can be another microservice	
+							loosely coupled.
+		Part 2:
+				Datbase in Microservices:
+									Integration Database - makes the system not loosely coupled, other system able to read and write.
+									each and every independent service should have separate db
+								Ex: Billing service stores in MySQL
+									Search service stores in elastic search.
+									Reporting service - big database
+				
+	
+	
+Deploy Microservice to the cloud:
+		Each microservice as docker image.
+		I can run each and every container.
+		kubernetes is to orchestrate - managing start and stop of these containers
+		Each of these pods are just a wrapper for these docker container. - like pod and container are one to one.
+		It is also possible to wrap more than one container in one pod.
+	
+	kubectl delete -f <pods.yaml>
+		this will delete the pods in this file. but we have three yaml file.
+	kubectl delete -f .
+		this will delete all the resources in that file, and it does for all files present in the current directory.
+Deploying Queue:
+	workload.yml
+			apiVersion: apps/v1
+			kind: Deployment
+			metadata:
+			  name: queue
+			spec:
+			  selector:
+				matchLabels:
+				  app: queue
+			  replicas: 1
+			  template: # template for the pods
+				metadata:
+				  labels:
+					app: queue
+				spec:
+				  containers:
+				  - name: queue
+					image: richardchesterwood/k8s-fleetman-queue:release1
+	Service.yaml
+			apiVersion: v1
+			kind: Service
+			metadata:
+			  name: fleetman-queue
+
+			spec:
+			  # This defines which pods are going to be represented by this Service
+			  # The service becomes a network endpoint for either other services
+			  # or maybe external users to connect to (eg browser)
+			  selector:
+				app: queue
+
+			  ports:
+				- name: http
+				  port: 8161
+				  nodePort: 30010
+
+				- name: endpoint
+				  port: 61616
+				  #port number used to send and receive messages
+
+			  type: NodePort
+	
+Deploying Position simulator:
+			No ports needed.
+			It needs an env variable SPRING_PROFILES_ACTIVE = production_microservice
+	  if any problem while starting the pod	
+		first describe the pod.
+		then get the logs => kubectl logs <id of the pod>
+		
+Persistent Volumes:
+	when we store data in db, ex: here mongo itself we created as a pod, means inside the container it has its own filesystem for storage.
+	so when we delete the pod, the data are lost.
+	so the data that are stored in the file system of the pod has to be mapped or mount to kubernetes cluster to avoid the loss of data during
+	the pod deletion or crash. - this is called Persistent volumes	
+mongo-stack.yaml:
+		apiVersion: apps/v1
+		kind: Deployment
+		metadata:
+		  name: mongodb
+		spec:
+		  selector:
+			matchLabels:
+			  app: mongodb
+		  replicas: 1
+		  template: # template for the pods
+			metadata:
+			  labels:
+				app: mongodb
+			spec:
+			  containers:
+			  - name: mongodb
+				image: mongo:3.6.5-jessie
+				volumeMounts:
+				  - name: mongo-persistent-storage
+					mountPath: /data/db
+					#this is the path inside the kubernetes
+			  volumes:
+				- name: mongo-persistent-storage
+				  # pointer to the configuration of HOW we want the mount to be implemented
+				  persistentVolumeClaim:
+					claimName: mongo-pvc
+		---
+		kind: Service
+		apiVersion: v1
+		metadata:
+		  name: fleetman-mongodb
+		  #this is the same name that was given in the application.properties pertain to production.
+		spec:
+		  selector:
+			app: mongodb
+		  ports:
+			- name: mongoport
+			  port: 27017
+		  type: ClusterIP
+		  #only position tracker microservice will access it.
+
+storage.yml:
+		# What do want?
+		apiVersion: v1
+		kind: PersistentVolumeClaim
+		metadata:
+		  name: mongo-pvc
+		spec:
+		  storageClassName: mylocalstorage
+		  accessModes:
+			- ReadWriteOnce
+		  resources:
+			requests:
+			  storage: 20Gi
+		---
+		# How do we want it implemented
+		apiVersion: v1
+		kind: PersistentVolume
+		metadata:
+		  name: local-storage
+		spec:
+		  storageClassName: mylocalstorage
+		  capacity:
+			storage: 20Gi
+		  accessModes:
+			- ReadWriteOnce
+		  hostPath:
+			path: "/mnt/some new/directory/structure/"
+			type: DirectoryOrCreate
+
+  
+		
+kubectl get pv
+		pv means persistent volume	
+		
+
+		
+AWS:
+	A node or server is called EC2 instance.
+	Master node will schedule all other nodes.
+	gateway - one node,
+	position simulator - other node.
+	position tracker and DB other node.
+	total we will have 4 nodes , in case if there are any node failure, the pods running in that node will be spinned up in any other avaialble node.
+	Master node will be monitor all the node  and take care of it.
+	
+	Persistent Volume - ebs
+	
+	kops
+		it is like kubectl
+	
+	Method 1 : installing kops in local
+	Note:
+		U need to install kubernetes on the cloud account - u have to install manually install many things on your own.
+		so there are many 
+		github.com - kubernetes/kops - it is available as a production grade
+		https://github.com/kubernetes/kops
+		https://github.com/kubernetes/kops/blob/master/docs/aws.md
+		
+		The idea is to install the kops on the local machine and that it will talk to aws account for deploying.
+		we just have to follow the below url to install kops on local machine.
+		https://github.com/kubernetes/kops/blob/master/docs/install.md
+		But there is no support for windows.
+	Method 2: cretae a new ec2 instance in AWS account.
+		create new instance, click next to add storage, next to add tag, just give Name bootstrap in the tag,
+		add security group(u can select  Myip), then add keypair (aws-keypair)
+public ip for Ec2	
+13.234.232.82
+	use putty to connect to EC2.
+	first convert .pem file to ppk format using putty select the file and save.
+	connection -> data give the username as 'ec2-user'
+	give the host name as 
+	ec2-13-127-32-167.ap-south-1.compute.amazonaws.com
+	port 22
+	In ssh ,Auth select the file
+	in sessions, give the name, so that it will save in that name.
+	yes now we are able to connect EC2 instance that we created -
+	Now we have to install the kops using the below
+	
+	curl -Lo kops https://github.com/kubernetes/kops/releases/download/$(curl -s https://api.github.com/repos/kubernetes/kops/releases/latest | grep tag_name | cut -d '"' -f 4)/kops-darwin-amd64
+	chmod +x ./kops
+	sudo mv ./kops /usr/local/bin/
+	
+	
+	  

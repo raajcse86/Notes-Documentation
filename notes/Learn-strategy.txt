@@ -1,0 +1,75 @@
+JMS
+RabbitMQ
+ActiveMQ, RabbitMQ and Kafka
+Spring security
+	basic
+	oauth
+	jwt
+SpringBoot integration with JMS.
+Webservices -
+	SOAP - Jaxws
+	JaxRS - Resteasy jersey
+	Restful webservices
+Spring cloud components - native cloud
+Spring Boot Caching
+Spring boot distributed logging.
+	ELK - Elastic Search Logstach and Kibana
+Hibernate
+JPA
+Hibernate Performance, tips
+
+	
+Database:	
+MongoDB
+Oracle - Query, Procedure, trigger.
+
+
+
+UI:
+React JS
+Angular 6
+JQuery
+Javascript
+
+Build tools:
+Maven
+configure Jenkins
+
+
+Project Metrics:
+Sonar
+Code Smell
+
+	
+Deployment:	
+Docker
+Kubernetes
+PCF
+AWS
+Azure
+
+
+
+
+java 8 features, memory management
+Programming
+Multithreading - 
+basics ,locking, interthread communication, how to stop a thread, use of join, performance, parallel computing, MapReduce
+Executor service
+locking, ReEntrantLock,Semaphores,CountDownLatch,CyclicBarrier.
+Gaming using Multithreading.
+Performance tuning in Multithreading.
+How to debugg multithreading.
+
+Design pattern
+	
+Integration with other frameworks:
+Spring AOP
+Spring JPA
+Spring Integration
+Spring Transaction
+Spring  MVC
+
+servlets 
+jsp
+

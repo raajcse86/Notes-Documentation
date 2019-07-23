@@ -1,0 +1,2433 @@
+Multithreading and Concurrency:
+
+Every process has its own registers, programcounters, stack memory, heap memory.
+ProcessBuilder - to create process.
+In Task Manager we can see multiple process.
+	Every single application will have single process, each will have id, memory.
+	Thread is a lightweight process, a unit of execution.
+	One process may have several thread, they have to share memory, stack memory , heap memory and program counter.
+
+Time Slicing and Multithreading:	
+	Single processor has to handle multiple threads.
+	Parallel computing:
+		This is different - it is like multiple processor.
+		
+Adavantages of multithreading:		
+		more responsive application, perform several task at a time.
+		Ex: downloading image, i/o operations and manipulations all 3 can be done together at a time.
+		if u have mutiple cores, advised to use multithreading.
+Disadvantages:		
+		we have to deal with synchronization - both threads going to share memory of a process.
+		It is not easy to design.
+		Swithcing between threads are expensive, cpu has to save local data, it has to load t1 and its data similarly it has to load t2 and its data on it turn.
+		Thats y it is not advisable to use multiple threads as it slows down the application.
+
+
+Thread LifeCycle:
+NEW - When u instantiates new thread., before we call start method.
+RUNNABLE - Thread is executing the thread - going to use the given task.
+WAITING - when one thread is in waiting for other thread.(With sleep method also it goes to waiting state.)
+DEAD - after finishes the task.	
+
+Basic Multithreading:
+Sequential processing:
+		Doing one task and then the other.
+Multithreading in Single processor:	
+			Multithreading execution always happen with time slicing. We may have feeling that it is executed parallely but it is not.
+Parallel computing:			
+			Two or processor or single processor with multi core - run the task parallelly without time slicing.
+			Actual task is executed parallely with different processor.
+Join:
+	It is use in order to wait for a thread to finish its task.
+		Ex:t1.join()
+		Main thread will wait till t1 is finished.
+		
+		
+		//comments:
+		//both t1 and t2 share the memory and run, with join on t1 we make sure that the 
+		//we are waiting for t1 to die and then allowing to run statement after that.
+		//as in the above example t1 has 10 iteration and t2 has 100 iteration, so statement after join
+		//printed as soon as t1 finished, it did not wait for t2 to finish as we have applied
+		//join only on t1.
+		
+		Code Example:
+		
+class Runner1Join implements Runnable{
+	
+	@Override
+	public void run() {
+		for(int i=0;i<10;i++) {
+			System.out.println("Runner1 "+i);
+			
+			try {
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		
+	}
+	
+}
+
+class Runner2Join implements Runnable{
+	
+	@Override
+	public void run() {
+		for(int i=0;i<100;i++) {
+			System.out.println("Runner2 "+i);
+			
+			try {
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		
+	}
+	
+}
+
+
+public class Example2_Join {
+
+	
+	public static void main(String[] args) {
+		Thread t1 = new Thread(new Runner1Join());
+		Thread t2 = new Thread(new Runner2Join());
+		t1.start();
+		t2.start();
+		
+		try {
+			t1.join();
+			//t2.join();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		
+		System.out.println("Main Thread finished");
+		
+		
+		//comments:
+		//both t1 and t2 share the memory and run, with join on t1 we make sure that the 
+		//we are waiting for t1 to die and then allowing to run statement after that.
+		//as in the above example t1 has 10 iteration and t2 has 100 iteration, so statement after join
+		//printed as soon as t1 finished, it did not wait for t2 to finish as we have applied
+		//join only on t1.
+		
+		
+	}
+}
+		
+		
+	Volatile:
+		Usually the variable are cached to improve the performance when u declare as volatile, it will read from main memory.
+		This way in the multithreading environment, the variable is consistent as we are storing in main memory.
+	Dead lock:	t1 locked row1 t2 locked row2, t1 waiting for row2 and t2 waiting for row1 .
+	live lock : both t1 and t2 are busy with each other like while passing by ,one move left, other move it right at both are blocking not giving the way.	
+
+
+	
+	Synchronized block:
+			///instead applying synchronized at the method level, put it in the block.
+		//because inside the block you can lock on a particular object, so that
+		//two threads can access.
+		// In Method level the lock applied for entire class level,  so that add() and addAgain()
+		//cannot run simultaneously .
+		//that is if t1 access add(), even t2 cannot access addAgain() though both are different methods
+		// and doing different operations, because the intrinsic lock at class level is acquired by one thread
+		//other thread has to wait.
+Example - with Method:
+		public class Example4_SynchronizedBlock {
+
+	private  static int counter = 0;
+
+	public static synchronized void increment() {
+		counter++;
+		
+	}
+	public  void process() {
+		Thread t1 = new Thread(new Runnable() {
+			@Override
+			public void run() {
+				for (int i = 0; i < 100; i++) {
+					increment();
+				}
+			}
+		});
+		Thread t2 = new Thread(new Runnable() {
+			@Override
+			public void run() {
+				for (int i = 0; i < 100; i++) {
+					increment();
+				}
+
+			}
+		});
+
+		t1.start();
+		t2.start();
+		
+		try {
+			t1.join();
+			t2.join();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
+
+	public static void main(String[] args) {
+		new Example4_SynchronizedBlock().process();
+		System.out.println("Main Thread finished" +counter);
+
+	}
+}
+
+Example with Synchronized block:
+
+public class Example3_Synchronized {
+
+	private  static int counter1 = 0;
+	private  static int counter2 = 0;
+	
+	private static Object lock1 = new Object();
+	private static Object lock2 = new Object();
+
+	public static  void add() {
+		synchronized(lock1) {
+			counter1++;	
+		}
+	}
+	
+	public static  void addAgain() {
+		synchronized(lock2) {
+			counter2++;	
+		}
+		
+		
+	}
+	
+	public static void compute() {
+		for(int i=0;i<100;i++) {
+			add();
+			addAgain();	
+		}
+		
+	}
+	
+	
+	public  static void process() {
+		Thread t1 = new Thread(new Runnable() {
+			@Override
+			public void run() {
+				compute();
+			}
+		});
+		Thread t2 = new Thread(new Runnable() {
+			@Override
+			public void run() {
+				compute();
+
+			}
+		});
+
+		t1.start();
+		t2.start();
+		
+		try {
+			t1.join();
+			t2.join();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
+
+	public static void main(String[] args) {
+		process();
+		System.out.println("Counter1 >> " +counter1 +"Counter 2 >> "+counter2);
+
+	}
+}
+
+
+
+
+		
+Wait and Notify:
+		//As both the methods are locking on object level, t1 starts produce, t2 starts consume
+		//as t2 sleeps for 1000,t1 acquires lock, then it call wait(), so the lock released
+		//t2 acquires the lock, it runs, it calls notify, now again t1 runs.
+		//but if there are some statements after notify in the method where t2 was there, it 
+		//will first execute those statements.
+
+		//we can even ask a thread to wait for specific time.
+		
+Example -code:
+		class Processor{
+	
+	public void produce() throws InterruptedException {
+		synchronized (this) {
+			System.out.println("We are in Producer.");
+			wait();
+			System.out.println("Again we are in producer");
+		}
+	}
+	
+	public void consume() throws InterruptedException {
+		Thread.sleep(1000);
+		synchronized (this) {
+			System.out.println("We are in Consumer.");
+			notify();
+			System.out.println("Still in consumer -after notify");
+			Thread.sleep(3000);
+			
+		}
+	}
+}
+
+
+
+public class Example5_WaitAndNotify {
+
+	
+	public static void main(String[] args) throws InterruptedException {
+		Processor processor = new Processor();
+		
+		Thread t1 = new Thread(new Runnable() {
+			@Override
+			public void run() {
+			try {
+				processor.produce();
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+				
+			}
+		});
+		
+		Thread t2 = new Thread(new Runnable() {
+			@Override
+			public void run() {
+			try {
+				processor.consume();
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+				
+			}
+		});
+		
+		
+		t1.start();
+		t2.start();
+		
+		
+		t1.join();
+		t2.join();
+	}
+	
+	
+	
+	
+	
+}	
+			
+		
+		
+		
+		
+
+Producer and Consumer:	
+			/As both the methods are locking on object level, t1 starts produce, t2 starts consume
+		//as both producer and consumer are in a loop,even after notify it is not going to other thread,
+		//it waits for list to full in the producer and it goes to wait state.
+		//similarly the consumer gets empty and then carries on.
+		//as always statement next to notify will be running, it does not give the control to the other
+		//immediately.
+
+Example:
+class ProcessorProducerConsumer {
+
+	List<Integer> list = new ArrayList<>();
+	private final int LIMIT = 5;
+	private final int BOTTOM = 0;
+	private Object lock = new Object();
+	private int value = 0;
+
+	public void produce() throws InterruptedException {
+		synchronized (lock) {
+			while (true) {
+				if (list.size() == LIMIT) {
+					System.out.println("Waiting for removing the item from the list");
+					lock.wait();
+				} else {
+					System.out.println("Adding ... "+value);
+					list.add(value);
+					value++;
+					lock.notify();
+				}
+			}
+		}
+	}
+
+	public void consume() throws InterruptedException {
+		synchronized (lock) {
+			while (true) {
+				if (list.size() == BOTTOM) {
+					System.out.println("List is empty.. Waiting for producer to produce");
+					lock.wait();
+				} else {
+					System.out.println("Removing ... "+list.remove(--value));
+					lock.notify();
+				}
+			}
+		}
+	}
+}
+public class Example6_ProducerConsumer {
+
+	public static void main(String[] args) throws InterruptedException {
+		ProcessorProducerConsumer processor = new ProcessorProducerConsumer();
+
+		Thread t1 = new Thread(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					processor.produce();
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+
+			}
+		});
+
+		Thread t2 = new Thread(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					processor.consume();
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+
+			}
+		});
+
+		t1.start();
+		t2.start();
+
+		t1.join();
+		t2.join();
+	}
+
+}
+			
+		
+		
+
+Locks:
+	//you just have to call lock() and then unlock method in the finally block.
+//it is similar to synchronized block.
+//little more control is that we call unlock even based on any condition.
+Example:
+	public class Example7_Lock {
+
+	private static int count = 0;
+	private static Lock lock = new ReentrantLock();
+
+	public static void increment() {
+
+		lock.lock();
+		try {
+			for (int i = 0; i < 1000; i++) {
+				count++;
+			}
+		} finally {
+			lock.unlock();
+		}
+
+	}
+
+	public static void main(String[] args) throws InterruptedException {
+		Thread t1 = new Thread(new Runnable() {
+			@Override
+			public void run() {
+				increment();
+
+			}
+		});
+
+		Thread t2 = new Thread(new Runnable() {
+			@Override
+			public void run() {
+				increment();
+
+			}
+		});
+
+		t1.start();
+		t2.start();
+
+		t1.join();
+		t2.join();
+
+		System.out.println("Counter >> " + count);
+	}
+
+}
+
+
+
+Condition:
+//you just have to call lock() and then unlock method in the finally block.
+//it is similar to synchronized block.
+//little more control is that we call unlock even based on any condition.
+//condition.await is similar to wait(), 
+//condition.signal is similar to notify()
+
+Producer and Consumer with lock:
+class Worker {
+	private Lock lock = new ReentrantLock();
+	private Condition condition = lock.newCondition();
+
+	public void produce() throws InterruptedException {
+		lock.lock();
+		System.out.println("Producer method..");
+		condition.await();
+		System.out.println("Producer again");
+		lock.unlock();
+
+	}
+
+	public void consume() throws InterruptedException {
+		lock.lock();
+		Thread.sleep(2000);
+		System.out.println("Consumer method");
+		condition.signal();
+		System.out.println("Consumer again");
+		lock.unlock();
+	}
+
+}
+
+public class Example9_Semaphore {
+
+	public static void main(String[] args) throws InterruptedException {
+		Worker worker = new Worker();
+		
+		Thread t1 = new Thread(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					worker.produce();
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+
+			}
+		});
+
+		Thread t2 = new Thread(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					worker.consume();
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+
+			}
+		});
+
+		t1.start();
+		t2.start();
+
+		t1.join();
+		t2.join();
+
+	}
+
+}
+
+
+
+Lock vs Synchronization:
+	Rentrant lock has same features like synchronization.
+	other features are we can make the lock fair, - the longest waiting thread will get the opportunity to run. - that it avoids starvation.
+	we can check whether the given lock is held or not.
+	we can get list of threads waiting for the given lock.
+	Synhronization block are good as we do not need Try- catch finally block.
+	
+Semaphores:	
+	It keeps track of how many resources are free, it does not track which of the resource are free.
+	It count may serve as a useful to trigger other actions
+Mutex:
+		It is like binary semaphore.
+	Sempahore:
+			acquire
+			release
+	U can set maximum amount of thread that can be used to access the object simultaneously.
+Ex:
+		Access the server.
+		Obtaining connection obj for DB.
+		To download a image from the server(Ex:facebook) - if more number of users downloaded at a time ,it will crash.
+		
+	//semaphore is used to hold the count of resource that can be accessed simultaneously.
+//here it is 3 resource can access at a time.
+//like connection object to DB.
+//It has acquire and release method
+//with acquire method it can keep track of count of number of resources,
+//whenever it releases it decrement the count.	
+
+//in case if there are more threads - they all will wait until the allowed ones are completed.
+
+------------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------------
+Students Library program:
+public class App {
+	
+	public static void main(String[] args) {
+		
+		Student[] students=null;
+		Book[] books = null;
+		ExecutorService executor = Executors.newFixedThreadPool(Constants.NUMBER_OF_STUDENTS);
+		
+		try{
+			
+			books=new Book[Constants.NUMBER_OF_BOOKS];
+			students=new Student[Constants.NUMBER_OF_STUDENTS];
+			
+			
+			for(int i=0;i<Constants.NUMBER_OF_BOOKS;i++){
+				books[i]=new Book(i);
+			}
+			
+			for(int i=0;i<Constants.NUMBER_OF_STUDENTS;i++){
+				students[i]=new Student(i,books);
+				executor.execute(students[i]);
+			}						
+		}catch(Exception e){
+			e.printStackTrace();
+			executor.shutdown();
+		}finally{
+			executor.shutdown();
+		}
+	}
+}
+package com.librarayproject;
+
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+
+public class Book {
+
+	private int id;
+	private Lock lock;
+
+	public Book(int id) {
+		this.lock = new ReentrantLock();
+		this.id = id;
+	}
+
+	//no two students can read a book at the same time - hence we had a lock.
+	//once students done with the reading, we unlock the book.
+	//with trylock we have to use the return type boolean - bcos sometimes it may or may not acquire the lock.
+	public void read(Student student) throws InterruptedException {
+		boolean islocked = lock.tryLock(10, TimeUnit.MINUTES);
+		if(islocked) {
+			System.out.println(student + " starts reading " + this);	
+			Thread.sleep(2000);
+			lock.unlock();
+			System.out.println(student + " has finished reading " + this);
+		}
+		
+	}
+
+	public String toString() {
+		return "Book" + id;
+	}
+
+}
+package com.librarayproject;
+
+public class Constants {
+
+	private Constants(){
+		
+	}
+	
+	public static final int NUMBER_OF_STUDENTS = 5;
+	public static final int NUMBER_OF_BOOKS = 7;
+}
+package com.librarayproject;
+
+import java.util.Random;
+
+public class Student implements Runnable {
+
+	private int id;
+	private Book[] books;
+
+	public Student(int id, Book[] books) {
+		this.books = books;
+		this.id = id;
+	}
+
+	@Override
+	public void run() {
+
+		Random random = new Random();
+
+		while (true) {
+
+			int bookId = random.nextInt(Constants.NUMBER_OF_BOOKS);
+
+			try {
+				books[bookId].read(this);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
+	public String toString() {
+		return "Student" + id;
+	}
+}
+
+-----------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------
+Dinning Philospher Poblem:
+
+
+package PhilosopherProblem;
+
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+public class App {
+
+	public static void main(String[] args) throws InterruptedException {
+		
+		ExecutorService executorService = null;
+		Philosopher[] philosophers = null;
+		
+		try{
+			
+			philosophers = new Philosopher[Constants.NUMBER_OF_PHILOSOPHERS];
+			ChopStick[] chopSticks = new ChopStick[Constants.NUMBER_OF_PHILOSOPHERS];
+			
+			//initializing the chopstick array.
+			for(int i=0;i<Constants.NUMBER_OF_CHOPSTICKS;i++){
+				chopSticks[i] = new ChopStick(i);
+			}
+			
+			//As many threads as many number of philospohers
+			executorService = Executors.newFixedThreadPool(Constants.NUMBER_OF_PHILOSOPHERS);
+			
+			for(int i=0;i<Constants.NUMBER_OF_PHILOSOPHERS;i++){
+				//initialzing philosopher				
+				philosophers[i] = new Philosopher(i, chopSticks[i], chopSticks[(i+1) % Constants.NUMBER_OF_PHILOSOPHERS]);
+				executorService.execute(philosophers[i]);
+			}
+			
+			//application going to run for 5 seconds.
+			Thread.sleep(Constants.SIMULATION_RUNNING_TIME);
+			
+			for(Philosopher philosopher : philosophers){
+				philosopher.setFull(true);
+			}		
+		}finally{
+			
+			executorService.shutdown();
+			
+			//wait till the service stopped.
+			while(!executorService.isTerminated()){
+				Thread.sleep(1000);
+			}
+			
+			for(Philosopher philosopher : philosophers ){
+				System.out.println(philosopher+" eat #"+philosopher.getEatingCounter());
+			}
+			
+		}
+		
+	}
+}
+package PhilosopherProblem;
+
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+
+
+// we are able to lock in one method and unlock in anothe method.
+// also we can simulate the lock with time seconds, in case if we could not acquire lock then we return false.
+//All these cannot be achieved in synchronized block.
+public class ChopStick {
+
+	private Lock lock;
+	private int id;
+	
+	public ChopStick(int id){
+		this.id = id;
+		this.lock = new ReentrantLock();
+	}
+	
+	public boolean pickUp(Philosopher philosopher, State state) throws InterruptedException{
+	
+		// Trying to lock with the specified time, if cannot acquire lock, then it will not go to if loop.
+		if( this.lock.tryLock(10, TimeUnit.MILLISECONDS)){
+			System.out.println(philosopher+" picked up "+state.toString()+" "+this);
+			return true;
+		}
+		
+		return false;
+	}
+	
+	public void putDown(Philosopher philosopher, State state) {
+		this.lock.unlock();
+		System.out.println(philosopher+" put down "+this);
+	}
+	
+	@Override
+	public String toString() {
+		return "Chopstick-"+this.id;
+	}
+}
+public class Constants {
+
+	private Constants(){
+		
+	}
+	
+	public static final int NUMBER_OF_PHILOSOPHERS = 5;
+	public static final int NUMBER_OF_CHOPSTICKS = NUMBER_OF_PHILOSOPHERS;
+	public static final int SIMULATION_RUNNING_TIME = 5*1000;
+	
+}
+package PhilosopherProblem;
+
+import java.util.Random;
+
+public class Philosopher implements Runnable {
+
+	private int id;
+	private ChopStick leftChopStick;
+	private ChopStick rightChopStick;
+	private volatile boolean isFull = false;//every thread has its own cache, but this value will be taken
+	//from main memory instead of cache.
+	
+	private Random random;// have to wait for random time.
+	private int eatingCounter;// to check how many times a philosopher eaten.
+	
+	public Philosopher(int id, ChopStick leftChopStick, ChopStick rightChopStick){
+		this.id = id;
+		this.leftChopStick = leftChopStick;
+		this.rightChopStick = rightChopStick;
+		this.random = new Random();
+	}
+	
+	@Override
+	public void run() {
+		
+		try{
+			
+			while( !isFull ){
+				
+				think();
+				
+				// if he picked left chopstick.
+				if( leftChopStick.pickUp(this, State.LEFT) ){
+					// if he picked up also right chopstick.
+					if( rightChopStick.pickUp(this, State.RIGHT)){
+						eat(); // as he picked up both he can start eating.
+						
+						rightChopStick.putDown(this, State.RIGHT);
+						//once done eating, he will put down right chopstick first 
+					}
+					
+					leftChopStick.putDown(this, State.LEFT);
+					//once done eating, he will put down left chopstick also 
+				}	
+			}
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+	}
+	
+	private void think() throws InterruptedException {
+		System.out.println(this+" is thinking...");
+		Thread.sleep(this.random.nextInt(1000));
+		// some where between 0 to 1000. that is between 0 to 1 seconds he is going to think.
+	}
+	
+	private void eat() throws InterruptedException {
+		System.out.println(this+" is eating...");
+		//philospher is eating. so increment the counter.
+		this.eatingCounter++;
+		Thread.sleep(this.random.nextInt(1000));
+		//again randomly he is eating for some 0 to 1000 seconds.
+	}
+	
+	public int getEatingCounter(){
+		return this.eatingCounter;
+	}
+	
+	public void setFull(boolean isFull){
+		this.isFull = isFull;
+	}
+	
+	@Override
+	public String toString() {
+		return "Philosopher-"+this.id;
+	}
+}
+public enum State {
+	LEFT, RIGHT;
+}
+
+-------------------------------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------
+Executors:
+	It is easy to create as many threads we want.
+	newThreadPool() - once it reached the max number of threads, it waits till the existing to finish it task. Once done it assigns
+					the remaining task to the available thread.
+	newCachedPool() - once it see that there is no thread available to submit a task, then it creates the new one.
+	newSingleThreadedPool() - only single thread will be created.
+	
+Callable and future:
+
+Count down latch:
+		It has method called CountDown() - which will decrement the count after every task.
+		countDownLatch.await() - this block until all task are completed.
+		
+Example:
+
+class Task implements Runnable{
+	
+	private int id;
+	private CountDownLatch countDownLatch;
+	
+	Task(int id, CountDownLatch countDownLatch){
+		this.id = id;
+		this.countDownLatch = countDownLatch;
+				
+	}
+	
+	@Override
+	public void run() {
+		System.out.println("Thread with id "+this.id+ " starts working.");
+		countDownLatch.countDown();
+	}
+	
+
+}
+
+
+public class Example12_CountDownLatch {
+
+
+	
+	public static void main(String[] args) throws InterruptedException, ExecutionException {
+		ExecutorService executorService = Executors.newFixedThreadPool(3);
+		CountDownLatch countDownLatch = new CountDownLatch(5);
+		for(int i=0;i<5;i++) {
+			executorService.submit(new Task(i, countDownLatch));
+		}
+		
+		countDownLatch.await();
+		System.out.println("All the tasks are done. Now we can collaborate them");
+		executorService.shutdown();
+
+	}
+
+}
+			
+		
+		
+Cyclic Barrier:		
+	we cannot resuse countDownLatch but we can reset cyclic barrier
+	//After all the threads finished, the cyclic barrier which implements run() at the client will execute.
+//after cyclic barrier task in the client, the statement after barrier.await() in the run method
+//will run for all the five threads.
+Example:
+	
+class WorkerCyclic implements Runnable{
+	
+	private int id;
+	private Random random;
+	private CyclicBarrier cyclicBarrier;
+	
+	WorkerCyclic(int id, CyclicBarrier cyclicBarrier){
+		this.id = id;
+		random = new Random();
+		this.cyclicBarrier = cyclicBarrier;
+				
+	}
+	
+	@Override
+	public void run() {
+		
+		doWork();
+	}
+
+	private void doWork() {
+		System.out.println("Thread with id "+this.id+ " starts working.");
+		try {
+			Thread.sleep(3000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		
+		System.out.println("Thread with id "+this.id+ " finished working");
+		
+		try {
+			cyclicBarrier.await();
+			//After the task are finished.
+			System.out.println("After task finished");
+			
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		} catch (BrokenBarrierException e) {
+			e.printStackTrace();
+		}
+		
+	}
+	
+	
+	
+
+}
+
+public class Example13_CyclicBarrier {
+
+
+	
+	public static void main(String[] args) throws InterruptedException, ExecutionException {
+		ExecutorService executorService = Executors.newFixedThreadPool(5);
+		CyclicBarrier barrier = new CyclicBarrier(5, new Runnable() {
+			@Override
+			public void run() {
+				System.out.println("All the task are finished...");
+			}
+		});
+		
+		for(int i=0;i<5;i++) {
+			executorService.submit(new WorkerCyclic(i+1, barrier));
+		}
+		
+		System.out.println("Befor shutdown");
+		executorService.shutdown();
+
+	}
+
+}	
+
+Blocking Queue:
+	we are able to read and write to the queue at the same time without any low level object like wait notify and lock.
+Example:
+
+package com.tutorial.section.basic;
+
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
+
+class FirstWorker implements Runnable{
+	
+	BlockingQueue<Integer> blockingQueue;
+	
+	public FirstWorker(BlockingQueue<Integer> queue) {
+		this.blockingQueue = queue;
+	}
+	
+	@Override
+	public void run() {
+		int count =1;
+		while(true){
+			try {
+				System.out.println("Adding to Queue "+count);
+				blockingQueue.put(count);
+				count++;
+				Thread.sleep(10);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+		}
+		
+	}
+}
+
+
+class SecondWorker implements Runnable{
+	
+	BlockingQueue<Integer> blockingQueue;
+	
+	public SecondWorker(BlockingQueue<Integer> queue) {
+		this.blockingQueue = queue;
+	}
+	
+	@Override
+	public void run() {
+		while(true){
+			try {
+				int number = blockingQueue.take();
+				System.out.println("Taking from Queue "+number);
+				Thread.sleep(10);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+		}
+		
+	}
+}
+
+public class Example14_BlockingQueue {
+
+	public static void main(String[] args) {
+		BlockingQueue<Integer> blockingQueue = new ArrayBlockingQueue<>(10);
+		
+		Thread t1 = new Thread(new FirstWorker(blockingQueue));
+		Thread t2 = new Thread(new SecondWorker(blockingQueue));
+		
+		t1.start();
+		t2.start();
+	}
+}
+	
+Concurrent maps:
+class FirstWorkerMap implements Runnable{
+	
+	ConcurrentMap<String,Integer> concurrentMap;
+	
+	public FirstWorkerMap(ConcurrentMap<String,Integer> map) {
+		this.concurrentMap = map;
+	}
+	
+	@Override
+	public void run() {
+		while(true){
+			try {
+				concurrentMap.put("A", 1);
+				concurrentMap.put("B", 2);
+				Thread.sleep(1000);
+				concurrentMap.put("C", 3);
+				concurrentMap.put("D", 4);
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+			
+		}
+		
+	}
+}
+
+class SecondWorkerMap implements Runnable{
+	
+	ConcurrentMap<String,Integer> concurrentMap;
+	
+	public SecondWorkerMap(ConcurrentMap<String,Integer> map) {
+		this.concurrentMap = map;
+	}
+	
+	@Override
+	public void run() {
+		while(true){
+			try {
+				Thread.sleep(5000);
+				System.out.println(concurrentMap.get("A"));
+				System.out.println(concurrentMap.get("B"));
+				Thread.sleep(1000);
+				System.out.println(concurrentMap.get("C"));
+				System.out.println(concurrentMap.get("D"));
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+			
+		}
+		
+	}
+}
+
+
+public class Example15_ConcurrentMap {
+	
+	public static void main(String[] args) {
+		ConcurrentMap<String,Integer> map = new ConcurrentHashMap<>();
+		
+		new Thread(new FirstWorkerMap(map)).start();
+		
+		new Thread(new SecondWorkerMap(map)).start();
+	}
+
+}
+
+Exchanger:
+Applications: Genetic algorithm, neural network
+	Two threads can exchange their objects.
+
+Exchanger:	
+
+
+Dinning Philospoher problem:
+ In 1965 Dijkstra - shortest path algorithm
+	
+Parallel Computing:
+t1 runs on processor 1
+t2 runs on processor 2
+
+where as in case of multithreading all runs in the same processor.
+
+Fork Join Framework:
+		frameworks takes care of low level task like lock.
+		These sub task should be independent of each other - so that they can be executed parallel.
+		Every class extend RecursiveTask - going to run parallel.
+		Fork Join Pool: - going to add all the Recursive task or Recursive action to pool.
+		Will be efficient if there are more task.
+		They create a thread based on number of processor in the os.
+		With the help of fork will be able to divide the task as left and right task.
+		then again that left task will be divided int o left and right, similaryl right will be divided into left and right.
+		After all finished - we will be able to collaborate all task(join)
+		Thats why it is called Fork Join (Divide task and merge all)	
+			As it is not returning anything we can use Recursive action.
+			
+Note:
+	Never use fork-join for small data set, it will take more time compared to sequential.
+	Only for very large data set we have to use it.
+			
+			
+			
+Fork- Join Max:
+Fork -Join Merge Sort
+
+Fork-join Simple:
+package com.balazsholczer.udemy;
+
+import java.util.concurrent.ForkJoinPool;
+
+public class App {
+
+	public static void main(String[] args) {
+		
+		//we are creating a fork-join pool, it contains threads as equal to number of processors.
+		ForkJoinPool forkJoinPool = new ForkJoinPool(Runtime.getRuntime().availableProcessors());
+		
+		
+		SimpleRecursiveAction simpleRecursiveAction = new SimpleRecursiveAction(400);
+		
+		//This is going to execute the given task.
+		forkJoinPool.invoke(simpleRecursiveAction);
+		
+		
+	}
+}
+package com.balazsholczer.udemy;
+
+import java.util.concurrent.RecursiveAction;
+
+
+//As it is not returning anything we can use Recursive action.
+// it will be added to Fork Join pool and will executed in parallel.
+public class SimpleRecursiveAction extends RecursiveAction {
+
+	private int simulatedWork;
+	
+	public SimpleRecursiveAction(int simulatedWork) {
+		this.simulatedWork = simulatedWork;
+	}
+	
+	@Override
+	//return type is void.
+	//Ex: if you want to sort the list.
+	
+	protected void compute() {
+		
+		if( simulatedWork > 100 ) {
+			
+			System.out.println("Parallel execution and split the tasks..." + simulatedWork);
+			
+			//one half of the work assigned to one SimpleRcursive action.
+			SimpleRecursiveAction simpleRecursiveAction1 = new SimpleRecursiveAction(simulatedWork/2);
+			
+			//another half of the work assigned to another SimpleRcursive action.
+			SimpleRecursiveAction simpleRecursiveAction2 = new SimpleRecursiveAction(simulatedWork/2);
+			
+			
+			//we have to add it to pool.
+			simpleRecursiveAction1.fork();
+			simpleRecursiveAction2.fork();
+			
+		} else {
+			System.out.println("No need for parallel execution, sequential is OK for this task..." + simulatedWork);
+		}
+	}
+}
+--------------------------------------------------------------------------------------------------------------
+package com.balazsholczer.udemy;
+
+import java.util.concurrent.ForkJoinPool;
+
+public class App {
+
+	public static void main(String[] args) {
+		
+		ForkJoinPool forkJoinPool = new ForkJoinPool(Runtime.getRuntime().availableProcessors());
+		SimpleRecursiveAction simpleRecursiveAction = new SimpleRecursiveAction(120);
+		System.out.println( forkJoinPool.invoke(simpleRecursiveAction) );
+		
+		
+	}
+}
+package com.balazsholczer.udemy;
+
+import java.util.concurrent.RecursiveTask;
+
+public class SimpleRecursiveAction extends RecursiveTask<Integer> {
+
+	private int simulatedWork;
+	
+	public SimpleRecursiveAction(int simulatedWork) {
+		this.simulatedWork = simulatedWork;
+	}
+	
+	
+	//return type is integer..
+		//Ex: if you want to search or find maximum the list.
+
+	@Override
+	protected Integer compute() {
+		
+		if( simulatedWork > 100 ) {
+			
+			System.out.println("Parallel execution and split the tasks..." + simulatedWork);
+			
+			SimpleRecursiveAction simpleRecursiveAction1 = new SimpleRecursiveAction(simulatedWork/2);
+			SimpleRecursiveAction simpleRecursiveAction2 = new SimpleRecursiveAction(simulatedWork/2);
+			
+			simpleRecursiveAction1.fork();
+			simpleRecursiveAction2.fork();
+			
+			int solution = 0;
+			solution = solution + simpleRecursiveAction1.join();
+			solution = solution + simpleRecursiveAction2.join();
+			
+			return solution;
+			
+		} else {
+			System.out.println("No need for parallel execution, sequential is OK for this task..." );
+			return 2 * simulatedWork;
+		}
+	}
+}
+
+---------------------------------------------------------------------------------------------------------------
+Finding Max Problem:
+
+
+package com.balazsholczer.udemy;
+
+import java.util.Random;
+import java.util.concurrent.ForkJoinPool;
+
+public class App {
+
+	public static int THREASHOLD = 0;
+	
+	public static void main(String[] args) {
+		
+		long[] nums = initializeNums();
+		THREASHOLD =  nums.length / Runtime.getRuntime().availableProcessors();
+		
+		SequentialMaxFind normalMaxFind = new SequentialMaxFind();
+		
+		long start = System.currentTimeMillis();
+		System.out.println("Max: " + normalMaxFind.sequentialMaxFinding(nums, nums.length));
+		System.out.println("Time taken: " + (System.currentTimeMillis() - start) + "ms");
+
+		System.out.println();
+		
+		ForkJoinPool forkJoinPool = new ForkJoinPool(Runtime.getRuntime().availableProcessors());
+		MaximumFindTask findTask = new MaximumFindTask(nums, 0, nums.length);
+		
+		start = System.currentTimeMillis();
+		System.out.println("Max: " + forkJoinPool.invoke(findTask));
+		System.out.println("Time taken: " + (System.currentTimeMillis() - start) + "ms");
+	}
+
+	private static long[] initializeNums() {
+		
+		Random random = new Random();
+		
+		long[] nums = new long[30000000];
+		
+		for(int i=0;i<30000000;++i)
+			nums[i] = random.nextInt(100);
+		
+		return nums;
+	}
+
+	}
+	
+	
+package com.balazsholczer.udemy;
+
+import java.util.concurrent.RecursiveTask;
+
+//we would like to return the integer(maximum)
+public class MaximumFindTask extends RecursiveTask<Long> {
+
+	private long[] nums;
+	private int lowIndex;
+	private int highIndex;
+	
+	public MaximumFindTask(long[] nums, int lowIndex, int highIndex) {
+		this.highIndex = highIndex;
+		this.lowIndex = lowIndex;
+		this.nums = nums;
+	}
+
+	@Override
+	protected Long compute() {
+		// if there are less number of elements.
+		if( highIndex - lowIndex < App.THREASHOLD ) {
+			return sequentialMaxFinding();
+		} else {
+			
+			int middleIndex = (lowIndex+highIndex) / 2;
+			
+			MaximumFindTask leftSubtask = new MaximumFindTask(nums, lowIndex, middleIndex);
+			MaximumFindTask rightSubtask = new MaximumFindTask(nums, middleIndex, highIndex);
+			
+			//split the task and put the result into the fork join pool.
+			// keep running them parallely.
+			//keep running them recursively.
+			invokeAll(leftSubtask, rightSubtask);
+			
+			return Math.max(leftSubtask.join(), rightSubtask.join());
+		}
+	}
+	
+	private long sequentialMaxFinding() {
+		
+		long max = nums[0];
+		
+		for(int i=lowIndex; i<highIndex;++i)
+			if( nums[i] > max)
+				max = nums[i];
+		
+		return max;
+	}
+}
+
+package com.balazsholczer.udemy;
+
+public class SequentialMaxFind {
+
+	public long sequentialMaxFinding(long[] nums, int highIndex) {
+
+		long max = nums[0];
+
+		//sequentially iterate all the elements linerly.
+		for (int i = 0; i < highIndex; ++i)
+			if (nums[i] > max)
+				max = nums[i];
+
+		return max;
+	}
+}
+
+
+
+MapReduce algorithm:
+	It is used in big data, it is similar to fork-join framework. It handles difference servers
+	map - split
+	shuffle and sort - rearrange the items
+	Reduce - combine the result
+
+	Instead of splitting and assigning it to same processor(same jvm instance), it split and assign it different processor(different jvm , with different version or capabilities).
+	
+	output of map i key value pair.
+	shuffle&sort - list of keys and list of values.
+	Reduce - list of keys and values.
+	
+Performance and Other Tips:
+
+---------------------------------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------------------
+Password - Hacking game:
+package com.tutorial.part;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+
+public class Main {
+	public static final int MAX_PASSWORD = 9999;
+
+    public static void main(String[] args) {
+        Random random = new Random();
+
+        int guessPassword = random.nextInt(MAX_PASSWORD);
+        System.out.println("Orginal password is "+guessPassword);
+        Vault vault = new Vault(guessPassword);
+
+        List<Thread> threads = new ArrayList<>();
+
+        Thread policeThread = new PoliceThread();
+        threads.add(new AscendingHackerThread(vault));
+        threads.add(new DescendingHackerThread(vault));
+        threads.add(policeThread);
+
+        for (Thread thread : threads) {
+            thread.start();
+        }
+        try {
+			policeThread.join();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    }
+
+    private static class Vault {
+        private int password;
+
+        public Vault(int password) {
+            this.password = password;
+        }
+
+        //in case if other thread guessed it correctly - it will return true
+        public synchronized boolean  isCorrectPassword(int guess) {
+            try {
+                Thread.sleep(5);
+            } catch (InterruptedException e) {
+            }
+            return this.password == guess;
+        }
+    }
+
+    private static abstract class HackerThread extends Thread {
+        protected Vault vault;
+
+        public HackerThread(Vault vault) {
+            this.vault = vault;
+            this.setName(this.getClass().getSimpleName());
+            this.setPriority(Thread.MAX_PRIORITY);
+        }
+
+        @Override
+        public void start() {
+            System.out.println("Starting thread " + this.getName());
+            super.start();
+        }
+    }
+
+    //first concrete class - it is going to guess the password by iterating through in ascending order
+    private static class AscendingHackerThread extends HackerThread {
+
+    	Random random = new Random();
+        public AscendingHackerThread(Vault vault) {
+            super(vault);
+        }
+
+        @Override
+        public void run() {
+            for (int guess = 0; guess < MAX_PASSWORD; guess++) {
+            	  int guessPassword = random.nextInt(MAX_PASSWORD);
+            	System.out.println("Ascending Thread guessing password....."+guessPassword);
+                if (vault.isCorrectPassword(guessPassword)) {
+                    System.out.println(this.getName() + " guessed the password " + guess);
+                    System.exit(0);
+                }
+            }
+        }
+    }
+
+    
+    //second concrete class it iterates in descending order.
+    private static class DescendingHackerThread extends HackerThread {
+
+    	Random random = new Random();
+        public DescendingHackerThread(Vault vault) {
+            super(vault);
+        }
+
+        @Override
+        public void run() {
+            for (int guess = MAX_PASSWORD; guess >= 0; guess--) {
+            	int guessPassword = random.nextInt(MAX_PASSWORD);
+            	System.out.println("Descending Thread guessing password...."+guessPassword);
+                if (vault.isCorrectPassword(guessPassword)) {
+                    System.out.println(this.getName() + " guessed the password " + guess);
+                    System.exit(0);
+                }
+            }
+        }
+    }
+
+    //it prints the seconds that are left to hackers
+    private static class PoliceThread extends Thread {
+        @Override
+        public void run() {
+            for (int i = 10; i > 0; i--) {
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                }
+                System.out.println("PolicThread Count "+i);
+            }
+
+            System.out.println("Game over for you hackers");
+            System.exit(0);
+        }
+    }
+}
+
+
+
+How to stop one thread from another.?
+	why to stop a thread. 
+	Threads consume Resources:
+		It consumes memory, kernel resources, when running it consumes cpu time.
+		if created thread, wanted to clean up.
+		if a thread keeps running for long time.
+		even if one thread is keep running, the application will not stop.
+		we have to stop the thread gracefully.
+	interrupt():
+			It is just a way to signal another thread that it has to stop, it is up to us to stop it if possible.
+	
+
+	
+	
+package com.tutorial.termination;
+
+public class Main1 {
+	 public static void main(String [] args) {
+	        Thread thread = new Thread(new BlockingTask());
+	        thread.start();
+	        
+	        // interrupting intentionly
+	        thread.interrupt();
+	    }
+
+	    private static class BlockingTask implements Runnable {
+
+	        @Override
+	        public void run() {
+	            //do things
+	        	//while(true) {
+	        		try {
+		            	
+		                Thread.sleep(500000);
+		            } catch (InterruptedException e) {
+		                System.out.println("Existing blocking thread");
+		                return;
+		            }
+	        	//}
+	            
+	        }
+	    }
+}
+	
+Scenarion 2:	
+public class Main2 {
+	public static void main(String[] args) throws InterruptedException {
+		Thread thread = new Thread(new LongComputationTask(new BigInteger("10"), new BigInteger("1000")));
+        //Thread thread = new Thread(new LongComputationTask(new BigInteger("200000"), new BigInteger("100000000")));
+
+        thread.start();
+        //we are waiting for some 100 seconds to complete the operations.
+        Thread.sleep(100);
+        thread.interrupt();
+    }
+
+    private static class LongComputationTask implements Runnable {
+        private BigInteger base;
+        private BigInteger power;
+
+        public LongComputationTask(BigInteger base, BigInteger power) {
+            this.base = base;
+            this.power = power;
+        }
+
+        @Override
+        public void run() {
+            System.out.println(base + "^" + power + " = " + pow(base, power));
+        }
+
+        private BigInteger pow(BigInteger base, BigInteger power) {
+            BigInteger result = BigInteger.ONE;
+
+            for (BigInteger i = BigInteger.ZERO; i.compareTo(power) != 0; i = i.add(BigInteger.ONE)) {
+               //adding if statement in each statement and checking whether current thread is interrupted or not.
+            	
+            	if (Thread.currentThread().isInterrupted()) {
+                    System.out.println("Prematurely interrupted computation");
+                    return BigInteger.ZERO;// here we are manually returning from the method(application)
+                }
+                result = result.multiply(base);
+            }
+
+            return result;
+        }
+    }
+}	
+			
+			
+	Daemon Thread:
+	Scenario 1:
+	run in the background, that will not block our application from terminating. - like background task.
+		Ex:File saving thread in text editor
+	Scenario 2:
+		code that is not in our control and it will not block our application from terminating.
+		Ex: thread that uses external library
+		
+When set to true - the task will run in the background and it will not prevent our application from terminating.
+else - we have to call interrupt to stop and manually check in the operation whether it is interrupted or not.
+
+public class Main3 {
+	
+	public static void main(String[] args) throws InterruptedException {
+		
+        Thread thread = new Thread(new LongComputationTask(new BigInteger("200000"), new BigInteger("100000000")));
+
+        //set to true, it runs in background and will not block our application from terminating.
+        thread.setDaemon(true);
+        
+        
+        thread.start();
+        Thread.sleep(1000);
+        thread.interrupt();
+    }
+
+    private static class LongComputationTask implements Runnable {
+        private BigInteger base;
+        private BigInteger power;
+
+        public LongComputationTask(BigInteger base, BigInteger power) {
+            this.base = base;
+            this.power = power;
+        }
+
+        @Override
+        public void run() {
+            System.out.println(base + "^" + power + " = " + pow(base, power));
+        }
+
+        private BigInteger pow(BigInteger base, BigInteger power) {
+            BigInteger result = BigInteger.ONE;
+            // no need to handle it gracefully.
+            for (BigInteger i = BigInteger.ZERO; i.compareTo(power) != 0; i = i.add(BigInteger.ONE)) {
+                result = result.multiply(base);
+            }
+
+            return result;
+        }
+    }
+}
+
+Join :
+If wanted to calculate factorial for big numbers in the list, each every thing is different complexity and will take different time for computation.
+Better lets spawn different thread and call them in parallel.
+Then have to call join in for loop and make sure everything is completed and then you can get the result from each and every thread and display to the use.
+Other Methodologies:
+CountDownLatch
+ExecutorService - using get() in callable
+
+		
+		
+		
+Performance Criteria/definition:
+			break the task - depends on number of cores.
+			
+			
+Throughput = no of request it served/Duration
+
+Example:
+package com.tutorial.optimize.throughput;
+
+import java.io.IOException;
+import java.io.OutputStream;
+import java.net.InetSocketAddress;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+
+import com.sun.net.httpserver.HttpExchange;
+import com.sun.net.httpserver.HttpHandler;
+import com.sun.net.httpserver.HttpServer;
+
+public class ThroughputHttpServer {
+    private static final String INPUT_FILE = "./resources/war_and_peace.txt";
+    private static final int NUMBER_OF_THREADS = 2;
+
+    public static void main(String[] args) throws IOException {
+        String text = new String(Files.readAllBytes(Paths.get(INPUT_FILE)));
+        startServer(text);
+    }
+
+    public static void startServer(String text) throws IOException {
+        HttpServer server = HttpServer.create(new InetSocketAddress(8000), 0);
+        server.createContext("/search", new WordCountHandler(text));
+        Executor executor = Executors.newFixedThreadPool(NUMBER_OF_THREADS);
+        server.setExecutor(executor);
+        server.start();
+        System.out.println("Server started at port 8000.............");
+    }
+
+    private static class WordCountHandler implements HttpHandler {
+        private String text;
+
+        public WordCountHandler(String text) {
+            this.text = text;
+        }
+
+        @Override
+        public void handle(HttpExchange httpExchange) throws IOException {
+            String query = httpExchange.getRequestURI().getQuery();
+            String[] keyValue = query.split("=");
+            String action = keyValue[0];
+            String word = keyValue[1];
+            if (!action.equals("word")) {
+                httpExchange.sendResponseHeaders(400, 0);
+                return;
+            }
+
+            long count = countWord(word);
+
+            byte[] response = Long.toString(count).getBytes();
+            httpExchange.sendResponseHeaders(200, response.length);
+            OutputStream outputStream = httpExchange.getResponseBody();
+            outputStream.write(response);
+            outputStream.close();
+        }
+
+        private long countWord(String word) {
+            long count = 0;
+            int index = 0;
+            while (index >= 0) {
+                index = text.indexOf(word, index);
+
+                if (index >= 0) {
+                    count++;
+                    index++;
+                }
+            }
+            return count;
+        }
+    }
+}
+	
+It will be good if no of threads is equal to number of cores. If you increase thread more than that cores, then there is no much improvement.	
+
+Configure JMeter:
+start the bat file.
+add the name for your test plan, create a thread group - in which you can mention the number of users.
+add the logic controller like while, create the function for your file.
+		${_jexl3("${WORD}"  != "<EOF>")}
+add the csv dataset config, mention the file name, recycle EOF and stop thread EOF.
+Configure Http request
+add summary report
+add view result tree.
+
+Stack and Heap Memory regions:
+whenever we enter a method a stack is created, all the local variables are created in the stack, the moment you exit from that method ,the entire stack itself would be deleted.
+
+Heap memory:
+All the objects are created in the heap.
+If a reference variable is created inside a method, it is create on stack.
+static variables are stored in the heap - as they belong to class objects.
+
+Object refereVar1 = new Object();
+referenceVar2 = refereVar1;
+
+Both the reference variable are pointing to same object.
+
+class Test{
+Map<String, Integer> map = new Hashmap();
+
+getInstances(){
+List<Integer> arrayList = new ArrayList();
+
+}
+
+
+
+}
+		
+	arrayList is a local reference variable resides on stack, but it points to the object(arraylist) in the heap.
+	if it is passed as a parameter to some other method or if the method itself return the reference variable, then it is called escape reference.
+	
+	
+if you run two threads sequentially, then there is no need of synchronization. 
+Example: starting increment thread, then call join to wait until that thread completes.
+
+			InventoryCounter inventoryCounter = new InventoryCounter();
+	        IncrementingThread incrementingThread = new IncrementingThread(inventoryCounter);
+	        DecrementingThread decrementingThread = new DecrementingThread(inventoryCounter);
+
+	        incrementingThread.start();
+			incrementingThread.join();
+	        
+			decrementingThread.start();
+			decrementingThread.join();	
+	
+	
+Calling parallely:
+			incrementingThread.start();
+	        decrementingThread.start();
+
+	        incrementingThread.join();
+	        decrementingThread.join();
+
+
+package com.tutorial.synchronization;
+
+public class SynchronizationExample {
+	 public static void main(String[] args) throws InterruptedException {
+	        InventoryCounter inventoryCounter = new InventoryCounter();
+	        IncrementingThread incrementingThread = new IncrementingThread(inventoryCounter);
+	        DecrementingThread decrementingThread = new DecrementingThread(inventoryCounter);
+
+	        incrementingThread.start();
+	        decrementingThread.start();
+
+	        incrementingThread.join();
+	        decrementingThread.join();
+
+	        System.out.println("We currently have " + inventoryCounter.getItems() + " items");
+	    }
+
+	    public static class DecrementingThread extends Thread {
+
+	        private InventoryCounter inventoryCounter;
+
+	        public DecrementingThread(InventoryCounter inventoryCounter) {
+	            this.inventoryCounter = inventoryCounter;
+	        }
+
+	        @Override
+	        public void run() {
+	            for (int i = 0; i < 10000; i++) {
+	                inventoryCounter.decrement();
+	            }
+	        }
+	    }
+
+	    public static class IncrementingThread extends Thread {
+
+	        private InventoryCounter inventoryCounter;
+
+	        public IncrementingThread(InventoryCounter inventoryCounter) {
+	            this.inventoryCounter = inventoryCounter;
+	        }
+
+	        @Override
+	        public void run() {
+	            for (int i = 0; i < 10000; i++) {
+	                inventoryCounter.increment();
+	            }
+	        }
+	    }
+
+	    private static class InventoryCounter {
+	        private int items = 0;
+
+	        Object lock = new Object();
+
+	        public void increment() {
+	            synchronized (this.lock) {
+	                items++;
+	            }
+	        }
+
+	        public void decrement() {
+	            synchronized (this.lock) {
+	                items--;
+	            }
+	        }
+
+	        public int getItems() {
+	            synchronized (this.lock) {
+	                return items;
+	            }
+	        }
+	    }
+}
+			
+		
+Note:
+			Though both increment and decrement are different method, they acquire lock on same object, hence cannot be called parallely.
+		
+		
+		
+Resource Sharing:
+
+
+Race condition and Data Races:
+Race condition:
+when multiple threads accessing shared resources.- Ex: inventory counter. Race between increment and decrementing thread. - identify critical section and protect it with synchronized block.
+
+Data Races:
+the order of the statement will be changed by the compiler to improve the performance.
+it will change the order if the statement between does not have an dependencies.
+
+On both the cases volatile and synchronized block are the solution.
+		
+	
+Locking strategy:
+Fine grained locking or coarse grained locking:
+Coarse grained locking:
+	Synchronized at the method level
+	only one thread can access at a time.	
+Fine grained locking:
+	synhcronized at the block level, lock different objects -so that they can run parallely.
+Ex: DBConnection and Queue - two independent task can be run parallely.
+
+
+
+Deadlock:
+
+Lock the resource in the same order, do not cause a circular wait.
+
+package com.tutorial.deadlock;
+
+import java.util.Random;
+
+public class DeadLockExample {
+
+	public static void main(String[] args) {
+		Intersection intersection = new Intersection();
+		Thread t1 = new Thread(new TrainA(intersection));
+		Thread t2 = new Thread(new TrainB(intersection));
+		t1.start();
+		t2.start();
+	}
+	
+public static class TrainA implements Runnable{
+	private Intersection intersection;
+	private Random random = new Random();
+	
+	TrainA(Intersection intersection){
+		this.intersection = intersection;
+	}
+	
+	
+	@Override
+	public void run() {
+		while(true) {
+			long sleeptime = random.nextInt(5);
+			try {
+				Thread.sleep(sleeptime);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			intersection.takeRoadA(); 
+			
+		}
+		
+	}
+}	
+
+public static class TrainB implements Runnable{
+	private Intersection intersection;
+	private Random random = new Random();
+	
+	TrainB(Intersection intersection){
+		this.intersection = intersection;
+	}
+	
+	
+	@Override
+	public void run() {
+		while(true) {
+			long sleeptime = random.nextInt(5);
+			try {
+				Thread.sleep(sleeptime);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			intersection.takeRoadB(); 
+			
+		}
+		
+	}
+}
+	
+public static class Intersection{
+	private Object roadA = new Object();
+	private Object roadB = new Object();
+	
+	public void takeRoadA() {
+		synchronized (roadA) {
+			System.out.println("Road A is locked by thread "+Thread.currentThread().getName());
+			synchronized (roadB) {
+				try {
+					System.out.println("Train is passing through Road A..");
+					Thread.sleep(100);
+				}catch(InterruptedException e) {
+					
+				}
+			}
+		}
+		
+		
+	}
+	
+	public void takeRoadB() {
+		synchronized (roadA) {
+			System.out.println("Road B is locked by thread "+Thread.currentThread().getName());
+			synchronized (roadB) {
+				try {
+					System.out.println("Train is passing through Road B...");
+					Thread.sleep(100);
+				}catch(InterruptedException e) {
+					
+				}
+			}
+		}
+		
+		
+	}
+	
+}	
+	
+}
+	
+Advanced locking:
+Reentrant lock:
+		they require explicit locking and unlocking unlike synchronized
+lock vs trylock:
+trylock will not block the thread, in the real time.
+trylock makes the application more responsive.
+Advantages of lock over synchronized:
+control,
+you can lock on one method and unlock on other method.
+you can avoid starvation by passing fairness boolean while acquiring the lock.
+you can check how many threads are waiting for the lock in the queue.
+you can check whether lock is acquired by any other thread or not.
+you can even call interruptly to interrupt the long running thread and terminate the application and can write some cleanup code in the catch
+block of InterrruptedException.
+you should unlock in the finally block, so that even if the application returns or throws an exception still finally block will execute and unlock the resource.
+whenever we use trylock make sure that is inside if block - all critical section should be inside if block.
+
+-----------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------
+ReentrantReadWrite Lock:
+To avoid race condition  - only solution is Reentrantlock.(mutual exclusion between threads)
+		Problem:	when there are more read operations Ex: Cache.
+RentrantReadWrite Lock:
+			Mutual exclusion between Reader and writer.
+			ReentrantReadWriteLock loc = new ReentrantReadWriteLock();
+			loc.readLock();
+			loc.writeLock();
+Note:			
+			if a write lock is acquired by a thread , no thread can access read lock at that time.
+			if atleast one thread holds read lock, no thread can hold write lock.
+			Multiple threads can hold read lock at a time, jvm internally keeps track of count of threads that acquire read lock.
+			
+			
+			
+Example:
+package com.example.reentrantreadwritelock;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.NavigableMap;
+import java.util.Random;
+import java.util.TreeMap;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+
+
+public class ReentrantReadWriteLockExample {
+
+	 public static final int HIGHEST_PRICE = 1000;
+
+	    public static void main(String[] args) throws InterruptedException {
+	        InventoryDatabase inventoryDatabase = new InventoryDatabase();
+
+	        Random random = new Random();
+	        for (int i = 0; i < 100000; i++) {
+	            inventoryDatabase.addItem(random.nextInt(HIGHEST_PRICE));
+	        }
+
+	        Thread writer = new Thread(() -> {
+	            while (true) {
+	                inventoryDatabase.addItem(random.nextInt(HIGHEST_PRICE));
+	                inventoryDatabase.removeItem(random.nextInt(HIGHEST_PRICE));
+	                try {
+	                    Thread.sleep(10);
+	                } catch (InterruptedException e) {
+	                }
+	            }
+	        });
+
+	        writer.setDaemon(true);
+	        writer.start();
+
+	        int numberOfReaderThreads = 7;
+	        List<Thread> readers = new ArrayList<>();
+
+	        for (int readerIndex = 0; readerIndex < numberOfReaderThreads; readerIndex++) {
+	            Thread reader = new Thread(() -> {
+	                for (int i = 0; i < 100000; i++) {
+	                    int upperBoundPrice = random.nextInt(HIGHEST_PRICE);
+	                    int lowerBoundPrice = upperBoundPrice > 0 ? random.nextInt(upperBoundPrice) : 0;
+	                    inventoryDatabase.getNumberOfItemsInPriceRange(lowerBoundPrice, upperBoundPrice);
+	                }
+	            });
+
+	            reader.setDaemon(true);
+	            readers.add(reader);
+	        }
+
+	        long startReadingTime = System.currentTimeMillis();
+	        for (Thread reader : readers) {
+	            reader.start();
+	        }
+
+	        for (Thread reader : readers) {
+	            reader.join();
+	        }
+
+	        long endReadingTime = System.currentTimeMillis();
+
+	        System.out.println(String.format("Reading took %d ms", endReadingTime - startReadingTime));
+	    }
+
+	    public static class InventoryDatabase {
+	        private TreeMap<Integer, Integer> priceToCountMap = new TreeMap<>();
+//	        private ReentrantReadWriteLock reentrantReadWriteLock = new ReentrantReadWriteLock();
+//	        private Lock readLock = reentrantReadWriteLock.readLock();
+//	        private Lock writeLock = reentrantReadWriteLock.writeLock();
+	        private Lock lock = new ReentrantLock();
+
+	        public int getNumberOfItemsInPriceRange(int lowerBound, int upperBound) {
+	            lock.lock();
+	            //readLock.lock();
+	            try {
+	                Integer fromKey = priceToCountMap.ceilingKey(lowerBound);
+
+	                Integer toKey = priceToCountMap.floorKey(upperBound);
+
+	                if (fromKey == null || toKey == null) {
+	                    return 0;
+	                }
+
+	                NavigableMap<Integer, Integer> rangeOfPrices = priceToCountMap.subMap(fromKey, true, toKey, true);
+
+	                int sum = 0;
+	                for (int numberOfItemsForPrice : rangeOfPrices.values()) {
+	                    sum += numberOfItemsForPrice;
+	                }
+
+	                return sum;
+	            } finally {
+	               // readLock.unlock();
+	                lock.unlock();
+	            }
+	        }
+
+	        public void addItem(int price) {
+	            lock.lock();
+	            //writeLock.lock();
+	            try {
+	                Integer numberOfItemsForPrice = priceToCountMap.get(price);
+	                if (numberOfItemsForPrice == null) {
+	                    priceToCountMap.put(price, 1);
+	                } else {
+	                    priceToCountMap.put(price, numberOfItemsForPrice + 1);
+	                }
+
+	            } finally {
+	               // writeLock.unlock();
+	                 lock.unlock();
+	            }
+	        }
+
+	        public void removeItem(int price) {
+	            lock.lock();
+	            //writeLock.lock();
+	            try {
+	                Integer numberOfItemsForPrice = priceToCountMap.get(price);
+	                if (numberOfItemsForPrice == null || numberOfItemsForPrice == 1) {
+	                    priceToCountMap.remove(price);
+	                } else {
+	                    priceToCountMap.put(price, numberOfItemsForPrice - 1);
+	                }
+	            } finally {
+	                //writeLock.unlock();
+	                 lock.unlock();
+	            }
+	        }
+	    }
+	
+}
+			
+
+
+---------------------------------------------------------------------------------
+--------------------------------------------------------------------------------			
+Semaphore:
+	private Semaphore semaphore = new Semaphore(0);
+	semaphore created with 0 permissions,
+
+	every thread that call acquire() - will be blocked until unless release method for all threads are called.
+
+	
+	Part 1
+	
+	--co-ordinate all threads ---
+	
+	part 2
+	
+	Running 200 threads simultaneously - after part1 - coordinate all work and then allowing part 2 to be executed.
+
+Example:
+package com.example.semaphore;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+
+public class TestSemaphore {
+	
+	public static void main(String[] args) {
+		int numberOfThreads = 200; //or any number you'd like 
+		 
+	    List<Thread> threads = new ArrayList<>();
+	 
+	    Barrier barrier = new Barrier(numberOfThreads);
+	    for (int i = 0; i < numberOfThreads; i++) {
+	        threads.add(new Thread(new CoordinatedWorkRunner(barrier)));
+	    }
+	 
+	    for(Thread thread: threads) {
+	        thread.start();
+	    }
+	}
+
+	public static class Barrier {
+	    private final int numberOfWorkers;
+	    private Semaphore semaphore = new Semaphore(0);
+	    private int counter = 0;
+	    private Lock lock = new ReentrantLock();
+	 
+	    public Barrier(int numberOfWorkers) {
+	        this.numberOfWorkers = numberOfWorkers;
+	    }
+	 
+	    public void barrier() {
+	        lock.lock();
+	        boolean isLastWorker = false;
+	        try {
+	            counter++;
+	 
+	            if (counter == numberOfWorkers) {
+	                isLastWorker = true;
+	            }
+	        } finally {
+	            lock.unlock();
+	        }
+	 
+	        if (isLastWorker) {
+	        	System.out.println("All threads have finished part 1 ..............It is time to Collaborate...");
+	            semaphore.release(numberOfWorkers-1);
+	        } else {
+	            try {
+	                semaphore.acquire();
+	            } catch (InterruptedException e) {
+	            }
+	        }
+	    }
+	}
+	 
+	public static class CoordinatedWorkRunner implements Runnable {
+	    private Barrier barrier;
+	 
+	    public CoordinatedWorkRunner(Barrier barrier) {
+	        this.barrier = barrier;
+	    }
+	 
+	    @Override
+	    public void run() {
+	        try {
+	            task();
+	        } catch (InterruptedException e) {
+	        }
+	    }
+	 
+	    private void task() throws InterruptedException {
+	        // Performing Part 1
+	        System.out.println(Thread.currentThread().getName() + " part 1 of the work is finished");
+	 
+	        barrier.barrier();
+	 
+	        // Performing Part2
+	        System.out.println(Thread.currentThread().getName() + " part 2 of the work is finished");
+	    }
+	}
+
+
+
+}
+
+Inter Thread communication:
+interrupt()
+join() - 
+
+Introduction to Non blocking lock free  operations
+
+Problems with locks:
+		Deadlock - it may halt the application.
+		if there are multiple thread, one thread can hold the lock for long time.
+		some times OS assigns priority, low priority will be preempted often.
+		All these will affect the performance as it has to context switch.
+Solution:
+	Atomic classes - provides Atomic operations.
+Atomic Integer - perform atomic operations on integer values
+	incrementAndGet() - return the new value
+	getAndIncrement() - return the previous value
+	similarly decrementAndGet(), getAndDecrement()
+	addAndGet(), getAndAdd()
+Note:
+	it is a great tool for concurrent counting without the complexity of lock.
+	should be used only when atomic operations are needed - ex: Multithread enviroment.
+	For single thread - regular integer is preferred.
+	
+AtomicReference:
+
+
+lock free dataastructure:
+	
+
+
+	

@@ -1,0 +1,61 @@
+cloud-computing:
+	Applicaiton,Data, Runtime, Middleware,OS, Virtualization,Servers, Storage, Networking.
+	Applicaiton - appl
+	Data - data schemas
+	Runtime - java, .net, database
+	Middleware - Message queue
+	OS - Windows, Linux
+	Virualization - creating image in a OS and virtualization
+	Servers - bunch of servers in the rack.
+	Storage - Disk space
+	Networking - Data center.
+	
+	
+	IAAS - Applicaiton, Data, Runtime, Middleware OS (antivirus and other security related we have to manage)
+			virtualization, Servers,Storage, Networking - they will provide as a service.
+	
+	PAAS - Applicaiton, Data - we manage
+	
+	SAAS - entire stack managed by service providers
+			Gmail - application deployed somewhere- we do not know where the application is. 
+			
+			
+Characteristics:
+			On demand self service	
+			Broad network access
+			Resource pooling - multitenant - they do not know which country appl deployed.
+			Rapid elasticity - capability provisioned and released, scale rapidly
+			Measured Service - 
+			
+Cloud Fountry Architecture:
+			Metrics and logging
+			Messaging(handles Rabbit mq)
+			Service Brokers (Services - handles interaction db)
+			Application Execution(DEA) & Blob storage
+			App lifecycle (cloud controller and Health manager)
+			OAuth2 server & Login server (Authentication)
+			Router(Routing)
+			
+				Droplet execution 
+Develop for Cloud with PCF
+			Organization ,space,Roles
+
+Manifest.yml
+	describe your application deployment
+	Multiple application can be deployed using single file
+	it can be in the same directory or even external.
+	It contains memory,application name and other information
+			
+Factor Apps and Design consideration:
+				Code is version controlled(code works on all env like development, staging and production)
+				Dependencies are declared and isolated(Explcitly declare the version of the dependencies that we want)
+				Configuration is stored in environment(connection string for db connectivity should not be static or stored in the application)
+				Backing services as attached resources(DB, queue, caching, web service).
+				Build and run stages are separate.
+				Application executed as a stateless processes - ()
+				Services are exported via port binding
+				Application scaled out via process model
+				Processes are disposable(even if crashed it should come back - time is money)
+				Parity between Application environments.()
+				Logs treated as event streams
+				Management task run as one-off processes.

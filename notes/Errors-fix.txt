@@ -1,0 +1,6 @@
+Configure active profile in SpringBoot via Maven
+
+https://stackoverflow.com/questions/42390860/configure-active-profile-in-springboot-via-maven
+spring-boot:run -Drun.jvmArguments="-Dspring.profiles.active=local"
+
+http://dolszewski.com/spring/spring-boot-properties-per-maven-profile/

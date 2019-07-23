@@ -1,0 +1,42 @@
+Nikhil
+Responsible enough.
+Good attitude to learn new things.
+Made a good contribution to RecruitmentPortal by implementing excel validation, client summary page, error handling etc.
+Would be good and better if you go an extramile and take intiative by your own in bringing new things on the things that you work.
+Would be better if you could improve the communication skill.
+Overall - meets the expectation most of the time.
+
+Ram
+Good dedication and responsibilties.
+Technically good, good attitude to learn new things.
+Made a good contribution to RecruitmentPortal by implementing Approval flow right from front end till backend independently.
+Would be good and better if you make yourself a very strong core java programmer like involving in more core java progrmming like concurrency,etc.
+Overall - meets the expectation always
+
+Pallavi:
+Worked with her in very short span of time.
+Have observed like good in learning new things, good in UI.
+Would be better if she is more responsible and become more expertise in Angular, Microservice.
+Overall - meets the expectation sometimes.
+
+Soni
+Have seen an improvement in terms of responsibilties in compare to last cycle.
+Though she is new to front end, shown good interest in learning Angular by implementing the client page, and candidate summary page UI part in Angular.
+Have to improve her technical skills in such a way that she can do the task independently.
+Overall - rarely meets the expectation.
+
+Sandeep
+Good in taking ownership.
+Have shown great attitude in learning new things and hunger to learn new technologies is so good.
+Have made a significant contribution to RecruitmentPortal application - would really like to appreciate it.
+Knowledge that he carries to his level of experience is good.
+Overall - sometimes exceeds the expectations.
+
+Pavithra
+Good in taking ownsership.
+Good in following up with the resource and get it done.
+Good in reporting to management.
+She has implemented Version one tool - a project management tool for the project which helps the management to track the daily activities of the resources.
+She is bold in making decision, transparent with the team and clear in her thoughts and ideas
+Always she makes sure that daily standup happens without fail.
+Overall - a good team player, definitely would need a resource like her to drive the team.

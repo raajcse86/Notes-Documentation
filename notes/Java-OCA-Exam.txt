@@ -1,0 +1,58 @@
+Java OCA Exam tips:
+
+Each class will have default constructor provided by jvm.
+If you override any constructor,
+In the subclass the first statement of the constructor should be super class constructor with or without parameter.
+If you do not call super class constructor in your subclass constructor,then it will throw error provided if you do not have default constructor not defined.
+If super class constructor is defined and in the subclass constructor if your first statement did not call super class constructor - then it will not throw error
+because, the compiler itself try to put that statement on it own.
+
+
+int [] arr = {2, 1, 13};
+        for(int i : arr) {
+            System.out.println(arr[i]);
+        }
+        for(int i=0;i<arr.length;i++) {
+            System.out.println(arr[i]);
+        }
+		
+First for loop throws ArrayIndexOutOfBound exception.
+second print the results because, we use arr.length	.
+
+
+List<Dog> dogList = new ArrayList();
+        Dog d1 = new Dog("jimmy","breed1");
+        dogList.add(d1);
+        Dog d2 = new Dog("jonny","breed2");
+        dogList.add(d2);
+        
+        //d1.setName("new-jimmy");
+        d1 = null;
+		
+		
+o/p: - it will print as Jimmy and jonny.		
+
+
+	
+List<Dog> dogList = new ArrayList();
+        Dog d1 = new Dog("jimmy","breed1");
+        dogList.add(d1);
+        Dog d2 = new Dog("jonny","breed2");
+        dogList.add(d2);
+        //d1.setName("new-jimmy")
+
+o/p: - it will print as newJimmy and jonny.		
+
+
+will this change reflect in the ArrayList?
+Yes, since you added a reference to the object in the list. The reference you added will still point to the same object, (which you modified).
+
+
+
+or when I add the object to the ArrayList, Java creates a copy and add it to the ArrayList?
+No, it won't copy the object. (It will copy the reference to the object.)
+
+
+
+What if I change the reference to this object to null? Does that mean that the object in the ArrayList now null too?
+No, since the content of the original reference was copied when added to the list. (Keep in mind that it is the reference that is copied, not the object.)	
