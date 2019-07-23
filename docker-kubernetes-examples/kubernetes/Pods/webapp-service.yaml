@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: fleetman-webapp
+
+spec:
+  # This defines which pods are going to be represented by this Service
+  # The service becomes a network endpoint for either other services
+  # or maybe external users to connect to (eg browser)
+  selector:
+    mykey: webapp
+    release: "0-5"
+
+  ports:
+    - name: http
+      port: 80
+      nodePort: 30080
+      #this is port number greater than 30000, and it is port of the Node where this cluster is present.
+
+  type: NodePort
+        #there are two types 1.ClusterIp other NodePort, when u want ur services to be acessed within the cluster then use clusterip.
+        #if you want ur services to be access from external world like browser then give NodePort- as it is webapp we are giving Nodeport.
+        #if it is internal microservice we would have given clusterip.
